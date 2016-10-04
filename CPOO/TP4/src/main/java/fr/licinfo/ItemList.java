@@ -6,22 +6,18 @@ import java.util.List;
 /**
  * Created by c16017548 on 04/10/16.
  */
-public class ItemList {
-    private List<String> items;
+public class ItemList<T> {
+    private List<T> items;
 
-    public ItemList() { items = new ArrayList<String>(); }
+    public ItemList() { items = new ArrayList<T>(); }
 
-    public void add(String item) { items.add(item); }
+    public void add(T item) { items.add(item); }
 
-    public void printHTML() {
-        System.out.print("<ul>");
-        for (String i : items) System.out.print("<li>"+i+"</li>");
-        System.out.print("</ul>");
-    }
-
-    public void printLaTeX() {
-        System.out.println("\\begin{itemize}");
-        for (String i : items) System.out.println("\\item "+i);
-        System.out.println("\\end{itemize}");
+    public void print(ListFormat f){
+        System.out.println(f.listStart());
+        for (T i : items){
+            System.out.println(f.itemStart() + i + f.itemEnd());
+        }
+        System.out.println(f.listEnd());
     }
 }
