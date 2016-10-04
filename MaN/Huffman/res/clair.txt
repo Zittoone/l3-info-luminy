@@ -1,0 +1,40 @@
+               if (liste.get(i + 1) instanceof HashMap) {
+                    HashMap<Character, Integer> obj2 = (HashMap<Character, Integer>) liste.get(i + 1);
+                    Map.Entry<Character, Integer> entry2 = obj2.entrySet().iterator().next();
+
+                    Arbre feuille2 = new Arbre(entry2.getValue(), null, null);
+                    feuille2.setLetter( entry2.getKey());
+                    Arbre noeud = new Arbre(feuille1.getVal() + feuille2.getVal(), feuille1, feuille2);
+
+                    liste = insertValueInSortedArray(liste, noeud);
+                } else { // donc on a un arbre
+                    Arbre a = (Arbre) liste.get(i + 1);
+                    Arbre noeud = new Arbre(feuille1.getVal() + a.getVal(), feuille1, a);
+                    liste = insertValueInSortedArray(liste, noeud);
+                }               if (liste.get(i + 1) instanceof HashMap) {
+                                     HashMap<Character, Integer> obj2 = (HashMap<Character, Integer>) liste.get(i + 1);
+                                     Map.Entry<Character, Integer> entry2 = obj2.entrySet().iterator().next();
+
+                                     Arbre feuille2 = new Arbre(entry2.getValue(), null, null);
+                                     feuille2.setLetter( entry2.getKey());
+                                     Arbre noeud = new Arbre(feuille1.getVal() + feuille2.getVal(), feuille1, feuille2);
+
+                                     liste = insertValueInSortedArray(liste, noeud);
+                                 } else { // donc on a un arbre
+                                     Arbre a = (Arbre) liste.get(i + 1);
+                                     Arbre noeud = new Arbre(feuille1.getVal() + a.getVal(), feuille1, a);
+                                     liste = insertValueInSortedArray(liste, noeud);
+                                 }               if (liste.get(i + 1) instanceof HashMap) {
+                                                      HashMap<Character, Integer> obj2 = (HashMap<Character, Integer>) liste.get(i + 1);
+                                                      Map.Entry<Character, Integer> entry2 = obj2.entrySet().iterator().next();
+
+                                                      Arbre feuille2 = new Arbre(entry2.getValue(), null, null);
+                                                      feuille2.setLetter( entry2.getKey());
+                                                      Arbre noeud = new Arbre(feuille1.getVal() + feuille2.getVal(), feuille1, feuille2);
+
+                                                      liste = insertValueInSortedArray(liste, noeud);
+                                                  } else { // donc on a un arbre
+                                                      Arbre a = (Arbre) liste.get(i + 1);
+                                                      Arbre noeud = new Arbre(feuille1.getVal() + a.getVal(), feuille1, a);
+                                                      liste = insertValueInSortedArray(liste, noeud);
+                                                  }
