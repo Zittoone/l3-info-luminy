@@ -1,20 +1,17 @@
 package com.luminy;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.TreeSet;
-
 /**
  * Created by c16017548 on 21/09/16.
  */
 public class PrefixTree<Value extends FamilyHashable> {
 
-    //private CuckooTable<SimpleHashableString, >
-
-    private Node<Value> root;
+    /**
+     * Racine
+     */
+    private Node<HashableString> root;
 
     public PrefixTree() {
-        this.root = new Node<Value>();
+        this.root = new Node<HashableString>();
     }
 
     public boolean isEmpty() {
@@ -22,36 +19,46 @@ public class PrefixTree<Value extends FamilyHashable> {
     }
 
     public boolean containsKey(String word) {
-        return false;
+        Node<HashableString> node = root;
+        for(int i = 0; i < word.length(); i++){
+            node = node.getChildren().get(node.getKey());
+            if(node == null) return false;
+        }
+        
+        return node.getWord() == null;
     }
 
     public Value get(String word) {
-        return null;
+        Node<HashableString> node = root;
+        for(int i = 0; i < word.length(); i++){
+            node = node.getChildren().get(node.getKey());
+            if(node == null) return null;
+        }
+
+        return node.getWord();
     }
 
     public void put(String key, Value value) {
-        CuckooTable<T, Node> children = root.children;
-
-        for(int i=0; i<word.length(); i++){
-            char c = word.charAt(i);
-
-            TrieNode t;
-            if(children.containsKey(c)){
-                t = children.get(c);
-            }else{
-                t = new TrieNode(c);
-                children.put(c, t);
+        Node<HashableString> node = root;
+        for(int i = 0; i < key.length(); i++){
+            // Si il n'y a pas la clé recherché on la créée
+            if(node.getChildren().get(node.getKey()) == null){
+                node.put();
             }
-
-            children = t.children;
-
-            //set leaf node
-            if(i==word.length()-1)
-                t.isLeaf = true;
+                // TODO: put key into value
+                node.put(new Node<>(new HashableString(key)));
+            node = node.getChildren().get(node.getKey());
         }
     }
 
     public void remove(String word) {
+        Node<HashableString> node = root;
+        for(int i = 0; i < word.length(); i++){
+            node = node.getChildren().get(node.getKey());
+            if(node == null) return;
+        }
+
+        node.setWord(null);
 
     }
 
@@ -59,26 +66,43 @@ public class PrefixTree<Value extends FamilyHashable> {
         return null;
     }
 
-    private class Node<T extends FamilyHashable> {
 
-        private T data;
-        private CuckooTable<T, Node> children = new CuckooTable<T, Node>();
-        private boolean isLeaf;
+    /**
+     * Classe interne Node
+     * @param <Key>
+     */
+    private class Node<Key extends FamilyHashable> {
+
+        private Key data;
+        private CuckooTable<Key, Node<Key>> children = null;
+        private Value word = null;
 
         public Node(){
             // The root
         }
 
-        public Node(T data){
+        public Node(Key data){
             this.data = data;
         }
 
-        public void put(Node<T> child){
-            this.children.put(child);
+        public void put(Node<Key> child) throws Exception {
+            this.children.put(this.data, child);
         }
 
-        public CuckooTable<T, Node> getChildren() {
+        public CuckooTable<Key, Node<Key>> getChildren() {
             return children;
+        }
+
+        public Key getKey() {
+            return data;
+        }
+
+        public Value getWord() {
+            return word;
+        }
+
+        public void setWord(Value word) {
+            this.word = word;
         }
         //public Node<T> get(T data)
     }

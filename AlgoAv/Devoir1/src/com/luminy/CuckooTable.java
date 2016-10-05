@@ -106,8 +106,8 @@ public class CuckooTable<Key extends FamilyHashable, Value> {
         return Math.abs((int) key.hashCode(seed) % table1.size());
     }
 
-    public PrefixTree<Value> get(Character c) {
+    /*public PrefixTree<Value> get(Character c) {
         return null;
-    }
+    }*/
 
 }
