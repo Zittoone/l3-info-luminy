@@ -207,4 +207,5 @@ Go to the Project 2 root, and in a terminal run : mvn install
 
 # AUTHOR #
 Couvreur Alexis
+
 Tosello Sebastien

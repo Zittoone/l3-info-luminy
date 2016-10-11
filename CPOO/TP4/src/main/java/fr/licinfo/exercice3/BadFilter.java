@@ -6,7 +6,7 @@ import java.util.List;
 /**
  * Created by c16017548 on 11/10/16.
  */
-class BadFilter {
+public class BadFilter {
     public enum Type {ODD, LEQ}
 
     private Type type;
