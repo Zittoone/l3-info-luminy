@@ -1,4 +1,4 @@
-package fr.licinfo;
+package fr.licinfo.exercice1;
 
 /**
  * Created by c16017548 on 04/10/16.

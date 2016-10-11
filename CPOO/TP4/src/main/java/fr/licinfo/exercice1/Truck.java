@@ -1,4 +1,4 @@
-package fr.licinfo;
+package fr.licinfo.exercice1;
 
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;

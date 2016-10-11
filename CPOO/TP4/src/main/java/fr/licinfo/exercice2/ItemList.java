@@ -1,4 +1,4 @@
-package fr.licinfo;
+package fr.licinfo.exercice2;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,10 +14,10 @@ public class ItemList<T> {
     public void add(T item) { items.add(item); }
 
     public void print(ListFormat f){
-        System.out.println(f.listStart());
+        System.out.print(f.listStart());
         for (T i : items){
-            System.out.println(f.itemStart() + i + f.itemEnd());
+            System.out.print(f.itemStart() + i + f.itemEnd());
         }
-        System.out.println(f.listEnd());
+        System.out.print(f.listEnd());
     }
 }

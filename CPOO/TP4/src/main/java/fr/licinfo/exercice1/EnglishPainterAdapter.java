@@ -1,4 +1,4 @@
-package fr.licinfo;
+package fr.licinfo.exercice1;
 
 import javafx.geometry.Point2D;
 import org.info.painter.EnglishPainter;
