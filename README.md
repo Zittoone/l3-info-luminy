@@ -1,6 +1,16 @@
 # README
 
-This is a personnal repository which help me synchronize my school projects with my home projects.
+This is a personnal repository which help us synchronize our school projects with our home projects.
+
+
+## MAVEN 
+If maven dependecies between inner projects fails, try to "mvn install" at the root of the dependency.
+
+Exemple : 
+```
+Project 1 had a dependency over Project 2 in the pom.xml but cannot retrieve it.
+Go to the Project 2 root, and in a terminal run : mvn install
+```
 
 ## STRUCTURE
 ```
@@ -197,3 +207,4 @@ This is a personnal repository which help me synchronize my school projects with
 
 # AUTHOR #
 Couvreur Alexis
+Tosello Sebastien
