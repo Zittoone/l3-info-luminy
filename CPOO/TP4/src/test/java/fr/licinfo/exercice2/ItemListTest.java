@@ -6,9 +6,6 @@ import static org.hamcrest.Matchers.equalTo;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 
-import fr.licinfo.exercice2.LatexFormat;
-import fr.licinfo.exercice2.HtmlFormat;
-import fr.licinfo.exercice2.ItemList;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
