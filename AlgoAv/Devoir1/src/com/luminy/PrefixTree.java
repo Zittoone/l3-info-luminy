@@ -3,15 +3,15 @@ package com.luminy;
 /**
  * Created by c16017548 on 21/09/16.
  */
-public class PrefixTree<Value extends FamilyHashable> {
+public class PrefixTree<Key extends  FamilyHashable, Value> {
 
     /**
      * Racine
      */
-    private Node<HashableString> root;
+    private Node<Key> root;
 
     public PrefixTree() {
-        this.root = new Node<HashableString>();
+        this.root = new Node<Key>();
     }
 
     public boolean isEmpty() {
@@ -19,7 +19,7 @@ public class PrefixTree<Value extends FamilyHashable> {
     }
 
     public boolean containsKey(String word) {
-        Node<HashableString> node = root;
+        Node<Key> node = root;
         for(int i = 0; i < word.length(); i++){
             node = node.getChildren().get(node.getKey());
             if(node == null) return false;
@@ -29,7 +29,7 @@ public class PrefixTree<Value extends FamilyHashable> {
     }
 
     public Value get(String word) {
-        Node<HashableString> node = root;
+        Node<Key> node = root;
         for(int i = 0; i < word.length(); i++){
             node = node.getChildren().get(node.getKey());
             if(node == null) return null;
@@ -38,21 +38,22 @@ public class PrefixTree<Value extends FamilyHashable> {
         return node.getWord();
     }
 
-    public void put(String key, Value value) {
-        Node<HashableString> node = root;
-        for(int i = 0; i < key.length(); i++){
+    public void put(String word, Value value) {
+        Node<Key> node = root;
+        for(int i = 0; i < word.length(); i++){
             // Si il n'y a pas la clé recherché on la créée
-            if(node.getChildren().get(node.getKey()) == null){
-                node.put();
+            Key currKey = (Key) new HashableString(Character.toString(word.charAt(i)));
+            System.out.println(currKey.toString());
+            if(node.isEmpty() || !node.containsKey(currKey)){
+                node.put(new Node<Key>(currKey));
             }
-                // TODO: put key into value
-                node.put(new Node<>(new HashableString(key)));
             node = node.getChildren().get(node.getKey());
         }
+        node.setWord(value);
     }
 
     public void remove(String word) {
-        Node<HashableString> node = root;
+        Node<Key> node = root;
         for(int i = 0; i < word.length(); i++){
             node = node.getChildren().get(node.getKey());
             if(node == null) return;
@@ -62,7 +63,7 @@ public class PrefixTree<Value extends FamilyHashable> {
 
     }
 
-    public PrefixTree<Value> get(Character c) {
+    public PrefixTree<Key, Value> get(Character c) {
         return null;
     }
 
@@ -74,7 +75,7 @@ public class PrefixTree<Value extends FamilyHashable> {
     private class Node<Key extends FamilyHashable> {
 
         private Key data;
-        private CuckooTable<Key, Node<Key>> children = null;
+        private CuckooTable<Key, Node<Key>> children = new CuckooTable<Key, Node<Key>>(10);
         private Value word = null;
 
         public Node(){
@@ -85,8 +86,12 @@ public class PrefixTree<Value extends FamilyHashable> {
             this.data = data;
         }
 
-        public void put(Node<Key> child) throws Exception {
-            this.children.put(this.data, child);
+        public void put(Node<Key> child) {
+            try {
+                this.children.put(this.data, child);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
 
         public CuckooTable<Key, Node<Key>> getChildren() {
@@ -103,6 +108,14 @@ public class PrefixTree<Value extends FamilyHashable> {
 
         public void setWord(Value word) {
             this.word = word;
+        }
+
+        public boolean isEmpty(){
+            return children.isEmpty();
+        }
+
+        public boolean containsKey(Key key){
+            return children.containsKey(key);
         }
         //public Node<T> get(T data)
     }
