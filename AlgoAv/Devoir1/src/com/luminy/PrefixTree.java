@@ -25,7 +25,7 @@ public class PrefixTree<Key extends  FamilyHashable, Value> {
             if(node == null) return false;
         }
         
-        return node.getWord() == null;
+        return node.getWord() != null;
     }
 
     public Value get(String word) {
@@ -43,7 +43,6 @@ public class PrefixTree<Key extends  FamilyHashable, Value> {
         for(int i = 0; i < word.length(); i++){
             // Si il n'y a pas la clé recherché on la créée
             Key currKey = (Key) new HashableString(Character.toString(word.charAt(i)));
-            System.out.println(currKey.toString());
             if(node.isEmpty() || !node.containsKey(currKey)){
                 node.put(new Node<Key>(currKey));
             }
@@ -74,7 +73,7 @@ public class PrefixTree<Key extends  FamilyHashable, Value> {
      */
     private class Node<Key extends FamilyHashable> {
 
-        private Key data;
+        private Key data = (Key) new HashableString("");
         private CuckooTable<Key, Node<Key>> children = new CuckooTable<Key, Node<Key>>(10);
         private Value word = null;
 

@@ -21,10 +21,8 @@ public class CuckooTable<Key extends FamilyHashable, Value> {
         this.table1 = new Vector<Pair<Key, Value>>(expectedKeys);
         this.table2 = new Vector<Pair<Key, Value>>(expectedKeys);
 
-        for (int i = 0; i < expectedKeys; i++) {
-            table1.add(i, null);
-            table2.add(i, null);
-        }
+        table1.setSize(expectedKeys);
+        table2.setSize(expectedKeys);
     }
 
     public boolean isEmpty() {
@@ -32,7 +30,8 @@ public class CuckooTable<Key extends FamilyHashable, Value> {
     }
 
     public boolean containsKey(Key key) {
-        return table1.contains(key) || table2.contains(key);
+        return (table1.get(getIndex(key, h1)) != null && table1.get(getIndex(key, h1)).getKey().equals(key))
+                || (table2.get(getIndex(key, h2)) != null && table2.get(getIndex(key, h2)).getKey().equals(key));
     }
 
     public Value get(Key key) {
@@ -41,14 +40,14 @@ public class CuckooTable<Key extends FamilyHashable, Value> {
 
             if (table1.get(getIndex(key, h1)) != null) {
                 Key k1 = table1.get(getIndex(key, h1)).getKey();
-                if (key == k1) {
+                if (key.equals(k1)) {
                     return table1.get(getIndex(k1, h1)).getValue();
                 }
             }
 
             if (table2.get(getIndex(key, h2)) != null) {
                 Key k2 = table2.get(getIndex(key, h2)).getKey();
-                if (key == k2) {
+                if (key.equals(k2)) {
                     return table2.get(getIndex(k2, h2)).getValue();
                 }
             }
@@ -71,6 +70,10 @@ public class CuckooTable<Key extends FamilyHashable, Value> {
             throw new Exception("Echec");
         else {
             if (table1.get(getIndex(key, h1)) != null) {
+                if(table1.get(getIndex(key, h1)).getKey().equals(key)){
+                    table1.set(getIndex(key, h1), new Pair<>(key, value));
+                    return;
+                }
                 Pair<Key, Value> moved_key = table1.get(getIndex(key, h1));
                 table1.set(getIndex(key, h1), new Pair<>(key, value));
                 counter++;
