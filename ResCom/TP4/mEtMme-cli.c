@@ -81,7 +81,7 @@ int create_service_pipes(Client *param){
 int contact_with_server(Client *param){
   char msg[200];
 
-  sprintf(msg, "%s __ %s", param->pipe_to_server_name, param->pipe_from_server_name);
+  sprintf(msg, "%s %s", param->pipe_to_server_name, param->pipe_from_server_name);
 
   param->listen_pipe = open(param->listen_pipe_name, O_WRONLY);
 
@@ -96,6 +96,7 @@ int contact_with_server(Client *param){
 }
 
 int open_services_pipe(Client *param){
+
   param->pipe_to_server = open(param->pipe_to_server_name, O_WRONLY);
 
   if(param->pipe_to_server < 0)
