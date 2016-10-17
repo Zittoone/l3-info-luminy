@@ -1,9 +1,10 @@
-#include "../Util/bor-util.h"
+#include "bor-util.h"
 
 
 void check_nbr_of_params(int);
 void handle(int);
-//void close_descripteurs(int &descripteurs**, int, int);
+void handleSP(int);
+void handleSC(int);
 
 size_t global_nbr_char_read = 0;
 
@@ -12,33 +13,30 @@ int main(int argc, char* argv[]) {
   check_nbr_of_params(argc);
 
   int bufsize = atoi(argv[1]);
-  int ntubes = atoi(argv[2]);
-
   char* s = malloc(sizeof(char) * bufsize);
-
-  fd_set descripteurs_in;
-  fd_set descripteurs_out;
-
-  FD_ZERO(&descripteurs_in);
-  FD_ZERO(&descripteurs_out);
 
   int descripteurs[ntubes][2];
 
   for(int i = 0; i < ntubes; i++){
-    pipe(descripteurs[i]);
-
-    FD_SET(descripteurs[i][0], &descripteurs_in);
-    FD_SET(descripteurs[i][1], &descripteurs_out);
+    if(pipe(descripteurs[i] < 0)){
+      perror("pipe error");
+      exit(-1);
+    }
   }
-
 
   int r = fork();
 
+  //bor_signal(SIGPIPE, handleSP, 0);
+
+  /* SIGPIPE n'est jamais appelé ici.
+   * Le père n'écrit que dans son déscripteur,
+   * et le fils ne fait que "read" le descripteur du père,
+   * ce qui ne déclanche pas SIGPIPE
+   */
+
   // Fils
   if(r == 0){
-
     char messageLu[bufsize];
-    int res = 1;
 
     // On met un handler sur SIGALRM
     bor_signal(SIGALRM, handle, SA_RESTART);
@@ -46,91 +44,28 @@ int main(int argc, char* argv[]) {
     // On appel "alarm" une fois
     alarm(1);
 
+    fd_set set;
+
     //Boucle infinie
-    while(res){
-      char messageLu[bufsize];
-
-      res = select(descripteurs[ntubes-1][0] + 1, &descripteurs_in, NULL, NULL, NULL);
-      if(res < 0 && errno == EINTR){
-        res = 1;
-        break;
-      }
-      if(res < 0){
-        res = 0;
-        break;
-      }
-
+    while(1){
+      FD_ZERO(&set);
       for(int i = 0; i < ntubes; i++){
-        if(FD_ISSET(descripteurs[i][0], &descripteurs_out)){
-          global_nbr_char_read += read(descripteurs[0], messageLu, bufsize);
-        }
+        FD_SET(descripteurs[i][0], &set);
       }
+      int res = select(descripteurs[ntubes - 1][0] + 1, &set, NULL, NULL, NULL);
+      global_nbr_char_read += read(descripteur[0], messageLu, bufsize);
     }
-    //close_descripteurs(descripteurs, 0, ntubes);
     exit(0);
-
   }
 
   // Suite père
-  int res = 1;
-  while(res){
-    int res = select(descripteurs[ntubes-1][1] + 1, &descripteurs_out, NULL, NULL, NULL);
-    if(res < 0 && errno == EINTR){
-      res = 1;
-      break;
-    }
-    if(res < 0){
-      res = 0;
-      break;
-    }
 
-    for(int i = 0; i < ntubes; i++){
-      if(FD_ISSET(descripteurs[i][1], &descripteurs_out)){
-        /*return*/ bor_write(descripteurs[i][1], s, bufsize);
-      }
-    }
+  bor_signal(SIGCHLD, handleSC, 0);
+  //Boucle infinie du père
+  while(1){
+    write(descripteur[1], s, bufsize);
   }
-  //close_descripteurs(descripteurs, 1, ntubes);
-
-  exit(0);
 }
-/*
-int process_parent(int descripteurs[][], fd_set descripteurs_out, int size){
-  int res = select(descripteurs[size-1][1] + 1, &descripteurs_out, NULL, NULL, NULL);
-  if(res < 0 && errno == EINTR){
-    return 1;
-  }
-  if(res < 0){
-    return 0;
-  }
-
-  for(int i = 0; i < ntubes; i++){
-    if(FD_ISSET(descripteurs[i][1], &descripteurs_out)){
-      bor_write(descripteurs[i][1], s, bufsize);
-    }
-  }
-  return res;
-}
-*/
-/*
-int process_child(int descripteurs[][], fd_set descripteurs_out, int size){
-  char messageLu[bufsize];
-
-  int res = select(descripteurs[size-1][0] + 1, &descripteurs_in, NULL, NULL, NULL);
-  if(res < 0 && errno == EINTR){
-    return 1;
-  }
-  if(res < 0){
-    return 0;
-  }
-
-  for(int i = 0; i < ntubes; i++){
-    if(FD_ISSET(descripteurs[i][0], &descripteurs_out)){
-      global_nbr_char_read += read(descripteurs[0], messageLu, bufsize);
-    }
-  }
-  return res;
-}*/
 
 void check_nbr_of_params(int argc){
   if(argc != 3){
@@ -157,10 +92,21 @@ void handle(int sig){
   // On appel "alarm" à nouveau
   alarm(1);
 }
-/*
-void close_descripteurs(int &descripteurs[][], int descripteur, int taille){
-  for(int i = 0; i < taille; i++){
-    close(descripteurs[i][descripteur]);
-  }
+
+void handleSP(int sig){
+  printf("Broken pipe. (%d)\n", sig);
+  exit(-1);
 }
-*/
+
+void handleSC(int sig){
+  printf("Fils killed. (%d)\n", sig);
+  exit(-1);
+}
+
+void process_parent(){
+
+}
+
+void process_child(){
+
+}
