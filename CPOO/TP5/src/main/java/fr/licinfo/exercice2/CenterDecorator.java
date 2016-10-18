@@ -17,7 +17,17 @@ public class CenterDecorator extends Decorator {
 
     @Override
     protected void drawDecoration(GraphicsContext graphicsContext) {
+        Point2D center;
 
+        double x = 0, y = 0;
+        for(int i = 0; i < decoratedShape.pointsCount(); i++){
+            x+=decoratedShape.point(i).getX();
+            y+=decoratedShape.point(i).getY();
+        }
+
+        center = new Point2D(x / decoratedShape.pointsCount(), y / decoratedShape.pointsCount());
+
+        graphicsContext.strokeOval(center.getX() - radius, center.getY() - radius, radius*2, radius*2);
     }
 
 }

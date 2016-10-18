@@ -19,6 +19,8 @@ public class Polygon extends AbstractShape {
     @Override
     public void draw(GraphicsContext graphicsContext) {
 
+        graphicsContext.setFill(color);
+
         int n = pointsCount();
         double[] xs = new double[n],
                  ys = new double[n];
@@ -29,6 +31,6 @@ public class Polygon extends AbstractShape {
         }
 
         graphicsContext.fillPolygon(xs, ys, n);
-        graphicsContext.setFill(color);
+
     }
 }

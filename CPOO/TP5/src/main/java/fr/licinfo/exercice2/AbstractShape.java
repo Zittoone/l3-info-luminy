@@ -3,6 +3,7 @@ package fr.licinfo.exercice2;
 import javafx.geometry.Point2D;
 import javafx.scene.canvas.GraphicsContext;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -11,6 +12,10 @@ import java.util.List;
 public abstract class AbstractShape implements Shape{
 
     private List<Point2D> points;
+
+    public AbstractShape() {
+        this.points = new ArrayList<Point2D>();
+    }
 
     public void addPoints(Point2D... points){
         for (Point2D point : points) {

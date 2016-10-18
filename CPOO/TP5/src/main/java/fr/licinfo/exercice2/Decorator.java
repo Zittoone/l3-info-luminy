@@ -8,7 +8,7 @@ import javafx.scene.canvas.GraphicsContext;
  */
 public abstract class Decorator implements Shape {
 
-    private Shape decoratedShape;
+    protected Shape decoratedShape;
 
     public Decorator(Shape decoratedShape){
         this.decoratedShape = decoratedShape;
