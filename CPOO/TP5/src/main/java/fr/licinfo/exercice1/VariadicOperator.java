@@ -3,7 +3,7 @@ package fr.licinfo.exercice1;
 /**
  * Created by c16017548 on 27/09/16.
  */
-public abstract class VariadicOperator implements Formula{
+public class VariadicOperator implements Formula{
 
     private Operator operator;
     private Formula[] formulas;
