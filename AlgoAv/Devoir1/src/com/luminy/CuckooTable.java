@@ -12,12 +12,16 @@ public class CuckooTable<Key extends FamilyHashable, Value> {
     private Vector<Pair<Key, Value>> table1;
     private Vector<Pair<Key, Value>> table2;
 
+    private int nbelement;
+
     private static final int h1 = 31;
     private static final int h2 = 78;
 
     private static final int max_iteration = 5;
 
     public CuckooTable(int expectedKeys) {
+        nbelement = 0;
+
         this.table1 = new Vector<Pair<Key, Value>>(expectedKeys);
         this.table2 = new Vector<Pair<Key, Value>>(expectedKeys);
 
@@ -26,10 +30,15 @@ public class CuckooTable<Key extends FamilyHashable, Value> {
     }
 
     public boolean isEmpty() {
-        return table1.isEmpty() && table2.isEmpty();
+        return this.nbelement == 0;
     }
 
     public boolean containsKey(Key key) {
+
+        System.out.println("\n-Containskey : expected -> " + key.toString());
+        System.out.println("ref: " + this);
+        System.out.println("Table1 1 : " + table1.get(getIndex(key, h1)));
+        System.out.println("Table1 2 : " + table2.get(getIndex(key, h2)));
         return (table1.get(getIndex(key, h1)) != null && table1.get(getIndex(key, h1)).getKey().equals(key))
                 || (table2.get(getIndex(key, h2)) != null && table2.get(getIndex(key, h2)).getKey().equals(key));
     }
@@ -62,6 +71,7 @@ public class CuckooTable<Key extends FamilyHashable, Value> {
 
     public void put(Key key, Value value) throws Exception {
         int counter = 0;
+        nbelement++;
         putT1(key, value, counter);
     }
 
@@ -98,11 +108,16 @@ public class CuckooTable<Key extends FamilyHashable, Value> {
     }
 
     public void remove(Key key) {
-        if (table1.contains(key))
+        if (table1.contains(key)){
             table1.remove(key);
+            nbelement--;
+        }
 
-        else if (table2.contains(key))
+
+        else if (table2.contains(key)){
             table2.remove(key);
+            nbelement--;
+        }
     }
 
     private int getIndex(Key key, int seed) {

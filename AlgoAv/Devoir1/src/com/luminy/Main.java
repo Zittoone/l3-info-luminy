@@ -34,10 +34,13 @@ public class Main {
         System.out.println("bananes2: " + coucouTable.get(bananes2));
         System.out.println("laits: " + coucouTable.get(laits));
 
-        PrefixTree<HashableString, String> pt = new PrefixTree<>();
+
+
+        PrefixTree<String> pt = new PrefixTree<>();
 
         pt.put("bonjour", "hello");
         pt.put("bonjour", "hello2");
+        //pt.put("salut", "yo man");
 
         System.out.println("get('bonjour') : " + pt.get("bonjour"));
         System.out.println("containsKey('bonjour') : " + pt.containsKey("bonjour"));
@@ -45,5 +48,21 @@ public class Main {
         pt.remove("bonjour");
 
         System.out.println("get('bonjour') : " + pt.get("bonjour"));
+
+/*
+        PrefixTree<HashableString, Integer> prefixTree = new PrefixTree<HashableString, Integer>();
+        prefixTree.put("bon", 1);
+        prefixTree.put("bonjour", 1);
+        //prefixTree.put("chocolat", 1);
+        //prefixTree.put("fille", 1);
+        //prefixTree.put("fillette", 1);
+        //prefixTree.remove("bon");
+        //System.out.println(prefixTree.containsKey("bonjour") + " -> should be true");
+        //prefixTree.remove("chocolat");
+        //System.out.println(prefixTree.containsKey("chocolat") + " -> should be false");
+        //prefixTree.remove("fillette");
+        System.out.println(prefixTree.containsKey("fillette") + " -> should be false");
+        //System.out.println(prefixTree.containsKey("fille") + " -> should be true");
+*/
     }
 }

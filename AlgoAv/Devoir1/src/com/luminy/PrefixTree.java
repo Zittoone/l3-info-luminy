@@ -3,15 +3,15 @@ package com.luminy;
 /**
  * Created by c16017548 on 21/09/16.
  */
-public class PrefixTree<Key extends  FamilyHashable, Value> {
+public class PrefixTree<Value> {
 
     /**
      * Racine
      */
-    private Node<Key> root;
+    private Node root;
 
     public PrefixTree() {
-        this.root = new Node<Key>();
+        this.root = new Node();
     }
 
     public boolean isEmpty() {
@@ -19,7 +19,7 @@ public class PrefixTree<Key extends  FamilyHashable, Value> {
     }
 
     public boolean containsKey(String word) {
-        Node<Key> node = root;
+        Node node = root;
         for(int i = 0; i < word.length(); i++){
             node = node.getChildren().get(node.getKey());
             if(node == null) return false;
@@ -29,7 +29,7 @@ public class PrefixTree<Key extends  FamilyHashable, Value> {
     }
 
     public Value get(String word) {
-        Node<Key> node = root;
+        Node node = root;
         for(int i = 0; i < word.length(); i++){
             node = node.getChildren().get(node.getKey());
             if(node == null) return null;
@@ -39,20 +39,26 @@ public class PrefixTree<Key extends  FamilyHashable, Value> {
     }
 
     public void put(String word, Value value) {
-        Node<Key> node = root;
+        Node node = root;
+        System.out.println("\n--Ajout de " + word);
         for(int i = 0; i < word.length(); i++){
             // Si il n'y a pas la clé recherché on la créée
-            Key currKey = (Key) new HashableString(Character.toString(word.charAt(i)));
+            HashableString currKey = new HashableString(Character.toString(word.charAt(i)));
+            System.out.println("currKey->" + currKey);
+            System.out.println("isEmpty->" + node.isEmpty());
+            System.out.println("containsKey(" + currKey + ")->" + node.containsKey(currKey));
             if(node.isEmpty() || !node.containsKey(currKey)){
-                node.put(new Node<Key>(currKey));
+                System.out.println("Création de " + currKey);
+                node.put(new Node(currKey));
             }
+
             node = node.getChildren().get(node.getKey());
         }
         node.setWord(value);
     }
 
     public void remove(String word) {
-        Node<Key> node = root;
+        Node node = root;
         for(int i = 0; i < word.length(); i++){
             node = node.getChildren().get(node.getKey());
             if(node == null) return;
@@ -62,30 +68,29 @@ public class PrefixTree<Key extends  FamilyHashable, Value> {
 
     }
 
-    public PrefixTree<Key, Value> get(Character c) {
+    public PrefixTree<Value> get(Character c) {
         return null;
     }
 
 
     /**
      * Classe interne Node
-     * @param <Key>
      */
-    private class Node<Key extends FamilyHashable> {
+    private class Node {
 
-        private Key data = (Key) new HashableString("");
-        private CuckooTable<Key, Node<Key>> children = new CuckooTable<Key, Node<Key>>(10);
+        private HashableString data;
+        private CuckooTable<HashableString, Node> children = new CuckooTable<HashableString, Node>(100);
         private Value word = null;
 
         public Node(){
-            // The root
+            this.data = new HashableString("");
         }
 
-        public Node(Key data){
+        public Node(HashableString data){
             this.data = data;
         }
 
-        public void put(Node<Key> child) {
+        public void put(Node child) {
             try {
                 this.children.put(this.data, child);
             } catch (Exception e) {
@@ -93,11 +98,11 @@ public class PrefixTree<Key extends  FamilyHashable, Value> {
             }
         }
 
-        public CuckooTable<Key, Node<Key>> getChildren() {
+        public CuckooTable<HashableString, Node> getChildren() {
             return children;
         }
 
-        public Key getKey() {
+        public HashableString getKey() {
             return data;
         }
 
@@ -113,9 +118,8 @@ public class PrefixTree<Key extends  FamilyHashable, Value> {
             return children.isEmpty();
         }
 
-        public boolean containsKey(Key key){
+        public boolean containsKey(HashableString key){
             return children.containsKey(key);
         }
-        //public Node<T> get(T data)
     }
 }

@@ -45,4 +45,8 @@ public class HashableString implements FamilyHashable {
         HashableString oAsHashString = (HashableString) o;
         return this.string.equals(oAsHashString.string);
     }
+
+    public String toString(){
+        return this.string;
+    }
 }
