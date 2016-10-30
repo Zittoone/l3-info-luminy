@@ -1,10 +1,8 @@
 import javafx.util.Pair;
+import javafx.util.converter.IntegerStringConverter;
 
 import java.security.Key;
-import java.util.Collection;
-import java.util.Map;
-import java.util.Set;
-import java.util.Vector;
+import java.util.*;
 
 /**
  * Created by sebastientosello on 30/10/2016.
@@ -179,23 +177,56 @@ public class CuckooMap<Key extends FamilyHashable, Value> implements Map<Key, Va
     }
 
     public void putAll(Map<? extends Key, ? extends Value> m) {
-
+        for (Entry<? extends Key, ? extends Value> entry : m.entrySet()) {
+            put(entry.getKey(), entry.getValue());
+        }
     }
 
     public void clear() {
-
+        table1.clear();
+        table2.clear();
     }
 
     public Set<Key> keySet() {
-        return null;
+        Set<Key> set = new HashSet<Key>();
+
+        for (Pair<Key, Value> vec : table1) {
+            set.add(vec.getKey());
+        }
+
+        for (Pair<Key, Value> vec : table2) {
+            set.add(vec.getKey());
+        }
+
+        return set;
     }
 
     public Collection<Value> values() {
-        return null;
+        Collection<Value> col = new HashSet<Value>();
+
+        for (Pair<Key, Value> vec : table1) {
+            col.add(vec.getValue());
+        }
+
+        for (Pair<Key, Value> vec : table2) {
+            col.add(vec.getValue());
+        }
+
+        return col;
     }
 
     public Set<Entry<Key, Value>> entrySet() {
-        return null;
+        Set<Entry<Key, Value>> set = new HashSet<Entry<Key, Value>>();
+
+        for (Pair<Key, Value> vec : table1) {
+            set.add(new AbstractMap.SimpleEntry<Key, Value>(vec.getKey(), vec.getValue()));
+        }
+
+        for (Pair<Key, Value> vec : table2) {
+            set.add(new AbstractMap.SimpleEntry<Key, Value>(vec.getKey(), vec.getValue()));
+        }
+
+        return set;
     }
 
     private int getIndex(Key key, int seed) {
