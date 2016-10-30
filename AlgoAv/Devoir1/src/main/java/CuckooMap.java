@@ -84,65 +84,98 @@ public class CuckooMap<Key extends FamilyHashable, Value> implements Map<Key, Va
         size++;
 
         try {
-            putT1(key, value, counter);
+            return putT1(key, value, counter);
         } catch (Exception e) {
             e.printStackTrace();
         }
+        return null;
     }
 
-    private void putT1(Key key, Value value, int counter) throws Exception {
+    private Value putT1(Key key, Value value, int counter) throws Exception {
         if (counter > MAX_ITERATION)
             throw new Exception("Echec");
         else {
+            // Variable temporaire pointant sur la valeur de la case
+            // renvoyant soit null, soit l'ancienne valeur
+            Pair<Key, Value> pair = table1.get(getIndex(key, h1));
+
             // Déjà occupé
-            if (table1.get(getIndex(key, h1)) != null) {
-                if(table1.get(getIndex(key, h1)).getKey().equals(key)){
+            if (pair != null) {
+
+                // S'il s'agit de la même clé, on remplace
+                if(pair.getKey().equals(key)){
                     table1.set(getIndex(key, h1), new Pair<Key, Value>(key, value));
-                    return;
                 }
-                Pair<Key, Value> moved_key = table1.get(getIndex(key, h1));
-                table1.set(getIndex(key, h1), new Pair<Key, Value>(key, value));
-                counter++;
-                putT2(moved_key.getKey(), moved_key.getValue(), counter);
+
+                // Sinon, on déplace la Pair clé - valeur
+                else {
+                    table1.set(getIndex(key, h1), new Pair<Key, Value>(key, value));
+                    counter++;
+
+                    // On met dans le vector T2 la clé et la valeur
+                    putT2(pair.getKey(), pair.getValue(), counter);
+                }
             }
+
             // Non occupé
             else {
                 table1.set(getIndex(key, h1), new Pair<Key, Value>(key, value));
+                return null;
             }
+
+            // pair n'est pas égal à null ici
+            return pair.getValue();
         }
     }
 
-    private void putT2(Key key, Value value, int counter) throws Exception {
+    private Value putT2(Key key, Value value, int counter) throws Exception {
 
-        if (table2.get(getIndex(key, h2)) != null) {
-            Pair<Key, Value> moved_key = table2.get(getIndex(key, h2));
+        // Variable temporaire pointant sur la valeur de la case
+        // renvoyant soit null, soit l'ancienne valeur
+        Pair<Key, Value> pair = table2.get(getIndex(key, h2));
+
+        // Déjà occupé
+        if (pair != null) {
             table2.set(getIndex(key, h2), new Pair<Key, Value>(key, value));
             counter++;
-            putT1(moved_key.getKey(), moved_key.getValue(), counter);
+            putT1(pair.getKey(), pair.getValue(), counter);
         }
+
+        // Non occupé
         else {
             table2.set(getIndex(key, h2), new Pair<Key, Value>(key, value));
+            return null;
         }
+        // pair n'est pas égal à null ici
+        return pair.getValue();
     }
 
     public Value remove(Object key) {
         Key mKey = (Key) key;
+        Value prevValue = null;
 
-        if (table1.get(getIndex(mKey, h1)) != null) {
-            Key k1 = table1.get(getIndex(mKey, h1)).getKey();
+        Pair<Key, Value> tempPair;
+
+        tempPair = table1.get(getIndex(mKey, h1));
+        if (tempPair != null) {
+            Key k1 = tempPair.getKey();
             if (mKey.equals(k1)) {
+                prevValue = tempPair.getValue();
                 table1.set(getIndex(k1, h1), null);
                 size--;
             }
         }
 
-        if (table2.get(getIndex(mKey, h2)) != null) {
-            Key k2 = table2.get(getIndex(mKey, h2)).getKey();
+        tempPair = table2.get(getIndex(mKey, h2));
+        if (tempPair != null) {
+            Key k2 = tempPair.getKey();
             if (mKey.equals(k2)) {
+                prevValue = tempPair.getValue();
                 table2.set(getIndex(k2, h2), null);
                 size--;
             }
         }
+        return prevValue;
     }
 
     public void putAll(Map<? extends Key, ? extends Value> m) {

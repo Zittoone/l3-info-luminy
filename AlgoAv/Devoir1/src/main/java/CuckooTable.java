@@ -1,10 +1,10 @@
 import javafx.util.Pair;
 
-import java.util.Iterator;
-import java.util.Vector;
+import java.util.*;
 
 /**
  * Created by c16017548 on 21/09/16.
+ * Cette classe implémente Itérable, pour l'implémentation Map voir "CuckooMap"
  */
 public class CuckooTable<Key extends FamilyHashable, Value> implements Iterable {
 
