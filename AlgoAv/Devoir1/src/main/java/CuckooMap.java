@@ -48,7 +48,7 @@ public class CuckooMap<Key extends FamilyHashable, Value> implements Map<Key, Va
     }
 
     public boolean containsValue(Object value) {
-        return false;
+        return this.values().contains(value);
     }
 
     public Value get(Object key) {
@@ -79,7 +79,6 @@ public class CuckooMap<Key extends FamilyHashable, Value> implements Map<Key, Va
 
     public Value put(Key key, Value value) {
         int counter = 0;
-        size++;
 
         try {
             return putT1(key, value, counter);
@@ -118,6 +117,7 @@ public class CuckooMap<Key extends FamilyHashable, Value> implements Map<Key, Va
             // Non occupé
             else {
                 table1.set(getIndex(key, h1), new Pair<Key, Value>(key, value));
+                size++;
                 return null;
             }
 
@@ -142,6 +142,7 @@ public class CuckooMap<Key extends FamilyHashable, Value> implements Map<Key, Va
         // Non occupé
         else {
             table2.set(getIndex(key, h2), new Pair<Key, Value>(key, value));
+            size++;
             return null;
         }
         // pair n'est pas égal à null ici
@@ -185,17 +186,20 @@ public class CuckooMap<Key extends FamilyHashable, Value> implements Map<Key, Va
     public void clear() {
         table1.clear();
         table2.clear();
+        size = 0;
     }
 
     public Set<Key> keySet() {
         Set<Key> set = new HashSet<Key>();
 
         for (Pair<Key, Value> vec : table1) {
-            set.add(vec.getKey());
+            if(vec != null)
+                set.add(vec.getKey());
         }
 
         for (Pair<Key, Value> vec : table2) {
-            set.add(vec.getKey());
+            if(vec != null)
+                set.add(vec.getKey());
         }
 
         return set;
@@ -205,11 +209,13 @@ public class CuckooMap<Key extends FamilyHashable, Value> implements Map<Key, Va
         Collection<Value> col = new HashSet<Value>();
 
         for (Pair<Key, Value> vec : table1) {
-            col.add(vec.getValue());
+            if(vec != null)
+                col.add(vec.getValue());
         }
 
         for (Pair<Key, Value> vec : table2) {
-            col.add(vec.getValue());
+            if(vec != null)
+                col.add(vec.getValue());
         }
 
         return col;
@@ -219,11 +225,13 @@ public class CuckooMap<Key extends FamilyHashable, Value> implements Map<Key, Va
         Set<Entry<Key, Value>> set = new HashSet<Entry<Key, Value>>();
 
         for (Pair<Key, Value> vec : table1) {
-            set.add(new AbstractMap.SimpleEntry<Key, Value>(vec.getKey(), vec.getValue()));
+            if(vec != null)
+                set.add(new AbstractMap.SimpleEntry<Key, Value>(vec.getKey(), vec.getValue()));
         }
 
         for (Pair<Key, Value> vec : table2) {
-            set.add(new AbstractMap.SimpleEntry<Key, Value>(vec.getKey(), vec.getValue()));
+            if(vec != null)
+                set.add(new AbstractMap.SimpleEntry<Key, Value>(vec.getKey(), vec.getValue()));
         }
 
         return set;
