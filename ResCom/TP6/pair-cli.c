@@ -22,7 +22,7 @@ int main(int argc, char* argv[])
 
   printf("Connexion en cours...\n");
 
-  if(bor_connect_un (socket, &local) == -1){
+  if(bor_connect_un (socket, &server) == -1){
     printf("Erreur de connextion.");
     goto end;
   }
@@ -36,13 +36,15 @@ int main(int argc, char* argv[])
   while(printf("> "), fgets(str, 100, stdin), !feof(stdin)) {
 
       // Vérification de ^D
-      if(bor_read_str(0, NULL, 100) == 0)
-        goto end;
+      /*if(bor_read_str(0, NULL, 100) == 0)
+        goto end;*/
 
       // Envoie du message
       if (bor_sendto_un_str(socket, str, &server) == -1) {
           goto end;
       }
+
+      printf("Envoyé\n");
 
       // Récéption de la réponse
       if ((t=bor_recvfrom_un_str(socket, str, 100, &server)) > 0) {
@@ -51,6 +53,8 @@ int main(int argc, char* argv[])
           if (t == 0) printf("Connexion au serveur interromput.\n");
           goto end;
       }
+
+      printf("Reçu\n");
   }
 
   end:

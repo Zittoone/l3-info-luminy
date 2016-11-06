@@ -1,16 +1,24 @@
 #include "bor-util.h"
 
 void process_child(int, struct sockaddr_un*);
+void handle(int);
+
+// Variables blobales pour que le handler agisse dessus
+char* SOCK_PATH = "pair_socket_ser";
+int socket_fd_serv;
 
 int main(int argc, char* argv[])
 {
-  char* SOCK_PATH = "pair_socket_ser";
+
 
   if(argc > 1){
     SOCK_PATH = argv[1];
   }
 
-	int socket_fd_serv, socket_fd_cli;
+  // Handler sur le ^C
+  bor_signal(SIGINT, handle, 0);
+
+	int socket_fd_cli;
 
 	struct sockaddr_un local, remote;
 
@@ -55,6 +63,8 @@ void process_child(int socket_fd_cli, struct sockaddr_un *remote){
     if(bor_recvfrom_un_str(socket_fd_cli, str_from_client, 100, remote) <= 0)
       break;
 
+      printf("Reçu\n");
+
       digits = atoi(str_from_client);
       if(digits%2 == 0){
         // La chaine prend la valeur du digit
@@ -68,8 +78,13 @@ void process_child(int socket_fd_cli, struct sockaddr_un *remote){
         break;
     }
 
-
   }
 
+  exit(1);
+}
+
+void handle(int sig){
+  close(socket_fd_serv);
+  unlink(SOCK_PATH);
   exit(1);
 }
