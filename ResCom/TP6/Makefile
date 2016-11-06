@@ -14,7 +14,7 @@ LIBS   =
 EXECS =
 
 # pour compiler avec bor-util.c
-EXECSUTIL = date-ser date-cli nhello-cli nhello-ser
+EXECSUTIL = pair-cli pair-ser
 
 # pour compiler avec bor-util.c et bor-timer.c
 EXECSTIMER =

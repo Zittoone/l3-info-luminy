@@ -19,8 +19,9 @@ public class Rectangle implements Shape {
 
     @Override
     public void paint(GraphicsContext graphicsContext) {
-        graphicsContext.setFill(new Color(0.228, 0.139, 0.139, 0.4));
+        graphicsContext.setFill(Color.rgb(200,0,0,0.5));
         graphicsContext.fillRect(x, y, width, height);
+        graphicsContext.strokeRect(x, y, width, height);
     }
 
     @Override
@@ -30,6 +31,7 @@ public class Rectangle implements Shape {
 
     @Override
     public void translate(double dx, double dy) {
-
+        x += dx;
+        y += dy;
     }
 }

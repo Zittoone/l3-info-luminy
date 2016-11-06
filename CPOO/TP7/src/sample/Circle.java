@@ -18,8 +18,9 @@ public class Circle implements Shape {
 
     @Override
     public void paint(GraphicsContext graphicsContext) {
-        graphicsContext.setFill(new Color(0.139, 0.228, 0.139, 0.4));
+        graphicsContext.setFill(Color.rgb(0,200,0,0.5));
         graphicsContext.fillOval(x, y, radius, radius);
+        graphicsContext.strokeOval(x, y, radius, radius);
     }
 
     @Override
@@ -29,6 +30,7 @@ public class Circle implements Shape {
 
     @Override
     public void translate(double dx, double dy) {
-
+        x += dx;
+        y += dy;
     }
 }

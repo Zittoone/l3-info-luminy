@@ -8,11 +8,9 @@ import javafx.scene.input.MouseEvent;
  */
 public interface DrawerState {
 
-    public void mousePressed(MouseEvent event);
-
-    public void mouseReleased(MouseEvent event);
-
-    public void mouseMoved(MouseEvent event);
-
-    public void paint(GraphicsContext context);
+    public void mousePressed(DrawerContext context, double x, double y);
+    public void mouseReleased(DrawerContext context, double x, double y);
+    public void mouseMoved(DrawerContext context, double x, double y);
+    public void paint(Drawer drawer);
+    public boolean isInitialised();
 }
