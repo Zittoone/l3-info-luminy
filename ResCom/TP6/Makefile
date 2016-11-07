@@ -14,7 +14,7 @@ LIBS   =
 EXECS =
 
 # pour compiler avec bor-util.c
-EXECSUTIL = pair-cli pair-ser
+EXECSUTIL = pair-cli pair-ser scrutpair-ser scrutpair-cli
 
 # pour compiler avec bor-util.c et bor-timer.c
 EXECSTIMER =
