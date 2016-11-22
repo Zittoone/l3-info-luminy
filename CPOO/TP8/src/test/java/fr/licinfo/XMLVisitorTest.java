@@ -14,6 +14,7 @@ import static org.hamcrest.core.IsEqual.equalTo;
 
 /**
  * Created by c16017548 on 08/11/16.
+ * Tests réalisés avec la version acyclique
  */
 public class XMLVisitorTest {
 

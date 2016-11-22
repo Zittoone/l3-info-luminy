@@ -1,9 +1,6 @@
 package fr.licinfo.acyclique;
 
-import fr.licinfo.formula.Product;
-import fr.licinfo.formula.Sum;
-import fr.licinfo.formula.Variable;
-import fr.licinfo.formula.VariadicOperator;
+import fr.licinfo.formula.*;
 
 /**
  * Created by c16017548 on 08/11/16.
@@ -11,18 +8,33 @@ import fr.licinfo.formula.VariadicOperator;
 public class XMLVisitor implements ProductVisitor<String>, SumVisitor<String>, VariableVisitor<String>, FormulaVisitor<String> {
 
     public String visit(Sum sum) {
-        return null;
+        return visit(sum, "sum");
     }
 
     public String visit(Product product) {
-        return null;
+        return visit(product, "product");
     }
 
     public String visit(Variable variable) {
-        return null;
+        StringBuilder sb = new StringBuilder();
+        sb.append("<var>").append(variable.asString()).append("</var>");
+
+        return sb.toString();
     }
 
     private String visit(VariadicOperator operator, String tag){
-        return null;
+        StringBuilder sb = new StringBuilder();
+
+        sb.append("<").append(tag).append(">");
+
+        Formula[] varTab = operator.getVarTab();
+
+        for (int i = 0; i < varTab.length; i++){
+            sb.append(varTab[i].accept(this));
+        }
+
+        sb.append("</").append(tag).append(">");
+
+        return sb.toString();
     }
 }
