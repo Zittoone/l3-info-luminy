@@ -3,33 +3,11 @@ import java.util.List;
 /**
  * Created by c16017548 on 09/11/16.
  */
-public class Levenshtein {
+public final class Levenshtein {
 
-    private List<String> dictionnaire;
+    private Levenshtein(){}
 
-    public Levenshtein(List<String> dictionnaire){
-        this.dictionnaire = dictionnaire;
-    }
-
-    public String correctionDictionnaire(String mot){
-
-        // On initialise les variables au mot à corriger (le pire cas)
-        String motCorrect = mot;
-        int distance = mot.length();
-
-        for (String currMot: dictionnaire) {
-
-            int currDist = levenshteinDistance(mot, currMot);
-            if(currDist < distance){
-                distance = currDist;
-                motCorrect = currMot;
-            }
-        }
-
-        return motCorrect;
-    }
-
-    public int levenshteinDistance (CharSequence lhs, CharSequence rhs) {
+    public static int levenshteinDistance (CharSequence lhs, CharSequence rhs) {
         int len0 = lhs.length() + 1;
         int len1 = rhs.length() + 1;
 
@@ -69,21 +47,44 @@ public class Levenshtein {
         return cost[len0 - 1];
     }
 
-    public int distance(String mot1, String mot2){
+    public static int levenshteinFromPython (String u, String v){
 
-        return 0;
+        String leftStr, rightStr;
+
+        //Set left string the shortest string
+        if (u.length() > v.length()) {
+            leftStr = v;
+            rightStr = u;
+        } else {
+            leftStr = u;
+            rightStr = v;
+        }
+
+        int n = leftStr.length(), m = rightStr.length();
+
+        int[][] table = new int[n + 1][m + 1];
+
+        //Fill init values
+        for (int i = 0; i <= n; i++){
+            table[0][i] = i;
+        }
+
+        for (int i = 0; i <= n; i++){
+            for (int j = 0; j <= m; j++){
+                if (i == 0){
+                    table[i][j] = j;
+                } else if (j == 0){
+                    table[i][j] = i;
+                } else {
+                    if (leftStr.charAt(i - 1)!= rightStr.charAt(j - 1)){
+                        table[i][j] = Math.min(table[i - 1][j] + 1, Math.min(table[i][j - 1] + 1, table[i - 1][j - 1] + 1 ));
+                    } else {
+                        table[i][j] = Math.min(table[i - 1][j] + 1, Math.min(table[i][j - 1] + 1, table[i - 1][j - 1]));
+                    }
+                }
+            }
+        }
+
+        return table[n][m];
     }
-
-    private String insertion(String mot, Character c, Integer index){
-        return null;
-    }
-
-    private String suppression(String mot, Integer index){
-        return null;
-    }
-
-    private String remplacement(String mot, Character c, Integer index){
-        return null;
-    }
-
 }
