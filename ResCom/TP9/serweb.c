@@ -1,21 +1,14 @@
 #include "bor-util.h"
+#include "serweb.h"
 
-typedef enum { E_LIBRE, E_LIRE_REQUETE, E_ECRIRE_REPONSE } Etat;
+// Variable globale, afin d'agir dessus dans la handle pour arrêter la boucle
+int boucle_scrutation = 1;
 
-typedef struct {
-  Etat etat;
-  int soc; /* Socket de service, défaut -1 */
-  struct sockaddr_in adr; /* Adresse du client */
-  // Ajout TP9
-  char req[REQSIZE]; /* La requête */
-  int req_pos; /* position d'insertion pour la prochaine lexture */
-  int end_header; /* la position de la fin de l'entête dans la requête */
-} Slot;
-
-
-//
-// I. Serveur générique TD
-//
+void handle(int sig)
+{
+  printf("Signal %d reçu\n", sig);
+  boucle_scrutation = 0;
+}
 
 void init_slot(Slot *o)
 {
@@ -26,6 +19,9 @@ void init_slot(Slot *o)
   o->req_pos = 0;
   o->req[0] = 0;
   o->end_header = 0;
+  o->rep[0] = '\0';
+  o->rep_pos = 0;
+  o->file_fd = -1;
 }
 
 int slot_est_libre(Slot *o)
@@ -38,6 +34,9 @@ void liberer_slot(Slot *o)
   // Si le slot n'est pas libre
   if(!slot_est_libre(o))
   {
+    if(o->file_fd != -1)
+    close(o->file_fd);
+
     // On ferme la socket
     close(o->soc);
     // On ré-initialise le slot
@@ -45,12 +44,6 @@ void liberer_slot(Slot *o)
   }
 }
 
-#define SLOTS_NB 32
-typedef struct {
-  Slot slots[SLOTS_NB];
-  int soc_ec; /* Socket d’´ecoute */
-  struct sockaddr_in adr; /* Adresse du serveur */
-} Serveur;
 
 void init_serveur(Serveur *ser)
 {
@@ -142,10 +135,6 @@ int accepter_connexion(Serveur *ser)
   return index;
 }
 
-// Supposé réalisé (est réalisé plus bas)
-int proceder_lecture_requete(Slot *o);
-int proceder_ecriture_reponse(Slot *o);
-
 void traiter_slot_si_eligible(Slot *o, fd_set *set_read, fd_set *set_write){
 
   // Initialisé a 1 car si aucuns des deux tests n'est vérifié, on ne libère pas le slot
@@ -202,10 +191,6 @@ void preparer_select(Serveur *ser, int *maxfd, fd_set *set_read, fd_set *set_wri
   }
 }
 
-//
-// I. Serveur générique (suite) TP
-//
-
 int faire_scrutation (Serveur *ser)
 {
   int maxfd, res;
@@ -244,14 +229,179 @@ int faire_scrutation (Serveur *ser)
   return 0;
 }
 
-// Variable globale, afin d'agir dessus dans la handle pour arrêter la boucle
-int boucle_scrutation = 1;
-
-void handle(int sig)
+//----- TP9
+int read_remaining_request(Slot *slot)
 {
-  printf("Signal %d reçu\n", sig);
-  boucle_scrutation = 0;
+  int r = bor_read_str(slot->soc, slot->req + slot->req_pos, REQSIZE - slot->req_pos);
+  if (r > 0) slot->req_pos += r;
+  return r;
 }
+
+int write_remaining_response (Slot *slot)
+{
+  int r = bor_write_str(slot->soc, slot->rep + slot->rep_pos);
+  if (r > 0) slot->rep_pos += r;
+  return r;
+}
+
+int search_end_header (Slot *slot, int beginning)
+{
+  for (int i = beginning; slot->req[i] != '\0'; i++)
+  {
+    if ((slot->req[i] == '\n' && slot->req[i+1] == '\n') ||
+    (slot->req[i] == '\r' && slot->req[i+1] == '\n' &&
+    slot->req[i+2] == '\r' && slot->req[i+3] == '\n'))
+    return i;
+  }
+
+  return -1;
+}
+
+char *get_http_error_message(Code_reponse code)
+{
+  switch (code)
+  {
+    case C_OK             : return "OK";
+    case C_BAD_REQUEST    : return "BAD_REQUEST";
+    case C_NOT_FOUND      : return "NOT_FOUND";
+    case C_METHOD_UNKNOWN : return "METHOD_UNKNOWN";
+    default               : return "OTHER_ERROR";
+  }
+}
+
+//
+int proceder_lecture_requete(Slot *o)
+{
+  int debut = o->req_pos - 3;
+  Info_header ie;
+
+  if (debut < 0) debut = 0;
+  int r = read_remaining_request(o);
+  if (r <= 0) return -1;
+  o->end_header = search_end_header(o, debut);
+  if (o->end_header >= 0)
+  {
+    analyse_request(o, &ie);
+    preparer_reponse(o, &ie);
+    o->etat = E_ECRIRE_REPONSE;
+  }
+  return 1;
+}
+
+int proceder_ecriture_reponse(Slot *o)
+{
+  int w = write_remaining_response(o);
+  if (w <= 0) return -1;
+
+  // on renvoie 1, la réponse n'a pu être complètement écrite.
+  if (o->rep_pos < (int) strlen(o->rep)) return 1;
+
+  // On renvoie 0
+  return 0;
+}
+
+Id_method get_id_method (char *method)
+{
+  // On utilise strcasecmp pour ne pas différencier majuscule et minuscule
+  if (!strcasecmp(method, "GET")) return M_GET;
+  if (!strcasecmp(method, "TRACE")) return M_TRACE;
+  return M_NONE;
+}
+
+void analyse_request (Slot *o, Info_header *info)
+{
+  int k = sscanf(o->req, "%s %s %s\n", info->methode, info->url, info->version);
+  info->id_meth = get_id_method(info->methode);
+
+  if (k != 3)
+  {
+    info->code_rep = C_BAD_REQUEST;
+    return;
+  }
+
+  if (strcasecmp(info->version, "HTTP/1.0") != 0 &&
+      strcasecmp(info->version, "HTTP/1.1") != 0)
+  {
+    info->code_rep = C_BAD_REQUEST;
+    return;
+  }
+  switch (info->id_meth) {
+    case M_NONE:
+    info->code_rep = C_METHOD_UNKNOWN;
+    break;
+    case M_TRACE:
+    info->code_rep = C_OK;
+    break;
+    case M_GET:
+    if (prepare_file(o, info) < 0)
+    info->code_rep = C_NOT_FOUND;
+    else
+    info->code_rep = C_OK;
+    break;
+  }
+}
+
+int prepare_file (Slot *slot, Info_header *info)
+{
+  if (strlen(info->url) == 1)
+  sprintf(info->url, "/index.html");
+  if (sscanf(info->url, "/%[^?]", info->chemin) != 1) return -1;
+
+  printf("url: %s\n", info->url);
+  printf("chemin: %s\n", info->chemin);
+
+  slot->file_fd = open(info->chemin, O_RDONLY);
+  if (slot->file_fd < 0) return -1;
+
+  return 0;
+}
+
+void preparer_reponse(Slot *o, Info_header *ie)
+{
+  int pos = 0;
+
+  char *http_mess = get_http_error_message(ie->code_rep);
+
+  pos += sprintf(o->rep + pos, "HTTP/1.1 %d %s\n", ie->code_rep, http_mess);
+  time_t t;
+  time(&t);
+  pos += sprintf(o->rep + pos, "%s", ctime(&t));
+  pos += sprintf(o->rep + pos, "Server: serweb\nConnection: close\n");
+
+  // text/html
+  if (ie->id_meth == M_GET)
+  {
+    pos += sprintf(o->rep + pos,
+      "Content-Type: text/html\n\n"
+      "<html><head>\n"
+      "<meta charset=\"utf-8\">"
+      "<title>Found</title>\n"
+      "</head><body>\n"
+      "<p>Fichier \"%s\" trouvé.</p>\n"
+      "</body></html>\n",
+      ie->chemin);
+  }
+
+  // text/html
+  if (ie->code_rep != C_OK)
+  {
+    pos += sprintf(o->rep + pos,"Content-Type: text/html\n\n<html><head>\n<meta charset=\"utf-8\"><title>%d %s</title>\n</head><body>\n<p>%s</p>\n</body></html>\n",
+    ie->code_rep, http_mess, http_mess);
+    return;
+  }
+
+  // message/http
+  if (ie->id_meth == M_TRACE)
+  {
+    pos += snprintf(o->rep + pos, REQSIZE - pos,
+      "Content-Type: message/http\n\n"
+      "%s", o->req);
+    return;
+  }
+
+  return;
+}
+
 
 // Programme principal
 int main(int argc, char* argv[])
@@ -287,31 +437,4 @@ int main(int argc, char* argv[])
 
   // On arrête le serveur
   fermer_serveur(&ser);
-}
-
-int proceder_lecture_requete(Slot *o)
-{
-  char str[256];
-  int res = bor_read(o->soc, str, 256);
-
-  if(res > 0)
-  {
-    o->etat = E_ECRIRE_REPONSE;
-  }
-
-  return res;
-}
-
-int proceder_ecriture_reponse(Slot *o)
-{
-  // On change le message
-  int res = bor_write_str(o->soc, "HTTP/1.1 500 Erreur du serveur\n\n<html><body><h1>Serveur en construction !!</h1></body></html>\n");
-
-  if(res > 0)
-  {
-    o->etat = E_LIRE_REQUETE;
-  }
-
-  // On renvoit 0
-  return 0;
 }

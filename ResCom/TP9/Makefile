@@ -14,7 +14,7 @@ LIBS   =
 EXECS =
 
 # pour compiler avec bor-util.c
-EXECSUTIL = serveur1 serveur2
+EXECSUTIL = serweb
 
 # pour compiler avec bor-util.c et bor-timer.c
 EXECSTIMER =
