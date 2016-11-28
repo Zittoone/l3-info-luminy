@@ -109,7 +109,7 @@ public class Trigramme {
         // Etape 4
         //
         // On va trier ce nouveau HashMap en fonction de ses valeurs et on gardera les plus hautes
-        wordsList = sortByValue(wordsList, 10, true);
+        wordsList = sortByValue(wordsList, 100, true);
         System.out.println("Les mots ont été triés (" + (System.currentTimeMillis() - debut) + " ms) ->  <mot> = <nombre de trigramme en commun>\n" + wordsList.toString());
 
         System.out.println("\nÉtape 5");

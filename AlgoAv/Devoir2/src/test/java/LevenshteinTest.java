@@ -1,4 +1,3 @@
-import devoir1.HashableString;
 import org.junit.Test;
 
 import static org.hamcrest.core.IsEqual.equalTo;

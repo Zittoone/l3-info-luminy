@@ -24,6 +24,7 @@ void init_slot(Slot *o)
   o->soc = -1;
   // Ajout TP9
   o->req_pos = 0;
+  o->req[0] = 0;
   o->end_header = 0;
 }
 
