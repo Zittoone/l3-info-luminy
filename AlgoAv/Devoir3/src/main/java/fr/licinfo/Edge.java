@@ -4,28 +4,19 @@ package fr.licinfo;
  * Created by sebastientosello on 23/11/2016.
  */
 public class Edge {
-    private int departureVertex, arrivalVertex, weight;
+    private int connectedVertice, weight;
 
-    public Edge(int departureVertex, int arrivalVertex, int weight){
-        this.departureVertex = departureVertex;
-        this.arrivalVertex = arrivalVertex;
+    public Edge(int connectedVertice, int weight){
         this.weight = weight;
+        this.connectedVertice = connectedVertice;
     }
 
-    public int getDepartureVertex() {
-        return departureVertex;
+    public int getConnectedVertice(){
+        return this.connectedVertice;
     }
 
-    public void setDepartureVertex(int departureVertex) {
-        this.departureVertex = departureVertex;
-    }
-
-    public int getArrivalVertex() {
-        return arrivalVertex;
-    }
-
-    public void setArrivalVertex(int arrivalVertex) {
-        this.arrivalVertex = arrivalVertex;
+    public void setConnectedVertice(int connectedVertice) {
+        this.connectedVertice = connectedVertice;
     }
 
     public int getWeight() {
@@ -37,6 +28,7 @@ public class Edge {
     }
 
     public String toString(){
-        return departureVertex + "-" + weight + "->" + arrivalVertex;
+        return weight + "->" + connectedVertice;
     }
+
 }
