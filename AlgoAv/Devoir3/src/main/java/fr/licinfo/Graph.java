@@ -1,40 +1,28 @@
 package fr.licinfo;
 
-
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 /**
- * Created by sebastientosello on 23/11/2016.
+ * Created by c16017548 on 30/11/16.
  */
-public class Graph {
-    private List<List<Edge>> incidences;
+public interface Graph {
 
-    public Graph(){
-        this.incidences = new ArrayList<List<Edge>>();
-    }
+    public void addEdge(Edge e);
+    public void addNode(Integer node);
+    public List<Edge> adjacent(Integer node);
+    public void clear();
+    public Object clone();
+    public boolean containsEdge(Edge e);
+    public boolean containsNode(Integer node);
+    public List<Edge> getEdges();
+    public Set<Integer> getNodes();
+    public List<Edge> incident(Integer node);
+    public int numEdges();
+    public int numNodes();
+    public void removeEdge(Edge e);
+    public void removeNode(Integer node);
 
-    public Graph(int verticesNumber){
-        this.incidences = new ArrayList<List<Edge>>(verticesNumber);
-    }
 
-    public void setVertice(int i, List<Edge> list){
-        this.incidences.add(i, list);
-    }
 
-    public void addVertice(List<Edge> list){
-        this.incidences.add(list);
-    }
-
-    public void addEdge(int vertice, Edge edge){
-
-    }
-
-    public void addEdges(int vertice, List<Edge> edges){
-
-    }
-    
-    public String toString(){
-        return "Vertices : " + vertices.toString() + "\nEdges : " + edges.toString();
-    }
 }
