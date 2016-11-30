@@ -18,6 +18,7 @@ public class LevenshteinTest {
         assertThat(Levenshtein.levenshteinDistance("Test", ""), equalTo(4));
         assertThat(Levenshtein.levenshteinDistance("C", "CC"), equalTo(1));
         assertThat(Levenshtein.levenshteinDistance("soeur", "sœur"), equalTo(2));
+        assertThat(Levenshtein.levenshteinDistance("abscisse", "abcisse"), equalTo(1));
     }
 
     @Test

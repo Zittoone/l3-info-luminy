@@ -83,10 +83,10 @@ public class Trigramme {
         // Le mot n'est pas dans le dictionnaire, on construit les trigrammes du dictionnaires
         // et celui du mot a corriger
         List<String> trigramsWord = new LinkedList<>();
-        word = "<" + word + ">";
+        String wordWithSpeChar = "<" + word + ">";
 
-        for(int i = 0; i < word.length() - 2; i++){
-            trigramsWord.add(word.substring(i, i+3));
+        for(int i = 0; i < wordWithSpeChar.length() - 2; i++){
+            trigramsWord.add(wordWithSpeChar.substring(i, i+3));
         }
         System.out.println("Les trigrammes ont été créés (" + (System.currentTimeMillis() - debut) + " ms) -> \n" + trigramsWord.toString());
 

@@ -51,7 +51,7 @@ public class Scenario {
 
         List<String> propositions = trig.executeProcess(word);
 
-        System.out.println("\n\nVoici les propositions pour la correction du mot <" + word + "> triées dans l'ordre du plus probable au moins :");
+        System.out.println("\n\nVoici les propositions pour la correction du mot \"" + word + "\" triées dans l'ordre du plus probable au moins :");
         for (int i = 0; i < propositions.size(); i++) {
             System.out.println((i + 1) + ". " + propositions.get(i));
         }
