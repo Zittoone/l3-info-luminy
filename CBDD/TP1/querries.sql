@@ -19,10 +19,7 @@ PRIMARY KEY (NumEnsAtt, NomAtt)
 );
 
 /* NumEnsAtt */
-CREATE SEQUENCE NumEnsAtt
-MINVALUE	0
-START WITH	0
-INCREMENT BY	1;
+CREATE SEQUENCE NumEnsAtt;
 
 
 --2.
@@ -33,6 +30,7 @@ RETURN NUMBER IS num_ens_att NUMBER;
     INSERT INTO EnsemblesAttributs
     VALUES(NUMENSATT.NextVal)
     RETURNING NumEnsAtt INTO num_ens_att;
+    RETURN num_ens_att;
   END CreerEnsAttVide;
 
 /* AjouterAtt */
@@ -341,5 +339,268 @@ REFERENCES DFs
 
 /* NumEnsDF */
 CREATE SEQUENCE NumEnsDF;
+
+--2.
+/* CreerEnsDFVide */
+CREATE or replace FUNCTION CreerEnsDFVide
+RETURN NUMBER IS
+var NUMBER;
+  BEGIN
+  INSERT INTO EnsembleDFs VALUES (NumEnsDF.nextVal)
+  RETURNING NumEnsDF into var;
+  RETURN var ;
+  END ;
+
+/* AjouterDF */
+CREATE or replace PROCEDURE AjouterDF(p_NumDF NUMBER, p_NumEnsDF NUMBER) IS 
+  BEGIN
+  INSERT INTO EnsembleContientDF VALUES (p_NumEnsDF, p_NumDF );
+  END ;
+
+/* CreerEnsDF */
+CREATE OR REPLACE FUNCTION CreerEnsDF ( p_ChaineDF VARCHAR )
+RETURN NUMBER IS
+ind NUMBER ; 
+var varchar2(2000);
+var1 VARCHAR(2000);
+var2 varchar2(2000);
+numdf NUMBER;
+NumEnsDF NUMBER ;
+  BEGIN
+  var := p_ChaineDF;
+  ind := instr(var, ';');
+  NumEnsDF := creerEnsDFvide;
+  WHILE ind <> 0
+    LOOP
+    var1 := substr(var, 1, ind-1);
+    var2 := substr(var, ind+1);
+    var := var2;
+    NumDF := CreerDF(TRIM(var1));
+    AjouterDF(NumDF , NumEnsDF ) ;
+    ind := instr(var, ';');
+    END LOOP;
+  NumDF:=CreerDF(TRIM(var));
+  AjouterDF(NumDF , NumEnsDF ) ;
+  RETURN NumEnsDF;
+  END ;
+
+/* EnsDF2Chaine */
+CREATE OR REPLACE FUNCTION EnsDF2Chaine(p_NumEnsDF NUMBER) 
+RETURN VARCHAR IS
+str VARCHAR(2000) ;
+  BEGIN
+  str := '';
+  FOR i IN (SELECT NumDFs
+            FROM EnsembleContientDF
+            WHERE NumEnsDF = p_NumEnsDF)
+    LOOP
+    str := str || DF2chaine(i.numDFs) || ';';
+    END LOOP;
+  str := RTRIM ( str ,';' );
+  return str;
+  END ;
+
+--3.
+/* EnsDF2EnsAtt */
+CREATE OR REPLACE FUNCTION EnsDF2EnsAtt(p_NumEnsDF NUMBER )
+RETURN NUMBER IS
+EnsDF NUMBER ;
+EnsNew NUMBER;
+NG NUMBER;
+ND NUMBER;
+  BEGIN
+  EnsNew := CreerEnsAttVide;
+  FOR i IN (SELECT NumDFs
+            FROM EnsembleContientDF
+            WHERE NumEnsDF=p_NumEnsDF )
+    LOOP
+    SELECT NUMENSGAUCHE, NUMENSDROIT INTO NG, ND
+    FROM DFS
+    WHERE NUMDFS = i.NUMDFS;
+    EnsDF := UnionAtt(NG, ND);
+    EnsNew := UnionAtt(EnsDF, EnsNew);
+    END LOOP;
+  RETURN EnsNew;
+  END ;
+
+/* CopieEnsDF */
+CREATE OR REPLACE FUNCTION CopieEnsDF(p_NumEnsDF NUMBER )
+RETURN NUMBER IS
+DFSNew NUMBER ;
+EnsNew NUMBER;
+NG NUMBER;
+ND NUMBER;
+  BEGIN
+  EnsNew := CreerEnsAttVide; /* création ensemble vide */
+  FOR i IN (SELECT NumDFs
+            FROM EnsembleContientDF /* select sur tous les DFS */
+            WHERE NumEnsDF=p_NumEnsDF ) /* boucle via arg */
+    LOOP 
+    DFSNew := CreerDF(DF2Chaine(i.NUMDFS)); /* On créé une copie du DFS */
+    AjouterDF(DFSNew , EnsNew) ; /* On ajoute le nouveau DFS dans le nouvel ensemble */
+    END LOOP;
+  RETURN EnsNew;
+  END ;
+
+----IV.
+--1.
+/* Schemas */
+CREATE TABLE Schemas(
+NumSchema INTEGER NOT NULL,
+NumEnsAtt INTEGER NOT NULL,
+NumEnsDF INTEGER NOT NULL,
+PRIMARY KEY(NumSchema),
+CONSTRAINT fk_Schemas_NumEnsAtt FOREIGN KEY (NumEnsAtt)
+REFERENCES EnsemblesAttributs,
+CONSTRAINT fk_Schemas_NumEnsDF FOREIGN KEY (NumEnsDF)
+REFERENCES EnsembleDFS
+);
+
+/* NumSchema */
+CREATE SEQUENCE NumSchema;
+
+--2.
+/* CreerSchema */
+create or replace FUNCTION CreerSchema(p_ChaineEnsAtt VARCHAR, p_ChaineEnsDF VARCHAR) 
+RETURN NUMBER IS
+EnsSchema NUMBER;
+EnsDF NUMBER;
+EnsAtt NUMBER;
+  BEGIN
+  EnsDF := CreerEnsDF(p_ChaineEnsDF);
+  EnsAtt := CreerEnsAtt(p_ChaineEnsAtt);
+  INSERT INTO SCHEMAS
+  VALUES (NumSchema.nextVal,
+          EnsAtt,
+          EnsDF)
+  RETURNING NumSchema INTO EnsSchema;
+  RETURN EnsSchema;
+  END ;
+
+----V.
+--1.
+/* EnsembleClefs */
+CREATE TABLE EnsembleClefs(
+NumEnsClef INTEGER NOT NULL,
+NumSchema INTEGER UNIQUE NULL,
+PRIMARY KEY(NumEnsClef),
+CONSTRAINT fk_EnsCl_NumSchema FOREIGN KEY(NumSchema)
+REFERENCES Schemas ON DELETE CASCADE
+);
+
+/* EnsembleContientClef */
+CREATE TABLE EnsembleContientClef(
+NumEnsClef INTEGER NOT NULL,
+NumClef INTEGER NOT NULL,
+CONSTRAINT fk_EnsCntCl_NumEnsClef FOREIGN KEY(NumEnsClef)
+REFERENCES EnsembleClefs ON DELETE CASCADE,
+CONSTRAINT fk_EnsCntCl_NumClef FOREIGN KEY(NumClef)
+REFERENCES EnsemblesAttributs
+);
+
+/* NumEnsClef */
+CREATE SEQUENCE NumEnsClef
+
+--2.
+/* EnsClef2Chaine */
+CREATE FUNCTION EnsClef2Chaine(p_NumEnsClef NUMBER)
+RETURN VARCHAR IS
+EnsClefChaine VARCHAR(2000); 
+  BEGIN
+  EnsClefChaine := '';
+  FOR i IN (SELECT NumClef
+            FROM EnsembleContientClef
+            WHERE NumEnsClef = p_NumEnsClef)
+    LOOP
+    EnsClefChaine := CONCAT(EnsClefChaine, '{' || i.NumClef || '}, '); 
+    END LOOP;
+    
+  RETURN EnsClefChaine;
+  END;
+
+--3.
+/* CreerEnsClefVide */
+CREATE OR REPLACE FUNCTION CreerEnsClefVide(p_NumSchema NUMBER)
+RETURN NUMBER IS
+EnsClefNew NUMBER;
+  BEGIN
+  
+  INSERT INTO EnsembleClefs
+  VALUES(NumEnsClef.nextVal, p_NumSchema)
+  RETURNING NumEnsClef INTO EnsClefNew;
+  RETURN EnsClefNew;
+  END;
+
+/* AjouterClef */
+CREATE OR REPLACE PROCEDURE AjouterClef(p_NumClef NUMBER, p_NumEnsClef NUMBER) IS
+  BEGIN
+  INSERT INTO EnsembleContientClef
+  VALUES(p_NumEnsClef, p_NumClef);
+  END;
+
+--4.
+/* Scenario */
+SET SERVEROUTPUT ON
+
+Variable numSchema NUMBER
+Variable K NUMBER
+Variable cle1 NUMBER
+Variable cle2 NUMBER
+Variable resultat VARCHAR(2000);
+  BEGIN 
+  /* Création schema */
+  :numSchema := CreerSchema('A, B, C', 'A,B->C;C->A');
+  :K := CREERENSCLEFVIDE(NULL);
+  :cle1 := CREERENSATT('A, B');
+  AjouterClef(:cle1, :K);
+  :cle2 := CREERENSATT('B, C');
+  AjouterClef(:cle2, :K);
+  /*SELECT EnsAtt2Chaine(NumEnsAtt), ENSDF2ENSATT(NumEnsDF), EnsClef2Chaine(NumEnsClef)
+  FROM ...
+  RETURNING ... INTO resultat;*/
+  dbms_output.put_line(resultat);
+  END;
+ROLLBACK;
+
+----VI.
+--1.
+/* Structures */
+CREATE TABLE Structures(
+NumStructure INTEGER NOT NULL,
+PRIMARY KEY(NumStructure)
+);
+
+/* StructureContientSchema */
+CREATE TABLE StructureContientSchema (
+NumStructure INTEGER NOT NULL,
+NumSchema INTEGER NOT NULL,
+CONSTRAINT fk_StrcCntSch_NumStructure FOREIGN KEY(NumStructure)
+REFERENCES Structures ON DELETE CASCADE,
+CONSTRAINT fk_StrcCntSch_NumSchema FOREIGN KEY(NumSchema)
+REFERENCES Schemas,
+PRIMARY KEY(NumStructure, NumSchema)
+);
+
+/* NumStructure */
+CREATE SEQUENCE NumStructure;
+
+--2.
+/* CreerStructureVide */
+CREATE OR REPLACE FUNCTION CreerStructureVide
+RETURN NUMBER IS
+StructVide NUMBER;
+  BEGIN
+  INSERT INTO Structures
+  VALUES(NumStructure.nextVal)
+  RETURNING NumStructure INTO StructVide;
+  RETURN StructVide;  
+  END;
+
+/* AjouterSchema */
+CREATE PROCEDURE AjouterSchema(p_NumSchema NUMBER, p_NumStructure NUMBER) IS
+  BEGIN
+  INSERT INTO StructureContientSchema
+  VALUES(p_NumSchema, p_NumStructure);
+  END;
 
 
