@@ -1,5 +1,6 @@
 package fr.licinfo.drawer;
 
+import fr.licinfo.ShapeVisitor;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 
@@ -8,7 +9,7 @@ import javafx.scene.paint.Color;
  */
 public class Circle implements Shape {
 
-    private double x,y, radius;
+    public double x,y, radius;
 
     public Circle(double x, double y, double radius){
         this.x = x;
@@ -32,5 +33,10 @@ public class Circle implements Shape {
     public void translate(double dx, double dy) {
         x += dx;
         y += dy;
+    }
+
+    @Override
+    public <R> R accept(ShapeVisitor<R> sv) {
+        return sv.visit(this);
     }
 }

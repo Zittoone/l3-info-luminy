@@ -1,5 +1,6 @@
 package fr.licinfo.drawer;
 
+import fr.licinfo.ShapeVisitor;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 
@@ -8,7 +9,7 @@ import javafx.scene.paint.Color;
  */
 public class Rectangle implements Shape {
 
-    private double x,y, width, height;
+    public double x,y, width, height;
 
     public Rectangle(double x, double y, double width, double height){
         this.x = x;
@@ -33,5 +34,10 @@ public class Rectangle implements Shape {
     public void translate(double dx, double dy) {
         x += dx;
         y += dy;
+    }
+
+    @Override
+    public <R> R accept(ShapeVisitor<R> sv) {
+        return sv.visit(this);
     }
 }
