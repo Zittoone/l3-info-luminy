@@ -1,0 +1,2 @@
+$ ssh -X c16017548@sas.luminy.univ-amu.fr
+$ ssh -X ens1.luminy.univmed.fr

@@ -557,6 +557,7 @@ Variable resultat VARCHAR(2000);
   AjouterClef(:cle2, :K);
   /*SELECT EnsAtt2Chaine(NumEnsAtt), ENSDF2ENSATT(NumEnsDF), EnsClef2Chaine(NumEnsClef)
   FROM ...
+  Je n'ai pas eu le temps d'implémenter et de tester le select
   RETURNING ... INTO resultat;*/
   dbms_output.put_line(resultat);
   END;
