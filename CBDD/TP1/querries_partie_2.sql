@@ -101,4 +101,112 @@ END;
 
 ----VI
 /* FormeCompacte */
+create or replace FUNCTION FormeCompacte(p_NumEnsDF NUMBER)
+RETURN NUMBER IS
+NumEnsDF NUMBER;
+NumDF NUMBER;
+EnsDroitChaine VARCHAR(2000);
+EnsChaine VARCHAR(2000);
+l_EnsG NUMBER;
+l_EnsD NUMBER;
+BEGIN
+  NumEnsDF := CreerEnsDFVide();
+/* On récupère tous les Noms distincts pour itérer sur chacun d'eux dans une autre boucle */
+  FOR l_EnsG IN(SELECT DISTINCT(NomAtt)
+             FROM EnsembleContientDF ecdf
+             INNER JOIN DFS d ON ecdf.NumDFS = d.NumDFS
+             INNER JOIN EnsembleContientAttribut ecat ON d.NumEnsGauche = ecat.NumEnsAtt
+             WHERE ecdf.NumEnsDF = p_NumEnsDF)
+  LOOP
+    EnsDroitChaine := '';
+    FOR l_EnsD IN(SELECT NomAtt
+               FROM EnsembleContientDF ecdf
+               INNER JOIN DFS d ON ecdf.NumDFS = d.NumDFS
+               INNER JOIN EnsembleContientAttribut ecat ON d.NumEnsDroit = ecat.NumEnsAtt
+               WHERE ecdf.NumEnsDF = p_NumEnsDF
+               AND EnsAtt2Chaine(d.NumEnsGauche) = l_EnsG.NomAtt)
+    LOOP
+      EnsDroitChaine := EnsDroitChaine || ',' || l_EnsD.NomAtt;
+    END LOOP;
+    EnsChaine := l_EnsG.NomAtt || ';' || EnsDroitChaine;
+    NumDF := CreerDF(EnsChaine);
+    AjouterDF(NumDF, NumEnsDF);
+  END LOOP;
+END;
 
+----VII
+/* Elementaire */
+create or replace FUNCTION Elementaire(p_NumEnsDF NUMBER)
+RETURN NUMBER IS
+NumEnsAttNew NUMBER;
+NumEnsDFNew NUMBER;
+NumEnsAttFerm NUMBER;
+BEGIN
+  NumEnsDFNew := CopieEnsDF(p_NumEnsDF);
+
+  FOR df IN (SELECT * FROM EnsembleContientDF
+         	 INNER JOIN DFs ON EnsembleContientDF.NUMDFS = DFs.NUMDFS
+  		 	 WHERE NumEnsDF = NumEnsDFNew)
+  LOOP
+    FOR att IN (SELECT * FROM EnsembleContientAttribut
+    			WHERE NumEnsAtt = df.NumEnsGauche)
+    LOOP
+      DELETE FROM EnsembleContientAttribut WHERE NomAtt = att.NomAtt;
+      NumEnsAttFerm := FermetureAtt(df.NumEnsGauche, NumEnsDFNew);
+      IF EstInclus(df.NumEnsGauche, NumEnsAttFerm) = 0
+      THEN
+        INSERT INTO EnsembleContientAttribut VALUES (df.NumEnsGauche, att.NomAtt);
+      END IF;
+    END LOOP;
+  END LOOP;
+  RETURN NumEnsDFNew;
+END;
+
+----VIII
+/* Irredondant */ 
+CREATE FUNCTION Irredondant(p_NumEnsDF NUMBER)
+RETURN NUMBER IS
+NumEnsDFNew NUMBER;
+NumEnsAttFerm NUMBER;
+BEGIN
+  NumEnsDFNew := CopieEnsDF(p_NumEnsDF);
+  FOR df IN (SELECT * FROM EnsembleContientDF
+         	 INNER JOIN DFs ON EnsembleContientDF.NUMDFS = DFs.NUMDFS
+  		 	 WHERE NumEnsDF = p_NumEnsDF)
+  LOOP
+  	IF EstDeductible(df.NumDF, p_NumEnsDF) = 1
+  	THEN
+  	  DELETE FROM EnsembleContientDF WHERE NumDF = df.NumDF;
+      NumEnsAttFerm := FermetureAtt(df.NumEnsGauche, NumEnsDFNew);
+      INSERT INTO EnsembleContientDF VALUES (NumEnsDFNew, df.NumDF);
+    END IF;
+  END LOOP;
+  RETURN NumEnsDFNew;
+END;
+
+----IX
+--1.
+/* PseudoTransivité */
+create or replace FUNCTION PseudoTransitivite(p_NumDF1 NUMBER, p_NumDF2 NUMBER)
+RETURN NUMBER IS
+NumNewDF NUMBER;
+NumEnsAttSoustr NUMBER;
+NumEnsUnionAtt NUMBER;
+NumEnsGaucheDF1 NUMBER;
+NumEnsDroitDF1 NUMBER;
+NumEnsGaucheDF2 NUMBER;
+NumEnsDroitDF2 NUMBER;
+BEGIN
+  NumNewDF := -1;
+  SELECT NumEnsGauche, NumEnsDroit INTO NumEnsGaucheDF1, NumEnsDroitDF1 FROM DFs WHERE NumDFs = p_NumDF1;
+  SELECT NumEnsGauche, NumEnsDroit INTO NumEnsGaucheDF2, NumEnsDroitDF2 FROM DFs WHERE NumDFs = p_NumDF2;
+	IF EstInclus(NumEnsDroitDF1, NumEnsGaucheDF2) = 1
+  THEN
+		NumEnsAttSoustr := SoustractionAtt(NumEnsGaucheDF2, NumEnsDroitDF1);
+		NumEnsUnionAtt := UnionAtt(NumEnsGaucheDF1, NumEnsAttSoustr);
+    NumNewDF := CreerDF(EnsAtt2Chaine(NumEnsUnionAtt) || '->' || EnsAtt2Chaine(NumEnsDroitDF2));
+	END IF;
+	RETURN NumNewDF;
+END;
+
+/* La suite n'a pas été implémentée */
