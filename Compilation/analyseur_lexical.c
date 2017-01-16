@@ -120,6 +120,7 @@ char lireCar(void)
 {
   yytext[yyleng++] = fgetc(yyin);
   yytext[yyleng] = '\0';
+  //printf("%c\n", *(yytext - 1));
   return yytext[yyleng - 1];
 }
 
@@ -143,10 +144,8 @@ void delireCar()
 int yylex(void)
 {
   char c;
-  int i;
   yytext[yyleng = 0] = '\0';
-  // COMPLÉTER
-
+  
   // On va jusqu'au prochain caractère terminal
   // et on arrête en cas de fin de fichier
   if(mangeEspaces() == -1)
@@ -157,41 +156,15 @@ int yylex(void)
 
   // Si c'est un alpha
   if(is_alpha(c) == 1){
-    // Chaine de caractère qui stock le chaine lu
-    char str[YYTEXT_MAX];
-    int index = 0;
-
-    // Lire jusqu'au prochain espace et comparer avec le tableau de de clef
-    while(is_alpha(c) == 1) {
-      // Tant qu'il y a un char alpha
-      c = lireCar();
-      str[index++] = c;
-
-    }
-
-    for (i = 0; i < nbMotsClefs; i++) {
-      if(strcmp(str, tableMotsClefs[i]) == 0){
-        return codeMotClefs[i];
-      }
-    }
+    return proceder_alpha(c);
   }
   // Si c'est un nombre
   else if (is_num(c) == 1){
-    char str[YYTEXT_MAX];
-    int index = 0;
-
-    // Lire jusqu'au prochain carac qui n'est pas un NOMBRE
-    while(is_num(c) == 1){
-      // Tant qu'il y a un char NOMBRE
-      c = lireCar();
-      str[index++] = c;
-    }
-    return NOMBRE;
-
+    return proceder_nombre(c);
   }
   // C'est un symbole (on a déjà "mangé" les espaces)
   else {
-    return trouver_code_symbole(&c);
+    return proceder_symbole(c);
   }
 
   return -1;
@@ -201,15 +174,65 @@ int yylex(void)
  * Fonction qui renvoie le code du symbole passé en paramètre.
  * Si le symbole n'existe pas, renvoie -1.
  ******************************************************************************/
-int trouver_code_symbole(char* symbole){
+int proceder_symbole(char c){
   int i;
 
   for(i = 0; i < nbSymboles; i++){
-    if(strcmp(symbole, tableSymbole[i]) == 0){
-      return codeSymbole[i];
+    if(strcmp(&c, *(tableSymbole + i)) == 0){
+      return *(codeSymbole + i);
     }
   }
   return -1;
+}
+
+int proceder_nombre(char c){
+  // Lire jusqu'au prochain carac qui n'est pas un NOMBRE
+  while(is_num(c) == 1){
+    c = lireCar();
+  }
+  // On a lu un caractère contredisant notre condition
+  // On le ungetc
+  delireCar();
+
+  return NOMBRE;
+}
+
+int proceder_alpha(char c){
+  // Chaine de caractère qui stock le chaine lu
+  int i;
+
+  /* On regarde s'il s'agit d'une variable (déclarée avec '$')
+   * Dans les deux cas on avance le curseur jusqu'au prochain caractère
+   * non alpha. (Soit un espace soit un ';' en général.)
+  */
+
+  if(strcmp(&c, "$") == 0){
+    while(is_alpha(c) == 1){
+      c = lireCar();
+    }
+    // On a lu un caractère contredisant notre condition
+    // On le ungetc
+    delireCar();
+    return ID_VAR;
+  }
+  // Lire jusqu'au prochain espace et comparer avec le tableau de de clef
+  while(is_alpha(c) == 1){
+    c = lireCar();
+  }
+
+  // On a lu un caractère contredisant notre condition
+  // On le ungetc
+  delireCar();
+
+  // On regarde
+  for (i = 0; i < nbMotsClefs; i++) {
+    if(strcmp(yytext, *(tableMotsClefs + i)) == 0){
+      return *(codeMotClefs + i);
+    }
+  }
+
+  // Introuvable
+  return ID_FCT;
 }
 
 /*******************************************************************************

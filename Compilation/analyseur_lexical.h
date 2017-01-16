@@ -6,6 +6,8 @@
 int yylex(void);
 void nom_token( int token, char *nom, char *valeur );
 void test_yylex_internal( FILE *yyin );
-int trouver_code_symbole(char *symbole);
+int proceder_symbole(char c);
+int proceder_nombre(char c);
+int proceder_alpha(char c);
 
 #endif
