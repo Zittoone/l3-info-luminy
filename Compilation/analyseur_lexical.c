@@ -14,7 +14,6 @@
 
 extern FILE *yyin;
 
-//TODO: attention mots clés seulement
 char *tableMotsClefs[] = {
   "si",
   "alors",
@@ -24,9 +23,7 @@ char *tableMotsClefs[] = {
   "entier",
   "retour",
   "lire",
-  "ecrire",
-  //"id_var" non constant
-  //"id_fct" non constant
+  "ecrire"
 };
 
 char *tableSymbole[] = {
@@ -145,7 +142,7 @@ int yylex(void)
 {
   char c;
   yytext[yyleng = 0] = '\0';
-  
+
   // On va jusqu'au prochain caractère terminal
   // et on arrête en cas de fin de fichier
   if(mangeEspaces() == -1)

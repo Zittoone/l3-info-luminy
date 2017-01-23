@@ -1,20 +1,23 @@
 CC = gcc
 
-LIBS = -lm 
+LIBS = -lm
 CCFLAGS = -Wall -ggdb
 
-OBJ = analyseur_lexical.o util.o 
+EXECS = analyseur_lexical analyseur_syntaxique compilateur
 
-all: test_yylex
+.c.o :
+				$(CC) -c $(CCFLAGS) $*.c
 
-test_yylex: test_yylex.c $(OBJ)
-	$(CC) $(CCFLAGS) -o test_yylex test_yylex.c $(OBJ)
+help ::
+				@echo "Options du make : help all clean distclean"
 
-analyseur_lexical.o: analyseur_lexical.c
-	$(CC) $(CCFLAGS) -c analyseur_lexical.c
+all :: $(EXECS)
 
-.PHONY : clean
+$(EXECS) : %: %.o
+				$(CC) -o $@ $@.o $(LIBS)
 
-clean:
-	- rm -f $(OBJ)
-	- rm -f test_yylex
+clean ::
+				\rm -f *.o core
+
+distclean :: clean
+				\rm -f *% $(EXECS)
