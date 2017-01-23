@@ -5,7 +5,7 @@
 #include "analyseur_syntaxique.h"
 #include "util.h"
 
-int uniteCourante;
+//int uniteCourante;
 
 /*******************************************************************************
  * Fonction principale de la grammaire correspondant à la règle : E -> T E' .
@@ -14,7 +14,7 @@ int uniteCourante;
 void non_terminal_e(void){
   non_terminal_t();
   non_terminal_ep();
-  printf("Syntaxe correcte.\n");
+  //printf("Syntaxe correcte.\n");
   return;
 }
 
@@ -23,17 +23,15 @@ void non_terminal_e(void){
  * Non terminal E Prime
  ******************************************************************************/
 void non_terminal_ep(void){
-  uniteCourante = yylex();
   if(uniteCourante == PLUS){
+    uniteCourante = yylex();
     non_terminal_e();
     return;
   }
 
-  if(uniteCourante == FIN){
-    return;
-  }
+  return;
 
-  printf("Erreur de syntaxe.\n");
+  printf("Erreur de syntaxe. (%s, %d)\n", __FUNCTION__, uniteCourante);
   exit(-1);
 }
 
@@ -48,20 +46,22 @@ void non_terminal_t(void){
 }
 
 /*******************************************************************************
- * Fonction de la grammaire correspondant à la règle :  E -> T E'  .
+ * Fonction de la grammaire correspondant à la règle :  T' -> x T | vide .
  * Non terminal T Prime
  ******************************************************************************/
 void non_terminal_tp(void){
-  uniteCourante = yylex();
   if(uniteCourante == FOIS){
+    uniteCourante = yylex();
     non_terminal_f();
     return;
   }
 
-  if(uniteCourante == FIN){
+  return;
+
+  /*if(uniteCourante == FIN){
     return;
-  }
-  printf("Erreur de syntaxe.\n");
+  }*/
+  printf("Erreur de syntaxe. (%s, %d)\n", __FUNCTION__, uniteCourante);
   exit(-1);
 }
 
@@ -70,20 +70,22 @@ void non_terminal_tp(void){
  * Non terminal F
  ******************************************************************************/
 void non_terminal_f(void){
-  uniteCourante = yylex();
   if(uniteCourante == PARENTHESE_OUVRANTE){
-    non_terminal_e();
     uniteCourante = yylex();
+    non_terminal_e();
+    //uniteCourante = yylex();
   }
   // uniteCourante à changé de valeur
   if(uniteCourante == PARENTHESE_FERMANTE){
+    uniteCourante = yylex();
     return;
   }
 
   if(uniteCourante == NOMBRE){
+    uniteCourante = yylex();
     return;
   }
 
-  printf("Erreur de syntaxe.\n");
+  printf("Erreur de syntaxe. (%s, %d)\n", __FUNCTION__, uniteCourante);
   exit(-1);
 }

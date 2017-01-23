@@ -12,8 +12,21 @@ int main(int argc, char **argv) {
     fprintf(stderr, "impossible d'ouvrir le fichier %s\n", argv[1]);
     exit(1);
   }
+
   //test_yylex_internal(yyin);
-  //TODO: faire appel fonction axiome
+
+
+  // Initialisation
+  uniteCourante = yylex();
+
+  // Axiome
   non_terminal_e();
+
+  // Vérification
+  uniteCourante = yylex();
+  if(uniteCourante == FIN)
+    printf("Syntaxe correcte.\n");
+  else
+    printf("Erreur de syntaxe.\n");
   return 0;
 }
