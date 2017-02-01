@@ -1,16 +1,19 @@
-CC = gcc
+OBJS := compilateur.o analyseur_lexical.o analyseur_syntaxique.o premiers.o suivants.o util.o
 
-LIBS = -lm
-CCFLAGS = -Wall -ggdb
+# link
+compilateur: $(OBJS)
+	gcc $(OBJS) -o compilateur
 
-compilo: analyseur_lexical.o analyseur_syntaxique.o compilateur.o
-	$(CC) analyseur_lexical.o analyseur_syntaxique.o compilateur.o -o compilateur
+# compile
+%.o: %.c
+	gcc -c $(CFLAGS) $*.c -o $*.o
+	gcc -MM $(CFLAGS) $*.c > $*.d
+	@mv -f $*.d $*.d.tmp
+	@sed -e 's|.*:|$*.o:|' < $*.d.tmp > $*.d
+	@sed -e 's/.*://' -e 's/\\$$//' < $*.d.tmp | fmt -1 | \
+		sed -e 's/^ *//' -e 's/$$/:/' >> $*.d
+	@rm -f $*.d.tmp
 
-analyseur_lexical.o: analyseur_lexical.c
-	$(CC) -c analyseur_lexical.c
-
-analyseur_syntaxique.o: analyseur_syntaxique.c analyseur_lexical.h
-	$(CC) -c analyseur_syntaxique.c
-
-compilateur.o: analyseur_syntaxique.h compilateur.c
-	$(CC) -c compilateur.c
+# remove compilation products
+clean:
+	rm -f compilateur *.o *.d

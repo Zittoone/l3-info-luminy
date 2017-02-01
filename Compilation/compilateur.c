@@ -1,7 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "analyseur_syntaxique.h"
-#include "symboles.h"
+//#include "symboles.h"
+#include "premiers.h"
+#include "suivants.h"
 
 char yytext[100];
 FILE *yyin;
@@ -15,18 +16,11 @@ int main(int argc, char **argv) {
 
   //test_yylex_internal(yyin);
 
-
-  // Initialisation
-  uniteCourante = yylex();
+  initialise_premiers();
+  initialise_suivants();
 
   // Axiome
-  non_terminal_e();
+  pg();
 
-  // Vérification
-  uniteCourante = yylex();
-  if(uniteCourante == FIN)
-    printf("Syntaxe correcte.\n");
-  else
-    printf("Erreur de syntaxe.\n");
   return 0;
 }
