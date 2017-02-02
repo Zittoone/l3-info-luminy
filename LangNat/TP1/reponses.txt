@@ -1,0 +1,23 @@
+1. Prétraitements
+1.1
+(1) ted.txt contient 185 552 lignes, 3 343 242 mots et 20 217 667 caractères.
+(2) Il y a 45 lignes qui contiennent le mot oiseau.
+(3) On obtient un total de 41 110 lignes lorsque la commande :
+    grep -o -c -E "[^ ]*ment[^a-Z]" ted.txt
+    Ce résultat est donc le nombre de ligne qui contiennent un mot finissant par -ment.
+    
+    On obtient un total de 1 291 mots différents grâce à la commande suivante :
+    grep -o "[a-Z]*ment[^a-Z]" ted.txt 
+	| sed "s/[^a-Z]//g"
+	| tr '[:upper:]' '[:lower:]' 
+	| uniq 
+	| wc
+    Ce résultat va donc prendre tous les mots qui finissents par -ment,
+    ensuite on enlève tous les autres symboles qui terminent notre regex du grep (les non alpha) 
+    puis on supprime l'ambiguité entre majuscules et minuscules, 
+    et enfin on compte le nombre de mot au total sur un résultat de mot distinct (uniq).
+    Attention, certains mots n'ont pas été correctement changés en minuscule (tel que les majuscules accentuées) donc le compte n'est peut être pas exact.
+(4) sed -E "s/ /\-/g" ted.txt
+
+1.2
+(1) 
