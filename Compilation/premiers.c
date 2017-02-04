@@ -20,11 +20,13 @@ void initialise_premiers(void){
   premiers[_listeDecVariables_][ENTIER] = 1;
   //LDVB
   premiers[_listeDecVariablesBis_][VIRGULE] = 1;
+  premiers[_listeDecVariablesBis_][EPSILON] = 1;
   //DV
   premiers[_declarationVariable_][ENTIER] = 1;
   //OTT
   premiers[_optTailleTableau_][CROCHET_OUVRANT] = 1;
   premiers[_optTailleTableau_][EPSILON]         = 1;
+  //premiers[_optTailleTableau_][VIRGULE]         = 1;
   //LDF
   premiers[_listeDecFonctions_][EPSILON]  = 1;
   premiers[_listeDecFonctions_][ID_FCT]   = 1;
@@ -65,6 +67,8 @@ void initialise_premiers(void){
   premiers[_optSinon_][EPSILON] = 1;
   //ITQ
   premiers[_instructionTantque_][TANTQUE] = 1;
+  //IAPP
+  premiers[_instructionAppel_][ID_FCT] = 1;
   //IRET
   premiers[_instructionRetour_][RETOUR] = 1;
   //IECR

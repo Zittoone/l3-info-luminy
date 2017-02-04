@@ -16,4 +16,7 @@ compilateur: $(OBJS)
 
 # remove compilation products
 clean:
-	rm -f compilateur *.o *.d
+	rm -f *.o *.d
+
+distclean:
+	rm -f *.o *.d compilateur

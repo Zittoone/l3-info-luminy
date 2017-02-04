@@ -20,4 +20,18 @@
 (4) sed -E "s/ /\-/g" ted.txt
 
 1.2
-(1) 
+(1) On obtient un total de 210 062 lignes (donc de phrases) avec la commande :
+    sed -E "s/(\..)/\1\n/g" ted.txt
+    Cela permet de chercher tous les points qui ont un caractère quelconque ensuite et ajoute un retour à la ligne après.
+    En revanche, les "...", les URLs, les noms, etc. auront un problème avec cette expression régulière.
+    C'est donc le deuxième point de la question :
+    sed -E "s/([a-z]*\..)/\1\n/" ted.txt pas très fonctionnel
+(2) On obtient un total de 206 291 lignes (donc de phrases), il y a peu de différences mais on a un texte qui est mieux néttoyé.
+    Sur un corpus encore plus long ça aurait pu avoir de plus lourde conséquences.
+
+(3) Il y a un total de 3 343 242 mots avant l'utilisation de la commande : 
+    sed -r 's/([^ ]), /\1 , /g' | wc
+    Après celle-ci on obtient un total de 3 556 636 mots.
+    Nous allons maintenant séparés tous les caractères qui ne sont pas des alphas des mots via la commande suivante :
+     
+

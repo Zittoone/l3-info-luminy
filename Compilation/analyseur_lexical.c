@@ -204,7 +204,7 @@ int proceder_alpha(char c){
   */
 
   if(strcmp(&c, "$") == 0){
-    while(is_alpha(c) == 1){
+    while(is_alphanum(c) == 1){
       c = lireCar();
     }
     // On a lu un caractère contredisant notre condition
