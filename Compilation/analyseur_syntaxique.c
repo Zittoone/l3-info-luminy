@@ -5,9 +5,21 @@
 #include "analyseur_syntaxique.h"
 #include "util.h"
 
-char nom[100];
-char valeur[100];
-char err[200];
+
+
+/*******************************************************************************
+ * Fonction simplifiant l'envoi d'une erreur.
+ ******************************************************************************/
+void err(char *attendu){
+  char nom[100];
+  char valeur[100];
+  nom_token( uniteCourante, nom, valeur );
+
+  char err[256];
+  sprintf(err, "\tATTENDU : %s\n\t\tOBTENU : %s\t%s", attendu, nom, valeur);
+
+  erreur(err);
+}
 
 /*******************************************************************************
  * Grammaire non ambigüe, non recursive et factorisée à gauche du langage L
@@ -48,16 +60,12 @@ void odv(void){
     if(uniteCourante == POINT_VIRGULE){
       uniteCourante = yylex();
     } else {
-      nom_token( uniteCourante, nom, valeur );
-      sprintf(err, "%s\t%s", nom, valeur);
-      erreur_1s("\tATTENDU : POINT_VIRGULE \n\t\tOBTENU : %s", err);
+      err("POINT_VIRGULE");
     }
   } else if(est_suivant(_optDecVariables_, uniteCourante)){
     return;
   } else {
-    nom_token( uniteCourante, nom, valeur );
-    sprintf(err, "%s\t%s", nom, valeur);
-    erreur_1s("\tATTENDU : _listeDecVariables_ OU VIDE \n\t\tOBTENU : %s", err);
+    err("P(listeDecVariables) OU VIDE");
   }
 }
 
@@ -70,9 +78,7 @@ void ldv(void){
     dv();
     ldvb();
   } else {
-    nom_token( uniteCourante, nom, valeur );
-    sprintf(err, "%s\t%s", nom, valeur);
-    erreur_1s("\tATTENDU : declarationVariable \n\t\tOBTENU : %s", err);
+    err("P(declarationVariable)");
   }
 }
 
@@ -89,8 +95,7 @@ void ldvb(void){
   } else if(est_suivant(_listeDecVariablesBis_, uniteCourante)){
     return;
   } else {
-    nom_token( uniteCourante, nom, valeur );sprintf(err, "%s\t%s", nom, valeur);
-    erreur_1s("\tATTENDU : VIRGULE ou VIDE \n\t\tOBTENU : %s", err);
+    err("VIRGULE ou VIDE");
   }
 }
 
@@ -105,12 +110,10 @@ void dv(void){
       uniteCourante = yylex();
       ott();
     } else {
-      nom_token( uniteCourante, nom, valeur );sprintf(err, "%s\t%s", nom, valeur);
-      erreur_1s("\tATTENDU : ID_VAR \n\t\tOBTENU : %s", err);
+      err("ID_VAR");
     }
   } else {
-    nom_token( uniteCourante, nom, valeur );sprintf(err, "%s\t%s", nom, valeur);
-    erreur_1s("\tATTENDU : POINT_VIRGULE \n\t\tOBTENU : %s", err);
+    err("POINT_VIRGULE");
   }
 }
 
@@ -127,18 +130,15 @@ void ott(void){
       if(uniteCourante == CROCHET_FERMANT){
         uniteCourante = yylex();
       } else {
-        nom_token( uniteCourante, nom, valeur );sprintf(err, "%s\t%s", nom, valeur);
-        erreur_1s("\tATTENDU : CROCHET_FERMANT \n\t\tOBTENU : %s", err);
+        err("CROCHET_FERMANT");
       }
     } else {
-      nom_token( uniteCourante, nom, valeur );sprintf(err, "%s\t%s", nom, valeur);
-      erreur_1s("\tATTENDU : NOMBRE \n\t\tOBTENU : %s", err);
+      err("NOMBRE");
     }
   } else if(est_suivant(_optTailleTableau_, uniteCourante)){
     return;
   } else {
-    nom_token( uniteCourante, nom, valeur );sprintf(err, "%s\t%s", nom, valeur);
-    erreur_1s("\tATTENDU : CROCHET_OUVRANT ou VIDE \n\t\tOBTENU : %s", err);
+    err("CROCHET_OUVRANT ou VIDE");
   }
 }
 
@@ -154,8 +154,7 @@ void ott(void){
    } else if(est_suivant(_listeDecFonctions_, uniteCourante)){
      return;
    } else {
-     nom_token( uniteCourante, nom, valeur );sprintf(err, "%s\t%s", nom, valeur);
-     erreur_1s("\tATTENDU : declarationFonction ou VIDE \n\t\tOBTENU : %s", err);
+     err("P(declarationFonction) ou VIDE");
    }
  }
 
@@ -170,8 +169,7 @@ void df(void){
     odv();
     ib();
   } else {
-    nom_token( uniteCourante, nom, valeur );sprintf(err, "%s\t%s", nom, valeur);
-    erreur_1s("\tATTENDU : ID_FCT \n\t\tOBTENU : %s", err);
+    err("ID_FCT");
   }
 }
 
@@ -186,12 +184,10 @@ void lp(void){
     if(uniteCourante == PARENTHESE_FERMANTE){
       uniteCourante = yylex();
     } else {
-      nom_token( uniteCourante, nom, valeur );sprintf(err, "%s\t%s", nom, valeur);
-      erreur_1s("\tATTENDU : PARENTHESE_FERMANTE \n\t\tOBTENU : %s", err);
+      err("PARENTHESE_FERMANTE");
     }
   } else {
-    nom_token( uniteCourante, nom, valeur );sprintf(err, "%s\t%s", nom, valeur);
-    erreur_1s("\tATTENDU : PARENTHESE_OUVRANTE \n\t\tOBTENU : %s", err);
+    err("PARENTHESE_OUVRANTE");
   }
 }
 
@@ -206,8 +202,7 @@ void oldv(void){
   } else if(est_suivant(_optListeDecVariables_, uniteCourante)){
     return;
   } else {
-    nom_token( uniteCourante, nom, valeur );sprintf(err, "%s\t%s", nom, valeur);
-    erreur_1s("\tATTENDU : listeDecVariables ou VIDE \n\t\tOBTENU : %s", err);
+    err("P(listeDecVariables) ou VIDE");
   }
 }
 
@@ -247,8 +242,7 @@ void i(void){
   } else if(est_premier(_instructionVide_, uniteCourante)){
     ivide();
   } else {
-    nom_token( uniteCourante, nom, valeur );sprintf(err, "%s\t%s", nom, valeur);
-    erreur_1s("\tATTENDU : instruction... \n\t\tOBTENU : %s", err);
+    err("P(instruction...)");
   }
 }
 
@@ -265,16 +259,13 @@ void i(void){
        if(uniteCourante == POINT_VIRGULE){
          uniteCourante = yylex();
        } else {
-         nom_token( uniteCourante, nom, valeur );sprintf(err, "%s\t%s", nom, valeur);
-         erreur_1s("\tATTENDU : POINT_VIRGULE \n\t\tOBTENU : %s", err);
+         err("POINT_VIRGULE");
        }
      } else {
-       nom_token( uniteCourante, nom, valeur );sprintf(err, "%s\t%s", nom, valeur);
-       erreur_1s("\tATTENDU : EGAL \n\t\tOBTENU : %s", err);
+       err("EGAL");
      }
    } else {
-     nom_token( uniteCourante, nom, valeur );sprintf(err, "%s\t%s", nom, valeur);
-     erreur_1s("\tATTENDU : var \n\t\tOBTENU : %s", err);
+     err("P(var)");
    }
  }
 
@@ -289,12 +280,10 @@ void ib(void) {
     if(uniteCourante == ACCOLADE_FERMANTE){
       uniteCourante = yylex();
     } else {
-      nom_token( uniteCourante, nom, valeur );sprintf(err, "%s\t%s", nom, valeur);
-      erreur_1s("\tATTENDU : ACCOLADE_FERMANTE \n\t\tOBTENU : %s", err);
+      err("ACCOLADE_FERMANTE");
     }
   } else {
-    nom_token( uniteCourante, nom, valeur );sprintf(err, "%s\t%s", nom, valeur);
-    erreur_1s("\tATTENDU : ACCOLADE_OUVRANTE \n\t\tOBTENU : %s", err);
+    err("ACCOLADE_OUVRANTE");
   }
 }
 
@@ -310,8 +299,7 @@ void li(void) {
   } else if(est_suivant(_listeInstructions_, uniteCourante)){
     return;
   } else {
-    nom_token( uniteCourante, nom, valeur );sprintf(err, "%s\t%s", nom, valeur);
-    erreur_1s("\tATTENDU : instruction ou VIDE \n\t\tOBTENU : %s", err);
+    err("P(instruction) ou VIDE");
   }
 }
 
@@ -325,12 +313,10 @@ void iapp(void) {
     if(uniteCourante == POINT_VIRGULE){
       uniteCourante = yylex();
     } else {
-      nom_token( uniteCourante, nom, valeur );sprintf(err, "%s\t%s", nom, valeur);
-      erreur_1s("\tATTENDU : POINT_VIRGULE \n\t\tOBTENU : %s", err);
+      err("POINT_VIRGULE");
     }
   } else {
-    nom_token( uniteCourante, nom, valeur );sprintf(err, "%s\t%s", nom, valeur);
-    erreur_1s("\tATTENDU : appelFct \n\t\tOBTENU : %s", err);
+    err("P(appelFct)");
   }
 }
 
@@ -347,12 +333,10 @@ void isi(void) {
       ib();
       osinon();
     } else {
-      nom_token( uniteCourante, nom, valeur );sprintf(err, "%s\t%s", nom, valeur);
-      erreur_1s("\tATTENDU : ALORS \n\t\tOBTENU : %s", err);
+      err("ALORS");
     }
   } else {
-    nom_token( uniteCourante, nom, valeur );sprintf(err, "%s\t%s", nom, valeur);
-    erreur_1s("\tATTENDU : SI \n\t\tOBTENU : %s", err);
+    err("SI");
   }
 }
 
@@ -368,8 +352,7 @@ void osinon(void) {
   } else if(est_suivant(_optSinon_, uniteCourante)){
     return;
   } else {
-    nom_token( uniteCourante, nom, valeur );sprintf(err, "%s\t%s", nom, valeur);
-    erreur_1s("\tATTENDU : SINON ou VIDE \n\t\tOBTENU : %s", err);
+    err("SINON ou VIDE");
   }
 }
 
@@ -385,12 +368,10 @@ void itq(void) {
       uniteCourante = yylex();
       ib();
     } else {
-      nom_token( uniteCourante, nom, valeur );sprintf(err, "%s\t%s", nom, valeur);
-      erreur_1s("\tATTENDU : FAIRE \n\t\tOBTENU : %s", err);
+      err("FAIRE");
     }
   } else {
-    nom_token( uniteCourante, nom, valeur );sprintf(err, "%s\t%s", nom, valeur);
-    erreur_1s("\tATTENDU : TANTQUE \n\t\tOBTENU : %s", err);
+    err("TANTQUE");
   }
 }
 
@@ -405,13 +386,10 @@ void iret(void) {
     if(uniteCourante == POINT_VIRGULE){
       uniteCourante = yylex();
     } else {
-      nom_token( uniteCourante, nom, valeur );
-      sprintf(err, "%s\t%s", nom, valeur);
-      erreur_1s("\tATTENDU : POINT_VIRGULE \n\t\tOBTENU : %s", err);
+      err("POINT_VIRGULE");
     }
   } else {
-    nom_token( uniteCourante, nom, valeur );sprintf(err, "%s\t%s", nom, valeur);
-    erreur_1s("\tATTENDU : RETOUR \n\t\tOBTENU : %s", err);
+    err("RETOUR");
   }
 }
 
@@ -430,20 +408,16 @@ void iecr(void) {
         if(uniteCourante == POINT_VIRGULE){
           uniteCourante = yylex();
         } else {
-          nom_token( uniteCourante, nom, valeur );sprintf(err, "%s\t%s", nom, valeur);
-          erreur_1s("\tATTENDU : POINT_VIRGULE \n\t\tOBTENU : %s", err);
+          err("POINT_VIRGULE");
         }
       } else {
-        nom_token( uniteCourante, nom, valeur );sprintf(err, "%s\t%s", nom, valeur);
-        erreur_1s("\tATTENDU : PARENTHESE_FERMANTE \n\t\tOBTENU : %s", err);
+        err("PARENTHESE_FERMANTE");
       }
     } else {
-      nom_token( uniteCourante, nom, valeur );sprintf(err, "%s\t%s", nom, valeur);
-      erreur_1s("\tATTENDU : PARENTHESE_OUVRANTE \n\t\tOBTENU : %s", err);
+      err("PARENTHESE_OUVRANTE");
     }
   } else {
-    nom_token( uniteCourante, nom, valeur );sprintf(err, "%s\t%s", nom, valeur);
-    erreur_1s("\tATTENDU : ECRIRE \n\t\tOBTENU : %s", err);
+    err("ECRIRE");
   }
 }
 /*******************************************************************************
@@ -454,8 +428,7 @@ void ivide(void) {
   if(uniteCourante == POINT_VIRGULE){
     uniteCourante = yylex();
   } else {
-    nom_token( uniteCourante, nom, valeur );sprintf(err, "%s\t%s", nom, valeur);
-    erreur_1s("\tATTENDU : POINT_VIRGULE \n\t\tOBTENU : %s", err);
+    err("POINT_VIRGULE");
   }
 }
 
@@ -494,14 +467,12 @@ void exp(void) {
        conj();
        expB();
      } else {
-       nom_token( uniteCourante, nom, valeur );sprintf(err, "%s\t%s", nom, valeur);
-       erreur_1s("\tATTENDU : conjonction \n\t\tOBTENU : %s", err);
+       err("P(conjonction)");
      }
    } else if(est_suivant(_expressionBis_, uniteCourante)){
      return;
    } else {
-     nom_token( uniteCourante, nom, valeur );sprintf(err, "%s\t%s", nom, valeur);
-     erreur_1s("\tATTENDU : OU ou VIDE \n\t\tOBTENU : %s", err);
+     err("OU ou VIDE");
    }
  }
 
@@ -527,8 +498,7 @@ void conjb(void) {
   } else if(est_suivant(_conjonctionBis_, uniteCourante)){
     return;
   } else {
-    nom_token( uniteCourante, nom, valeur );sprintf(err, "%s\t%s", nom, valeur);
-    erreur_1s("\tATTENDU : ET ou VIDE \n\t\tOBTENU : %s", err);
+    err("ET ou VIDE");
   }
 }
 
@@ -559,8 +529,7 @@ void conjb(void) {
    } else if(est_suivant(_comparaisonBis_, uniteCourante)){
      return;
    } else {
-     nom_token( uniteCourante, nom, valeur );sprintf(err, "%s\t%s", nom, valeur);
-     erreur_1s("\tATTENDU : EGAL ou INFERIEUR ou VIDE \n\t\tOBTENU : %s", err);
+     err("EGAL ou INFERIEUR ou VIDE");
    }
  }
 
@@ -591,8 +560,7 @@ void eb(void) {
   } else if(est_suivant(_expArithBis_, uniteCourante)){
     return;
   } else {
-    nom_token( uniteCourante, nom, valeur );sprintf(err, "%s\t%s", nom, valeur);
-    erreur_1s("\tATTENDU : PLUS ou MOINS ou VIDE \n\t\tOBTENU : %s", err);
+    err("PLUS ou MOINS ou VIDE");
   }
 }
 
@@ -623,8 +591,7 @@ void tb(void) {
   } else if(est_suivant(_termeBis_, uniteCourante)){
     return;
   } else {
-    nom_token( uniteCourante, nom, valeur );sprintf(err, "%s\t%s", nom, valeur);
-    erreur_1s("\tATTENDU : FOIS ou DIVISE ou VIDE \n\t\tOBTENU : %s", err);
+    err("FOIS ou DIVISE ou VIDE");
   }
 }
 
@@ -640,8 +607,7 @@ void neg(void) {
   } else if(est_premier(_facteur_, uniteCourante)){
     f();
   } else {
-    nom_token( uniteCourante, nom, valeur );sprintf(err, "%s\t%s", nom, valeur);
-    erreur_1s("\tATTENDU : NON ou VIDE \n\t\tOBTENU : %s", err);
+    err("NON ou VIDE");
   }
 }
 
@@ -660,8 +626,7 @@ void f(void) {
     if(uniteCourante == PARENTHESE_FERMANTE){
       uniteCourante = yylex();
     } else {
-      nom_token( uniteCourante, nom, valeur );sprintf(err, "%s\t%s", nom, valeur);
-      erreur_1s("\tATTENDU : PARENTHESE_FERMANTE \n\t\tOBTENU : %s", err);
+      err("PARENTHESE_FERMANTE");
     }
   } else if(uniteCourante == NOMBRE) {
     uniteCourante = yylex();
@@ -676,16 +641,13 @@ void f(void) {
       if(uniteCourante == PARENTHESE_FERMANTE){
         uniteCourante = yylex();
       } else {
-        nom_token( uniteCourante, nom, valeur );sprintf(err, "%s\t%s", nom, valeur);
-        erreur_1s("\tATTENDU : PARENTHESE_FERMANTE \n\t\tOBTENU : %s", err);
+        err("PARENTHESE_FERMANTE");
       }
     } else {
-      nom_token( uniteCourante, nom, valeur );sprintf(err, "%s\t%s", nom, valeur);
-      erreur_1s("\tATTENDU : PARENTHESE_OUVRANTE \n\t\tOBTENU : %s", err);
+      err("PARENTHESE_OUVRANTE");
     }
   } else {
-    nom_token( uniteCourante, nom, valeur );sprintf(err, "%s\t%s", nom, valeur);
-    erreur_1s("\tATTENDU : PARENTHESE_OUVRANTE ou NOMBRE ou appelFct ou var ou LIRE \n\t\tOBTENU : %s", err);
+    err("PARENTHESE_OUVRANTE ou NOMBRE ou P(appelFct) ou P(var) ou LIRE");
   }
 }
 
@@ -704,8 +666,7 @@ void var(void) {
     uniteCourante = yylex();
     oind();
   } else {
-    nom_token( uniteCourante, nom, valeur );sprintf(err, "%s\t%s", nom, valeur);
-    erreur_1s("\tATTENDU : ID_VAR \n\t\tOBTENU : %s", err);
+    err("ID_VAR");
   }
 }
 /*******************************************************************************
@@ -720,14 +681,12 @@ void oind(void) {
     if(uniteCourante == CROCHET_FERMANT){
       uniteCourante = yylex();
     } else {
-      nom_token( uniteCourante, nom, valeur );sprintf(err, "%s\t%s", nom, valeur);
-      erreur_1s("\tATTENDU : CROCHET_FERMANT \n\t\tOBTENU : %s", err);
+      err("CROCHET_FERMANT");
     }
   } else if(est_suivant(_optIndice_, uniteCourante)){
     return;
   } else {
-    nom_token( uniteCourante, nom, valeur );sprintf(err, "%s\t%s", nom, valeur);
-    erreur_1s("\tATTENDU : CROCHET_OUVRANT ou VIDE \n\t\tOBTENU : %s", err);
+    err("CROCHET_OUVRANT ou VIDE");
   }
 }
 /*******************************************************************************
@@ -743,16 +702,13 @@ void appf(void) {
       if(uniteCourante == PARENTHESE_FERMANTE){
         uniteCourante = yylex();
       } else {
-        nom_token( uniteCourante, nom, valeur );sprintf(err, "%s\t%s", nom, valeur);
-        erreur_1s("\tATTENDU : PARENTHESE_FERMANTE \n\t\tOBTENU : %s", err);
+        err("PARENTHESE_FERMANTE");
       }
     } else {
-      nom_token( uniteCourante, nom, valeur );sprintf(err, "%s\t%s", nom, valeur);
-      erreur_1s("\tATTENDU : PARENTHESE_OUVRANTE \n\t\tOBTENU : %s", err);
+      err("PARENTHESE_OUVRANTE");
     }
   } else {
-    nom_token( uniteCourante, nom, valeur );sprintf(err, "%s\t%s", nom, valeur);
-    erreur_1s("\tATTENDU : ID_FCT \n\t\tOBTENU : %s", err);
+    err("ID_FCT");
   }
 }
 /*******************************************************************************
@@ -767,8 +723,7 @@ void lexp(void){
   } else if(est_suivant(_listeExpressions_, uniteCourante)){
     return;
   } else {
-    nom_token( uniteCourante, nom, valeur );sprintf(err, "%s\t%s", nom, valeur);
-    erreur_1s("\tATTENDU : expression ou VIDE \n\t\tOBTENU : %s", err);
+    err("P(expression) ou VIDE");
   }
 }
 
@@ -785,7 +740,6 @@ void lexpb(void) {
   } else if(est_suivant(_listeExpressionsBis_, uniteCourante)){
     return;
   } else {
-    nom_token( uniteCourante, nom, valeur );sprintf(err, "%s\t%s", nom, valeur);
-    erreur_1s("\tATTENDU : VIRGULE ou VIDE \n\t\tOBTENU : %s", err);
+    err("VIRGULE ou VIDE");
   }
 }
