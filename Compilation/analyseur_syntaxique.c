@@ -73,6 +73,7 @@ void optDecVariables(void){
   if(est_premier(_listeDecVariables_, uniteCourante)){
     listeDecVariables();
     if(uniteCourante == POINT_VIRGULE){
+      msg();
       uniteCourante = yylex();
     } else {
       err("POINT_VIRGULE");
