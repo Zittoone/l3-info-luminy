@@ -36,23 +36,23 @@
               <symbole>EGAL</symbole>
               <expression>
                 <conjonction>
-                  <negation>
-                    <comparaison>
-                      <expArith>
-                        <terme>
+                  <comparaison>
+                    <expArith>
+                      <terme>
+                        <negation>
                           <facteur>
-                            <nombre>5</nombre>
+                            <nombre>123</nombre>
                           </facteur>
-                          <termeBis>
-                          </termeBis>
-                        </terme>
-                        <expArithBis>
-                        </expArithBis>
-                      </expArith>
-                      <comparaisonBis>
-                      </comparaisonBis>
-                    </comparaison>
-                  </negation>
+                        </negation>
+                        <termeBis>
+                        </termeBis>
+                      </terme>
+                      <expArithBis>
+                      </expArithBis>
+                    </expArith>
+                    <comparaisonBis>
+                    </comparaisonBis>
+                  </comparaison>
                   <conjonctionBis>
                   </conjonctionBis>
                 </conjonction>
@@ -63,45 +63,6 @@
             </instructionAffect>
           </instruction>
           <listeInstructions>
-            <instruction>
-              <instructionEcriture>
-                <mot_clef>ecrire</mot_clef>
-                <symbole>PARENTHESE_OUVRANTE</symbole>
-                <expression>
-                  <conjonction>
-                    <negation>
-                      <comparaison>
-                        <expArith>
-                          <terme>
-                            <facteur>
-                              <var>
-                                <id_variable>$a</id_variable>
-                                <optIndice>
-                                </optIndice>
-                              </var>
-                            </facteur>
-                            <termeBis>
-                            </termeBis>
-                          </terme>
-                          <expArithBis>
-                          </expArithBis>
-                        </expArith>
-                        <comparaisonBis>
-                        </comparaisonBis>
-                      </comparaison>
-                    </negation>
-                    <conjonctionBis>
-                    </conjonctionBis>
-                  </conjonction>
-                  <expressionBis>
-                  </expressionBis>
-                </expression>
-                <symbole>PARENTHESE_FERMANTE</symbole>
-                <symbole>POINT_VIRGULE</symbole>
-              </instructionEcriture>
-            </instruction>
-            <listeInstructions>
-            </listeInstructions>
           </listeInstructions>
         </listeInstructions>
         <symbole>ACCOLADE_FERMANTE</symbole>

@@ -20,7 +20,7 @@ int main(int argc, char **argv) {
   initialise_suivants();
 
   // Axiome
-  pg();
+  programme();
 
   return 0;
 }

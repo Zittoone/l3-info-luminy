@@ -16,19 +16,31 @@ void err(char *attendu){
   nom_token( uniteCourante, nom, valeur );
 
   char err[256];
-  sprintf(err, "\tATTENDU : %s\n\t\tOBTENU : %s\t%s", attendu, nom, valeur);
+  sprintf(err, "\tATTENDU : %s\n\terme\tOBTENU : %s\terme%s", attendu, nom, valeur);
 
   erreur(err);
 }
 
 /*******************************************************************************
- * Grammaire non ambigüe, non recursive et factorisée à gauche du langage L
+ * Fonction simplifiant l'affichage d'une variable ou d'un symbole.
+ ******************************************************************************/
+void msg(void){
+  char nom[100];
+  char valeur[100];
+  nom_token( uniteCourante, nom, valeur );
+
+  affiche_element(nom, valeur, 1);
+}
+
+
+/*******************************************************************************
+ * Grammaire non ambigüexpArith, non recursive et factoriséexpArith à gauche du langage L
  *
  * Conventions: symboles terminaux entre 'apostrophes' ou 100% MAJUSCULES
  *              symboles non terminaux commencent par lettre minuscule
  *              symbole initial (axiome) à gauche de la première production
  *              productions ont la forme nonTerminal -> seq1 | seq2 |...| seqN
- *              production vide représentée par barre verticale à la fin
+ *              production vide représentéexpArith par barre verticale à la fin
  *              espaces obligatoires entre symboles, flèche -> et alternative |
  ******************************************************************************/
 
@@ -36,10 +48,12 @@ void err(char *attendu){
  * Fonction principale de la grammaire correspondant à la règle :
  * programme -> optDecVariables listeDecFonctions
  ******************************************************************************/
-void pg(void){
+void programme(void){
+  affiche_balise_ouvrante(__FUNCTION__, 1);
   uniteCourante = yylex();
-  odv();
-  ldf();
+  optDecVariables();
+  listeDecFonctions();
+  affiche_balise_fermante(__FUNCTION__, 1);
 }
 
 
@@ -54,32 +68,35 @@ void pg(void){
  * optDecVariables -> listeDecVariables ';'
  *                  | vide
  ******************************************************************************/
-void odv(void){
+void optDecVariables(void){
+  affiche_balise_ouvrante(__FUNCTION__, 1);
   if(est_premier(_listeDecVariables_, uniteCourante)){
-    ldv();
+    listeDecVariables();
     if(uniteCourante == POINT_VIRGULE){
       uniteCourante = yylex();
     } else {
       err("POINT_VIRGULE");
     }
   } else if(est_suivant(_optDecVariables_, uniteCourante)){
-    return;
   } else {
     err("P(listeDecVariables) OU VIDE");
   }
+  affiche_balise_fermante(__FUNCTION__, 1);
 }
 
 /*******************************************************************************
  * Fonction de la grammaire correspondant à la règle :
  * listeDecVariables -> declarationVariable listeDecVariablesBis
  ******************************************************************************/
-void ldv(void){
+void listeDecVariables(void){
+  affiche_balise_ouvrante(__FUNCTION__, 1);
   if(est_premier(_declarationVariable_, uniteCourante)){
-    dv();
-    ldvb();
+    declarationVariable();
+    listeDecVariablesBis();
   } else {
     err("P(declarationVariable)");
   }
+  affiche_balise_fermante(__FUNCTION__, 1);
 }
 
 /*******************************************************************************
@@ -87,34 +104,40 @@ void ldv(void){
  * listeDecVariablesBis -> ',' declarationVariable listeDecVariablesBis
  *                       |
  ******************************************************************************/
-void ldvb(void){
+void listeDecVariablesBis(void){
+  affiche_balise_ouvrante(__FUNCTION__, 1);
   if(uniteCourante == VIRGULE){
+    msg();
     uniteCourante = yylex();
-    dv();
-    ldvb();
+    declarationVariable();
+    listeDecVariablesBis();
   } else if(est_suivant(_listeDecVariablesBis_, uniteCourante)){
-    return;
   } else {
     err("VIRGULE ou VIDE");
   }
+  affiche_balise_fermante(__FUNCTION__, 1);
 }
 
 /*******************************************************************************
  * Fonction de la grammaire correspondant à la règle :
  * declarationVariable -> ENTIER ID_VAR optTailleTableau
  ******************************************************************************/
-void dv(void){
+void declarationVariable(void){
+  affiche_balise_ouvrante(__FUNCTION__, 1);
   if(uniteCourante == ENTIER){
+    msg();
     uniteCourante = yylex();
     if(uniteCourante == ID_VAR){
+      msg();
       uniteCourante = yylex();
-      ott();
+      optTailleTableau();
     } else {
       err("ID_VAR");
     }
   } else {
     err("POINT_VIRGULE");
   }
+  affiche_balise_fermante(__FUNCTION__, 1);
 }
 
 /*******************************************************************************
@@ -122,12 +145,16 @@ void dv(void){
  * optTailleTableau -> '[' NOMBRE ']'
  *                   | vide
  ******************************************************************************/
-void ott(void){
+void optTailleTableau(void){
+  affiche_balise_ouvrante(__FUNCTION__, 1);
   if(uniteCourante == CROCHET_OUVRANT){
+    msg();
     uniteCourante = yylex();
     if(uniteCourante == NOMBRE){
+      msg();
       uniteCourante = yylex();
       if(uniteCourante == CROCHET_FERMANT){
+        msg();
         uniteCourante = yylex();
       } else {
         err("CROCHET_FERMANT");
@@ -136,10 +163,10 @@ void ott(void){
       err("NOMBRE");
     }
   } else if(est_suivant(_optTailleTableau_, uniteCourante)){
-    return;
   } else {
     err("CROCHET_OUVRANT ou VIDE");
   }
+  affiche_balise_fermante(__FUNCTION__, 1);
 }
 
 /*******************************************************************************
@@ -147,41 +174,48 @@ void ott(void){
  * listeDecFonctions -> declarationFonction listeDecFonctions
  *                    |
  ******************************************************************************/
- void ldf(void){
+ void listeDecFonctions(void){
+   affiche_balise_ouvrante(__FUNCTION__, 1);
    if(est_premier(_declarationFonction_, uniteCourante)){
-     df();
-     ldf();
+     declarationFonction();
+     listeDecFonctions();
    } else if(est_suivant(_listeDecFonctions_, uniteCourante)){
-     return;
    } else {
      err("P(declarationFonction) ou VIDE");
    }
+   affiche_balise_fermante(__FUNCTION__, 1);
  }
 
 /*******************************************************************************
  * Fonction de la grammaire correspondant à la règle :
  * declarationFonction -> ID_FCT listeParam optDecVariables instructionBloc
  ******************************************************************************/
-void df(void){
+void declarationFonction(void){
+  affiche_balise_ouvrante(__FUNCTION__, 1);
   if(uniteCourante == ID_FCT){
+    msg();
     uniteCourante = yylex();
-    lp();
-    odv();
-    ib();
+    listeParam();
+    optDecVariables();
+    instructionBloc();
   } else {
     err("ID_FCT");
   }
+  affiche_balise_fermante(__FUNCTION__, 1);
 }
 
 /*******************************************************************************
  * Fonction de la grammaire correspondant à la règle :
  * listeParam -> '(' optListeDecVariables ')'
  ******************************************************************************/
-void lp(void){
+void listeParam(void){
+  affiche_balise_ouvrante(__FUNCTION__, 1);
   if(uniteCourante == PARENTHESE_OUVRANTE){
+    msg();
     uniteCourante = yylex();
-    oldv();
+    optListeDecVariables();
     if(uniteCourante == PARENTHESE_FERMANTE){
+      msg();
       uniteCourante = yylex();
     } else {
       err("PARENTHESE_FERMANTE");
@@ -189,6 +223,7 @@ void lp(void){
   } else {
     err("PARENTHESE_OUVRANTE");
   }
+  affiche_balise_fermante(__FUNCTION__, 1);
 }
 
 /*******************************************************************************
@@ -196,14 +231,15 @@ void lp(void){
  * optListeDecVariables -> listeDecVariables
  *                       |
  ******************************************************************************/
-void oldv(void){
+void optListeDecVariables(void){
+  affiche_balise_ouvrante(__FUNCTION__, 1);
   if(est_premier(_listeDecVariables_, uniteCourante)){
-    ldv();
+    listeDecVariables();
   } else if(est_suivant(_optListeDecVariables_, uniteCourante)){
-    return;
   } else {
     err("P(listeDecVariables) ou VIDE");
   }
+  affiche_balise_fermante(__FUNCTION__, 1);
 }
 
 
@@ -224,39 +260,44 @@ void oldv(void){
  *          | instructionEcriture
  *          | instructionVide
  ******************************************************************************/
-void i(void){
+void instruction(void){
+  affiche_balise_ouvrante(__FUNCTION__, 1);
   if(est_premier(_instructionAffect_, uniteCourante)){
-    iaff();
+    instructionAffect();
   } else if(est_premier(_instructionBloc_, uniteCourante)){
-    ib();
+    instructionBloc();
   } else if(est_premier(_instructionSi_, uniteCourante)){
-    isi();
+    instructionSi();
   } else if(est_premier(_instructionTantque_, uniteCourante)){
-    itq();
+    instructionTantque();
   } else if(est_premier(_instructionAppel_, uniteCourante)){
-    iapp();
+    instructionAppel();
   } else if(est_premier(_instructionRetour_, uniteCourante)){
-    iret();
+    instructionRetour();
   } else if(est_premier(_instructionEcriture_, uniteCourante)){
-    iecr();
+    instructionEcriture();
   } else if(est_premier(_instructionVide_, uniteCourante)){
-    ivide();
+    instructionVide();
   } else {
     err("P(instruction...)");
   }
+  affiche_balise_fermante(__FUNCTION__, 1);
 }
 
 /*******************************************************************************
  * Fonction de la grammaire correspondant à la règle :
  * instructionAffect -> var '=' expression ';'
  ******************************************************************************/
- void iaff(void){
+ void instructionAffect(void){
+   affiche_balise_ouvrante(__FUNCTION__, 1);
    if(est_premier(_var_, uniteCourante)){
      var();
      if(uniteCourante == EGAL){
+       msg();
        uniteCourante = yylex();
-       exp();
+       expression();
        if(uniteCourante == POINT_VIRGULE){
+         msg();
          uniteCourante = yylex();
        } else {
          err("POINT_VIRGULE");
@@ -267,17 +308,21 @@ void i(void){
    } else {
      err("P(var)");
    }
+   affiche_balise_fermante(__FUNCTION__, 1);
  }
 
 /*******************************************************************************
  * Fonction de la grammaire correspondant à la règle :
  * instructionBloc -> '{' listeInstructions '}'
  ******************************************************************************/
-void ib(void) {
+void instructionBloc(void) {
+  affiche_balise_ouvrante(__FUNCTION__, 1);
   if(uniteCourante == ACCOLADE_OUVRANTE){
+    msg();
     uniteCourante = yylex();
-    li();
+    listeInstructions();
     if(uniteCourante == ACCOLADE_FERMANTE){
+      msg();
       uniteCourante = yylex();
     } else {
       err("ACCOLADE_FERMANTE");
@@ -285,6 +330,7 @@ void ib(void) {
   } else {
     err("ACCOLADE_OUVRANTE");
   }
+  affiche_balise_fermante(__FUNCTION__, 1);
 }
 
 /*******************************************************************************
@@ -292,25 +338,28 @@ void ib(void) {
  * listeInstructions -> instruction listeInstructions
  *                    |
  ******************************************************************************/
-void li(void) {
+void listeInstructions(void) {
+  affiche_balise_ouvrante(__FUNCTION__, 1);
   if(est_premier(_instruction_, uniteCourante)){
-    i();
-    li();
+    instruction();
+    listeInstructions();
   } else if(est_suivant(_listeInstructions_, uniteCourante)){
-    return;
   } else {
     err("P(instruction) ou VIDE");
   }
+  affiche_balise_fermante(__FUNCTION__, 1);
 }
 
 /*******************************************************************************
  * Fonction de la grammaire correspondant à la règle :
  * instructionAppel -> appelFct ';'
  ******************************************************************************/
-void iapp(void) {
+void instructionAppel(void) {
+  affiche_balise_ouvrante(__FUNCTION__, 1);
   if(est_premier(_appelFct_, uniteCourante)){
-    appf();
+    appelFct();
     if(uniteCourante == POINT_VIRGULE){
+      msg();
       uniteCourante = yylex();
     } else {
       err("POINT_VIRGULE");
@@ -318,26 +367,31 @@ void iapp(void) {
   } else {
     err("P(appelFct)");
   }
+  affiche_balise_fermante(__FUNCTION__, 1);
 }
 
 /*******************************************************************************
  * Fonction de la grammaire correspondant à la règle :
  * instructionSi -> SI expression ALORS instructionBloc optSinon
  ******************************************************************************/
-void isi(void) {
+void instructionSi(void) {
+  affiche_balise_ouvrante(__FUNCTION__, 1);
   if(uniteCourante == SI){
+    msg();
     uniteCourante = yylex();
-    exp();
+    expression();
     if(uniteCourante == ALORS){
+      msg();
       uniteCourante = yylex();
-      ib();
-      osinon();
+      instructionBloc();
+      optSinon();
     } else {
       err("ALORS");
     }
   } else {
     err("SI");
   }
+  affiche_balise_fermante(__FUNCTION__, 1);
 }
 
 /*******************************************************************************
@@ -345,45 +399,54 @@ void isi(void) {
  * optSinon -> SINON instructionBloc
  *          |
  ******************************************************************************/
-void osinon(void) {
+void optSinon(void) {
+  affiche_balise_ouvrante(__FUNCTION__, 1);
   if(uniteCourante == SINON){
+    msg();
     uniteCourante = yylex();
-    ib();
+    instructionBloc();
   } else if(est_suivant(_optSinon_, uniteCourante)){
-    return;
   } else {
     err("SINON ou VIDE");
   }
+  affiche_balise_fermante(__FUNCTION__, 1);
 }
 
 /*******************************************************************************
  * Fonction de la grammaire correspondant à la règle :
  * instructionTantque -> TANTQUE expression FAIRE instructionBloc
  ******************************************************************************/
-void itq(void) {
+void instructionTantque(void) {
+  affiche_balise_ouvrante(__FUNCTION__, 1);
   if(uniteCourante == TANTQUE){
+    msg();
     uniteCourante = yylex();
-    exp();
+    expression();
     if(uniteCourante == FAIRE){
+      msg();
       uniteCourante = yylex();
-      ib();
+      instructionBloc();
     } else {
       err("FAIRE");
     }
   } else {
     err("TANTQUE");
   }
+  affiche_balise_fermante(__FUNCTION__, 1);
 }
 
 /*******************************************************************************
  * Fonction de la grammaire correspondant à la règle :
  * instructionRetour -> RETOUR expression ';'
  ******************************************************************************/
-void iret(void) {
+void instructionRetour(void) {
+  affiche_balise_ouvrante(__FUNCTION__, 1);
   if(uniteCourante == RETOUR){
+    msg();
     uniteCourante = yylex();
-    exp();
+    expression();
     if(uniteCourante == POINT_VIRGULE){
+      msg();
       uniteCourante = yylex();
     } else {
       err("POINT_VIRGULE");
@@ -391,21 +454,27 @@ void iret(void) {
   } else {
     err("RETOUR");
   }
+  affiche_balise_fermante(__FUNCTION__, 1);
 }
 
 /*******************************************************************************
  * Fonction de la grammaire correspondant à la règle :
  * instructionEcriture -> ECRIRE '(' expression ')' ';'
  ******************************************************************************/
-void iecr(void) {
+void instructionEcriture(void) {
+  affiche_balise_ouvrante(__FUNCTION__, 1);
   if(uniteCourante == ECRIRE){
+    msg();
     uniteCourante = yylex();
     if(uniteCourante == PARENTHESE_OUVRANTE){
+      msg();
       uniteCourante = yylex();
-      exp();
+      expression();
       if(uniteCourante == PARENTHESE_FERMANTE){
+        msg();
         uniteCourante = yylex();
         if(uniteCourante == POINT_VIRGULE){
+          msg();
           uniteCourante = yylex();
         } else {
           err("POINT_VIRGULE");
@@ -419,17 +488,21 @@ void iecr(void) {
   } else {
     err("ECRIRE");
   }
+  affiche_balise_fermante(__FUNCTION__, 1);
 }
 /*******************************************************************************
  * Fonction de la grammaire correspondant à la règle :
  * instructionVide -> ';'
  ******************************************************************************/
-void ivide(void) {
+void instructionVide(void) {
+  affiche_balise_ouvrante(__FUNCTION__, 1);
   if(uniteCourante == POINT_VIRGULE){
+    msg();
     uniteCourante = yylex();
   } else {
     err("POINT_VIRGULE");
   }
+  affiche_balise_fermante(__FUNCTION__, 1);
 }
 
 /*******************************************************************************
@@ -450,9 +523,11 @@ void ivide(void) {
  * Fonction de la grammaire correspondant à la règle :
  * expression -> conjonction expressionBis
  ******************************************************************************/
-void exp(void) {
-    conj();
-    expB();
+void expression(void) {
+    affiche_balise_ouvrante(__FUNCTION__, 1);
+    conjonction();
+    expressionBis();
+    affiche_balise_fermante(__FUNCTION__, 1);
 }
 
 /*******************************************************************************
@@ -460,29 +535,33 @@ void exp(void) {
  * expressionBis -> '|' conjonction expressionBis
  *                |
  ******************************************************************************/
- void expB(void) {
+ void expressionBis(void) {
+   affiche_balise_ouvrante(__FUNCTION__, 1);
    if(uniteCourante == OU){
+     msg();
      uniteCourante = yylex();
      if(est_premier(_conjonction_, uniteCourante)){
-       conj();
-       expB();
+       conjonction();
+       expressionBis();
      } else {
        err("P(conjonction)");
      }
    } else if(est_suivant(_expressionBis_, uniteCourante)){
-     return;
    } else {
      err("OU ou VIDE");
    }
+   affiche_balise_fermante(__FUNCTION__, 1);
  }
 
 /*******************************************************************************
  * Fonction de la grammaire correspondant à la règle :
  * conjonction -> comparaison conjonctionBis
  ******************************************************************************/
-void conj(void) {
-  comp();
-  conjb();
+void conjonction(void) {
+  affiche_balise_ouvrante(__FUNCTION__, 1);
+  comparaison();
+  conjonctionBis();
+  affiche_balise_fermante(__FUNCTION__, 1);
 }
 
 /*******************************************************************************
@@ -490,25 +569,29 @@ void conj(void) {
  * conjonctionBis -> '&' comparaison conjonctionBis
  *                |
  ******************************************************************************/
-void conjb(void) {
+void conjonctionBis(void) {
+  affiche_balise_ouvrante(__FUNCTION__, 1);
   if(uniteCourante == ET){
+    msg();
     uniteCourante = yylex();
-    comp();
-    conjb();
+    comparaison();
+    conjonctionBis();
   } else if(est_suivant(_conjonctionBis_, uniteCourante)){
-    return;
   } else {
     err("ET ou VIDE");
   }
+  affiche_balise_fermante(__FUNCTION__, 1);
 }
 
 /*******************************************************************************
  * Fonction de la grammaire correspondant à la règle :
  * comparaison -> expArith comparaisonBis
  ******************************************************************************/
- void comp(void) {
-     e();
-     compb();
+ void comparaison(void) {
+     affiche_balise_ouvrante(__FUNCTION__, 1);
+     expArith();
+     comparaisonBis();
+     affiche_balise_fermante(__FUNCTION__, 1);
  }
 
 /*******************************************************************************
@@ -517,29 +600,34 @@ void conjb(void) {
  *                 | '<' expArith comparaisonBis
  *                 |
  ******************************************************************************/
- void compb(void) {
+ void comparaisonBis(void) {
+   affiche_balise_ouvrante(__FUNCTION__, 1);
    if(uniteCourante == EGAL){
+     msg();
      uniteCourante = yylex();
-     e();
-     compb();
+     expArith();
+     comparaisonBis();
    } else if(uniteCourante == INFERIEUR){
+     msg();
      uniteCourante = yylex();
-     e();
-     compb();
+     expArith();
+     comparaisonBis();
    } else if(est_suivant(_comparaisonBis_, uniteCourante)){
-     return;
    } else {
      err("EGAL ou INFERIEUR ou VIDE");
    }
+   affiche_balise_fermante(__FUNCTION__, 1);
  }
 
 /*******************************************************************************
  * Fonction de la grammaire correspondant à la règle :
  * expArith -> terme expArithBis
  ******************************************************************************/
-void e(void) {
-    t();
-    eb();
+void expArith(void) {
+    affiche_balise_ouvrante(__FUNCTION__, 1);
+    terme();
+    expArithBis();
+    affiche_balise_fermante(__FUNCTION__, 1);
 }
 
 /*******************************************************************************
@@ -548,29 +636,35 @@ void e(void) {
  *              | '-' terme expArithBis
  *              |
  ******************************************************************************/
-void eb(void) {
+void expArithBis(void) {
+  affiche_balise_ouvrante(__FUNCTION__, 1);
   if(uniteCourante == PLUS){
+    msg();
     uniteCourante = yylex();
-    t();
-    eb();
+    terme();
+    expArithBis();
   } else if(uniteCourante == MOINS){
+    msg();
     uniteCourante = yylex();
-    t();
-    eb();
+    terme();
+    expArithBis();
   } else if(est_suivant(_expArithBis_, uniteCourante)){
-    return;
+
   } else {
     err("PLUS ou MOINS ou VIDE");
   }
+  affiche_balise_fermante(__FUNCTION__, 1);
 }
 
 /*******************************************************************************
  * Fonction de la grammaire correspondant à la règle :
  * terme -> negation termeBis
  ******************************************************************************/
-void t(void) {
-  neg();
-  tb();
+void terme(void) {
+  affiche_balise_ouvrante(__FUNCTION__, 1);
+  negation();
+  termeBis();
+  affiche_balise_fermante(__FUNCTION__, 1);
 }
 
 /*******************************************************************************
@@ -579,20 +673,24 @@ void t(void) {
  *           | '/' negation termeBis
  *           |
  ******************************************************************************/
-void tb(void) {
+void termeBis(void) {
+  affiche_balise_ouvrante(__FUNCTION__, 1);
   if(uniteCourante == FOIS){
+    msg();
     uniteCourante = yylex();
-    neg();
-    tb();
+    negation();
+    termeBis();
   } else if(uniteCourante == DIVISE){
+    msg();
     uniteCourante = yylex();
-    neg();
-    tb();
+    negation();
+    termeBis();
   } else if(est_suivant(_termeBis_, uniteCourante)){
-    return;
+
   } else {
     err("FOIS ou DIVISE ou VIDE");
   }
+  affiche_balise_fermante(__FUNCTION__, 1);
 }
 
 /*******************************************************************************
@@ -600,15 +698,18 @@ void tb(void) {
  * negation -> '!' negation
  *           | facteur
  ******************************************************************************/
-void neg(void) {
+void negation(void) {
+  affiche_balise_ouvrante(__FUNCTION__, 1);
   if(uniteCourante == NON){
+    msg();
     uniteCourante = yylex();
-    neg();
+    negation();
   } else if(est_premier(_facteur_, uniteCourante)){
-    f();
+    facteur();
   } else {
     err("NON ou VIDE");
   }
+  affiche_balise_fermante(__FUNCTION__, 1);
 }
 
 /*******************************************************************************
@@ -619,26 +720,33 @@ void neg(void) {
  *          | var
  *          | LIRE '(' ')'
  ******************************************************************************/
-void f(void) {
+void facteur(void) {
+  affiche_balise_ouvrante(__FUNCTION__, 1);
   if(uniteCourante == PARENTHESE_OUVRANTE){
+    msg();
     uniteCourante = yylex();
-    exp();
+    expression();
     if(uniteCourante == PARENTHESE_FERMANTE){
+      msg();
       uniteCourante = yylex();
     } else {
       err("PARENTHESE_FERMANTE");
     }
   } else if(uniteCourante == NOMBRE) {
+    msg();
     uniteCourante = yylex();
   } else if(est_premier(_appelFct_, uniteCourante)) {
-    appf();
+    appelFct();
   } else if(est_premier(_var_, uniteCourante)) {
     var();
   } else if(uniteCourante == LIRE) {
+    msg();
     uniteCourante = yylex();
     if(uniteCourante == PARENTHESE_OUVRANTE){
+      msg();
       uniteCourante = yylex();
       if(uniteCourante == PARENTHESE_FERMANTE){
+        msg();
         uniteCourante = yylex();
       } else {
         err("PARENTHESE_FERMANTE");
@@ -649,6 +757,7 @@ void f(void) {
   } else {
     err("PARENTHESE_OUVRANTE ou NOMBRE ou P(appelFct) ou P(var) ou LIRE");
   }
+  affiche_balise_fermante(__FUNCTION__, 1);
 }
 
 /*******************************************************************************
@@ -662,44 +771,55 @@ void f(void) {
  * var -> ID_VAR optIndice
  ******************************************************************************/
 void var(void) {
+  affiche_balise_ouvrante(__FUNCTION__, 1);
   if(uniteCourante == ID_VAR){
+    msg();
     uniteCourante = yylex();
-    oind();
+    optIndice();
   } else {
     err("ID_VAR");
   }
+  affiche_balise_fermante(__FUNCTION__, 1);
 }
 /*******************************************************************************
  * Fonction de la grammaire correspondant à la règle :
  * optIndice -> '[' expression ']'
  *           |
  ******************************************************************************/
-void oind(void) {
+void optIndice(void) {
+  affiche_balise_ouvrante(__FUNCTION__, 1);
   if(uniteCourante == CROCHET_OUVRANT){
+    msg();
     uniteCourante = yylex();
-    exp();
+    expression();
     if(uniteCourante == CROCHET_FERMANT){
+      msg();
       uniteCourante = yylex();
     } else {
       err("CROCHET_FERMANT");
     }
   } else if(est_suivant(_optIndice_, uniteCourante)){
-    return;
+
   } else {
     err("CROCHET_OUVRANT ou VIDE");
   }
+  affiche_balise_fermante(__FUNCTION__, 1);
 }
 /*******************************************************************************
  * Fonction de la grammaire correspondant à la règle :
  * appelFct -> ID_FCT '(' listeExpressions ')'
  ******************************************************************************/
-void appf(void) {
+void appelFct(void) {
+  affiche_balise_ouvrante(__FUNCTION__, 1);
   if(uniteCourante == ID_FCT){
+    msg();
     uniteCourante = yylex();
     if(uniteCourante == PARENTHESE_OUVRANTE){
+      msg();
       uniteCourante = yylex();
-      lexp();
+      listeExpressions();
       if(uniteCourante == PARENTHESE_FERMANTE){
+        msg();
         uniteCourante = yylex();
       } else {
         err("PARENTHESE_FERMANTE");
@@ -710,21 +830,24 @@ void appf(void) {
   } else {
     err("ID_FCT");
   }
+  affiche_balise_fermante(__FUNCTION__, 1);
 }
 /*******************************************************************************
  * Fonction de la grammaire correspondant à la règle :
  * listeExpressions -> expression listeExpressionsBis
  *                  |
  ******************************************************************************/
-void lexp(void){
+void listeExpressions(void){
+  affiche_balise_ouvrante(__FUNCTION__, 1);
   if(est_premier(_expression_, uniteCourante)){
-    exp();
-    lexpb();
+    expression();
+    listeExpressionsBis();
   } else if(est_suivant(_listeExpressions_, uniteCourante)){
-    return;
+
   } else {
     err("P(expression) ou VIDE");
   }
+  affiche_balise_fermante(__FUNCTION__, 1);
 }
 
 /*******************************************************************************
@@ -732,14 +855,17 @@ void lexp(void){
  * listeExpressionsBis -> ',' expression listeExpressionsBis
  *                     |
  ******************************************************************************/
-void lexpb(void) {
+void listeExpressionsBis(void) {
+  affiche_balise_ouvrante(__FUNCTION__, 1);
   if(uniteCourante == VIRGULE){
+    msg();
     uniteCourante = yylex();
-    exp();
-    lexpb();
+    expression();
+    listeExpressionsBis();
   } else if(est_suivant(_listeExpressionsBis_, uniteCourante)){
-    return;
+
   } else {
     err("VIRGULE ou VIDE");
   }
+  affiche_balise_fermante(__FUNCTION__, 1);
 }

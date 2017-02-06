@@ -45,23 +45,23 @@
               <symbole>EGAL</symbole>
               <expression>
                 <conjonction>
-                  <negation>
-                    <comparaison>
-                      <expArith>
-                        <terme>
+                  <comparaison>
+                    <expArith>
+                      <terme>
+                        <negation>
                           <facteur>
                             <nombre>0</nombre>
                           </facteur>
-                          <termeBis>
-                          </termeBis>
-                        </terme>
-                        <expArithBis>
-                        </expArithBis>
-                      </expArith>
-                      <comparaisonBis>
-                      </comparaisonBis>
-                    </comparaison>
-                  </negation>
+                        </negation>
+                        <termeBis>
+                        </termeBis>
+                      </terme>
+                      <expArithBis>
+                      </expArithBis>
+                    </expArith>
+                    <comparaisonBis>
+                    </comparaisonBis>
+                  </comparaison>
                   <conjonctionBis>
                   </conjonctionBis>
                 </conjonction>
@@ -77,10 +77,10 @@
                 <mot_clef>tantque</mot_clef>
                 <expression>
                   <conjonction>
-                    <negation>
-                      <comparaison>
-                        <expArith>
-                          <terme>
+                    <comparaison>
+                      <expArith>
+                        <terme>
+                          <negation>
                             <facteur>
                               <var>
                                 <id_variable>$i</id_variable>
@@ -88,6 +88,22 @@
                                 </optIndice>
                               </var>
                             </facteur>
+                          </negation>
+                          <termeBis>
+                          </termeBis>
+                        </terme>
+                        <expArithBis>
+                        </expArithBis>
+                      </expArith>
+                      <comparaisonBis>
+                        <symbole>INFERIEUR</symbole>
+                        <expArith>
+                          <terme>
+                            <negation>
+                              <facteur>
+                                <nombre>10</nombre>
+                              </facteur>
+                            </negation>
                             <termeBis>
                             </termeBis>
                           </terme>
@@ -95,23 +111,9 @@
                           </expArithBis>
                         </expArith>
                         <comparaisonBis>
-                          <symbole>INFERIEUR</symbole>
-                          <expArith>
-                            <terme>
-                              <facteur>
-                                <nombre>10</nombre>
-                              </facteur>
-                              <termeBis>
-                              </termeBis>
-                            </terme>
-                            <expArithBis>
-                            </expArithBis>
-                          </expArith>
-                          <comparaisonBis>
-                          </comparaisonBis>
                         </comparaisonBis>
-                      </comparaison>
-                    </negation>
+                      </comparaisonBis>
+                    </comparaison>
                     <conjonctionBis>
                     </conjonctionBis>
                   </conjonction>
@@ -132,10 +134,10 @@
                         <symbole>EGAL</symbole>
                         <expression>
                           <conjonction>
-                            <negation>
-                              <comparaison>
-                                <expArith>
-                                  <terme>
+                            <comparaison>
+                              <expArith>
+                                <terme>
+                                  <negation>
                                     <facteur>
                                       <var>
                                         <id_variable>$i</id_variable>
@@ -143,8 +145,10 @@
                                         </optIndice>
                                       </var>
                                     </facteur>
-                                    <termeBis>
-                                      <symbole>FOIS</symbole>
+                                  </negation>
+                                  <termeBis>
+                                    <symbole>FOIS</symbole>
+                                    <negation>
                                       <facteur>
                                         <var>
                                           <id_variable>$i</id_variable>
@@ -152,17 +156,17 @@
                                           </optIndice>
                                         </var>
                                       </facteur>
-                                      <termeBis>
-                                      </termeBis>
+                                    </negation>
+                                    <termeBis>
                                     </termeBis>
-                                  </terme>
-                                  <expArithBis>
-                                  </expArithBis>
-                                </expArith>
-                                <comparaisonBis>
-                                </comparaisonBis>
-                              </comparaison>
-                            </negation>
+                                  </termeBis>
+                                </terme>
+                                <expArithBis>
+                                </expArithBis>
+                              </expArith>
+                              <comparaisonBis>
+                              </comparaisonBis>
+                            </comparaison>
                             <conjonctionBis>
                             </conjonctionBis>
                           </conjonction>
@@ -179,10 +183,10 @@
                           <symbole>PARENTHESE_OUVRANTE</symbole>
                           <expression>
                             <conjonction>
-                              <negation>
-                                <comparaison>
-                                  <expArith>
-                                    <terme>
+                              <comparaison>
+                                <expArith>
+                                  <terme>
+                                    <negation>
                                       <facteur>
                                         <var>
                                           <id_variable>$carre</id_variable>
@@ -190,16 +194,16 @@
                                           </optIndice>
                                         </var>
                                       </facteur>
-                                      <termeBis>
-                                      </termeBis>
-                                    </terme>
-                                    <expArithBis>
-                                    </expArithBis>
-                                  </expArith>
-                                  <comparaisonBis>
-                                  </comparaisonBis>
-                                </comparaison>
-                              </negation>
+                                    </negation>
+                                    <termeBis>
+                                    </termeBis>
+                                  </terme>
+                                  <expArithBis>
+                                  </expArithBis>
+                                </expArith>
+                                <comparaisonBis>
+                                </comparaisonBis>
+                              </comparaison>
                               <conjonctionBis>
                               </conjonctionBis>
                             </conjonction>
@@ -221,10 +225,10 @@
                             <symbole>EGAL</symbole>
                             <expression>
                               <conjonction>
-                                <negation>
-                                  <comparaison>
-                                    <expArith>
-                                      <terme>
+                                <comparaison>
+                                  <expArith>
+                                    <terme>
+                                      <negation>
                                         <facteur>
                                           <var>
                                             <id_variable>$i</id_variable>
@@ -232,26 +236,28 @@
                                             </optIndice>
                                           </var>
                                         </facteur>
+                                      </negation>
+                                      <termeBis>
+                                      </termeBis>
+                                    </terme>
+                                    <expArithBis>
+                                      <symbole>PLUS</symbole>
+                                      <terme>
+                                        <negation>
+                                          <facteur>
+                                            <nombre>1</nombre>
+                                          </facteur>
+                                        </negation>
                                         <termeBis>
                                         </termeBis>
                                       </terme>
                                       <expArithBis>
-                                        <symbole>PLUS</symbole>
-                                        <terme>
-                                          <facteur>
-                                            <nombre>1</nombre>
-                                          </facteur>
-                                          <termeBis>
-                                          </termeBis>
-                                        </terme>
-                                        <expArithBis>
-                                        </expArithBis>
                                       </expArithBis>
-                                    </expArith>
-                                    <comparaisonBis>
-                                    </comparaisonBis>
-                                  </comparaison>
-                                </negation>
+                                    </expArithBis>
+                                  </expArith>
+                                  <comparaisonBis>
+                                  </comparaisonBis>
+                                </comparaison>
                                 <conjonctionBis>
                                 </conjonctionBis>
                               </conjonction>
