@@ -1,3 +1,5 @@
+Couvreur Alexis - Langage Naturel TP1
+
 1. Prétraitements
 1.1
 (1) ted.txt contient 185 552 lignes, 3 343 242 mots et 20 217 667 caractères.
@@ -16,7 +18,7 @@
     ensuite on enlève tous les autres symboles qui terminent notre regex du grep (les non alpha) 
     puis on supprime l'ambiguité entre majuscules et minuscules, 
     et enfin on compte le nombre de mot au total sur un résultat de mot distinct (uniq).
-    Attention, certains mots n'ont pas été correctement changés en minuscule (tel que les majuscules accentuées) donc le compte n'est peut être pas exact.
+    Attention, certains mots n'ont pas été correctement changés en minuscule (tel que les majuscules accentuées) donc le compte n'est peut être pas exact. Pour cela on pouvait utilisé l'option -i de uniq.
 (4) sed -E "s/ /\-/g" ted.txt
 
 1.2
@@ -32,6 +34,70 @@
 (3) Il y a un total de 3 343 242 mots avant l'utilisation de la commande : 
     sed -r 's/([^ ]), /\1 , /g' | wc
     Après celle-ci on obtient un total de 3 556 636 mots.
-    Nous allons maintenant séparés tous les caractères qui ne sont pas des alphas des mots via la commande suivante :
-     
+    Nous allons maintenant séparés tous les caractères qui ne sont pas des alphanums des mots via la commande suivante :
+    sed -r "s/([^a-Z0-9 ]?)([a-Z0-9\-]+)([\']?)([^a-Z0-9 ]?)/\1 \2\3 \4/g" | wc
+    Cette expression en revanche rajoute des espaces même lorsqu'il n'y en a pas besoin mais ça ne change pas le résultat pour compter les mots.
+    On fait attention à ne pas découper les mots composés ainsi que les apostrophes sont seulement divisés par deux et non par trois.
+    On obtient donc un total de 4 003 579 mots.
 
+(4) On obtient un total de 3 997 430 mots en utilisant le tokeniseur. Il y a donc un meilleur tri effectué puisqu'on obtient moins de mots.
+    Ce qui signifie que tout n'était pas pris en compte dans l'expression régulière du 3.
+    Par exemple les caractères spéciaux qui compose un mot (Œ).
+
+(5) Comme effectué précédemment j'utilise la commande :
+    tr '[:upper:]' '[:lower:]'
+    Le résultat obtenu est entièrement en minuscule.
+
+(6) J'ai enregistré le résultat de la commande ci-dessus dans un .txt afin de pouvoir utiliser la commande "diff" sur les deux fichiers.
+    Le résultat me montre que le logiciel de casse "intelligente" sait reconnaitre les noms propres et les laisse donc en majuscule. Ex: Parker Palmer.
+
+(7) On notera que le fichier ted-sent-tok-low.txt est découpé de manière à ce que : 1 ligne = 1 phrase.
+    Ainsi notre commande awk reposera sur un traitement ligne par ligne.
+    Voici la commande :
+    awk 'NF>=5 && NF <=50' ted-sent-tok-low.txt > ted-sent-tok-low-flength.txt
+    Il nous reste 188 177 phrases sur 206 292.
+
+1.3
+(1) L'encodage du fichier ted-latin1.txt est ISO-8859 est l'encodage de 191 caractères codés chacun sur 8 bits.
+    Lors de l'utilisation de less ou cat, des caractères ne sont pas reconnus.
+
+(2) La conversion d'encodage a fonctionné avec la commande suivante :
+    iconv -f ISO-8859-1 -t UTF-8 ted-latin1.txt -o ted-latin1-converted-utf8.txt
+    
+(3) Lorsqu'on effectue la commande : 
+    iconv -f ISO-8859-1 -t ASCII ted-latin1.txt -o ted-latin1-converted-ascii.txt
+    Le message d'erreur suivant apparait :
+    iconv: séquence d'échappement non permise à la position 8
+    Le fichier résultat ne va donc pas plus loin que le 8ème caractère.
+
+    L'option -c résoud ce problème car elle supprime les caractères invalides de la sortie.
+
+(4) 
+
+2.  Statistique textuelle
+2.1
+(1) La commande utilisée est :
+    sed -r "s/ /\n/g" ted-sent-tok-low.txt > fr-words.txt
+
+(2) La commande utilisée est :
+    sort fr-words.txt| uniq -c
+    Cette commande donne un résultat trié par ordre alphabétique sur les mots.
+    Le mot le plus fréquent du corpus est "," qui apparait 214 214 fois.
+
+(3) Grâce à la commande wc on trouve un total de 72 059 lignes (donc de mots, car 1 ligne = nb_occurrence mot)
+    Ce qui nous fait un rapport de 72 059 / 3 997 430. Soit 1.8% !
+    On peut en déduire qu'on utilise énormement de fois les mêmes mots car plus le pourcentage est bas plus la diversité de mots est faible et inversement.
+
+(4) Pour voir le nombre de mots qui apparaissent une seule fois, j'utilise la commande suivante :
+    grep -E "[ ]+1 .*" fr-words-uniq.txt | wc
+    Ce qui nous donne comme résultat 29 972 lignes (et donc de mots).
+    Donc 29 972 des 72 059 mots sont uniques, soit 41,5% des mots du corpus.
+
+(5) J'ai utilisé la commande : 
+    awk '{ print $1/3468514 }' fr-words-uniq.txt > fr-1grams-norm.txt
+
+(6) On peut voir sur les abscisses un mot par unité, et les ordonnées le pourcentage de présence dans le corpus.
+    On voit donc que il y a 1 mot à + de 60%, un autre à + de 50%, un proche de 40%, etc. Et ça descend vite aux alentours de 0%, soit 1 apparition dans le coprus.
+
+(7) Cela permet de distinguer clairement la répartition au sein d'un corpus, et surtout d'une manière linéaire.
+    Ce qui est caractériqtique de la loi de Zipf.
