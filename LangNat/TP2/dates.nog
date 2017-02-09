@@ -1,0 +1,195 @@
+#OpenNooJ 1.0
+TYPE SYNTAX
+ILANGUAGE fr
+OLANGUAGE fr
+NUMBEROFGRAPHS 12
+SIZE 1047 763
+SCALE 100
+IFONT Times New Roman:R:18
+OFONT Courier New:B:18
+CFONT Times New Roman:R:18
+AUXICOLOR 16776960
+BACKCOLOR 16777215
+COMMCOLOR 1356862
+FORECOLOR 0
+SELECOLOR 255
+VARCOLOR 16711680
+DISPFRAME y
+DISPDATE y
+DISPFILENAME y
+DISPDIRNAME y
+#
+#
+Main
+13
+"<E>" 61 167 3 2 4 3 
+"" 791 188 0 
+":jour" 205 161 2 11 12 
+"<DET>" 195 66 1 12 
+"en" 213 303 1 7 
+":mois" 458 72 2 1 6 
+"<NB>" 687 68 1 1 
+"<NB>" 336 304 3 8 9 1 
+"avant" 524 309 1 10 
+"après" 528 338 1 10 
+"J.C." 648 317 1 1 
+"<N>" 464 151 1 1 
+":jour_nb2" 342 78 1 5 
+#
+mois
+3
+"<E>" 73 106 1 2 
+"" 559 103 0 
+"janvier+février+mars+avril+mai+juin+juillet+août+septembre+octobre+novembre+décembre" 305 177 1 1 
+#
+jour
+3
+"<E>" 49 117 1 2 
+"" 805 116 0 
+"lundi+mardi+mercredi+jeudi+vendredi+samedi+dimanche" 297 123 1 1 
+#
+_Dnum
+10
+"<E>/<DET\+Dnum" 50 332 2 8 9 
+"" 566 268 0 
+":Dnum [2,99]" 260 204 1 6 
+":Dnum [100,999]" 260 268 1 6 
+":Dnum [1000,999999]" 236 332 1 6 
+"Ce graphe annote les déterminants numériques en toutes lettres,+ex. de \"un\" à \"neuf cent mille neuf cent quatre-vingt dix-neufs\"" 160 56 0 
+"<E>/>" 470 268 1 1 
+"un+une" 343 147 1 6 
+"<E>/\+p" 190 332 3 2 3 4 
+"<E>/\+s" 210 147 1 7 
+#
+Dnum [2,99]
+23
+"<E>" 72 245 8 11 6 13 7 10 15 14 16 
+"" 752 41 0 
+"deux+trois+quatre+cinq+six" 656 120 1 18 
+"dix+douze+treize+quatorze+quinze+seize" 588 384 1 18 
+"-" 494 94 2 2 12 
+"et" 496 41 1 19 
+"vingt+trente+quarante+cinquante+soixante+septante+octante+nonante" 325 107 2 5 4 
+"soixante" 288 285 2 9 17 
+"onze" 595 300 1 18 
+"et" 423 267 1 8 
+"quatre-vingt-" 350 346 3 8 3 13 
+"quatre-vingt-" 308 212 3 2 12 19 
+"sept+huit+neuf" 655 214 1 18 
+"dix-" 518 247 1 12 
+"quatre-vingts" 379 591 1 20 
+"dix+vingt+trente+quarante+cinquante+soixante+septante+octante+nonante" 381 474 1 18 
+"deux+trois+quatre+cinq+six+sept+huit+neuf+dix+onze+douze+treize+quatorze+quinze+seize" 129 541 1 21 
+"-" 427 303 2 3 13 
+"<E>" 714 384 1 1 
+"un" 657 41 1 1 
+"<E>" 628 574 1 18 
+"<E>" 411 634 1 20 
+"Ce graphe représente les Dnum de 2 à 99,+Il contient des mots simples et composés,+et apparaît obligatoirement en fin de Dnum (cf, 'quatre-vingts')" 586 664 0 
+#
+Dnum [100,999]
+12
+"<E>" 215 449 2 4 6 
+"" 777 369 0 
+":Dnum [2,99]" 622 369 1 1 
+"cent" 419 228 1 8 
+"deux+trois+quatre+cinq+six+sept+huit+neuf" 329 259 2 5 3 
+"cents" 419 350 2 7 11 
+"cent" 333 449 3 7 8 11 
+"<E>/\+m\+p" 674 449 1 1 
+"<E>" 560 335 3 2 9 10 
+"un/\+m\+p" 648 205 1 1 
+"une/\+f\+p" 650 287 1 1 
+"<E>/\+f\+p" 679 524 1 1 
+#
+Dnum [2,99] internes
+23
+"<E>" 72 245 8 11 6 13 7 10 15 14 16 
+"" 924 254 0 
+"deux+trois+quatre+cinq+six" 656 120 1 18 
+"dix+douze+treize+quatorze+quinze+seize" 588 384 1 18 
+"-" 494 94 2 2 12 
+"et" 496 42 1 19 
+"vingt+trente+quarante+cinquante+soixante+septante+octante+nonante" 325 107 2 5 4 
+"soixante" 288 285 2 9 17 
+"onze" 595 300 1 18 
+"et" 423 267 1 8 
+"quatre-vingt-" 350 346 3 8 3 13 
+"quatre-vingt-" 308 212 3 2 12 19 
+"sept+huit+neuf" 655 214 1 18 
+"dix-" 518 247 1 12 
+"quatre-vingt" 378 573 1 20 
+"dix+vingt+trente+quarante+cinquante+soixante+septante+octante+nonante" 375 460 1 18 
+"deux+trois+quatre+cinq+six+sept+huit+neuf+dix+onze+douze+treize+quatorze+quinze+seize" 129 541 1 21 
+"-" 427 303 2 3 13 
+"<E>" 803 420 1 1 
+"un" 657 38 1 1 
+"<E>" 767 570 1 18 
+"<E>" 411 634 1 20 
+"Ce graphe représente les Dnum de 2 à 99,+Il contient des mots simples et composés,+et apparaît obligatoirement au milieu d'un Dnum (cf, 'quatre-vingt')" 592 679 0 
+#
+Dnum [100,999] internes
+7
+"<E>" 209 414 2 4 3 
+"" 724 340 0 
+":Dnum [2,99] internes" 472 408 1 1 
+"cent" 338 340 1 5 
+"deux+trois+quatre+cinq+six+sept+huit+neuf" 240 256 1 3 
+"<E>" 416 340 3 2 6 1 
+"un" 500 284 1 1 
+#
+Dnum [1000,999999]
+17
+"<E>" 216 376 4 4 3 5 9 
+"" 808 364 0 
+":Dnum [100,999]" 612 108 1 1 
+"mille" 484 228 5 2 10 11 14 15 
+":Dnum [100,999] internes" 248 96 1 3 
+"onze+douze+treize+quatorze+quinze+seize+dix-sept+dix-huit+dix-neuf" 384 508 3 6 8 16 
+"cent" 486 318 2 7 11 
+":Dnum [2,99]" 585 433 1 1 
+"cents/\+m\+p" 596 508 1 1 
+":Dnum [2,99] internes" 260 180 1 3 
+":Dnum [2,99]" 624 164 1 1 
+"<E>+et" 600 228 2 12 13 
+"un/\+m\+p" 692 212 1 1 
+"une/\+f\+p" 694 276 1 1 
+"<E>/\+f\+p" 615 338 1 1 
+"<E>/\+m\+p" 614 293 1 1 
+"cents/\+f\+p" 594 597 1 1 
+#
+jour_nb
+6
+"<E>" 25 94 3 2 3 5 
+"" 841 115 0 
+"0+1+2" 178 62 1 5 
+"3" 114 287 1 4 
+"0+1" 186 299 1 1 
+"1+2+3+4+5+6+7+8+9" 277 143 1 1 
+#
+mois_nb
+6
+"<E>" 30 30 2 4 5 
+"" 799 65 0 
+"1+2+3+4+5+6+7+8+9" 366 135 1 1 
+"0+1+2" 366 271 1 1 
+"0" 165 112 1 2 
+"1" 165 155 1 3 
+#
+jour_nb2
+8
+"<E>" 25 94 3 2 3 6 
+"" 841 115 0 
+"1+2" 124 156 2 5 7 
+"3" 114 287 1 4 
+"0+1" 186 299 1 1 
+"0" 271 239 1 1 
+"0" 106 64 1 7 
+"1+2+3+4+5+6+7+8+9" 334 116 1 1 
+# NooJ Java v1.0
+# Enter examples, *counter examples and #comments
+#
+
+
+
+

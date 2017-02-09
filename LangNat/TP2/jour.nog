@@ -1,0 +1,31 @@
+#OpenNooJ 1.0
+TYPE SYNTAX
+ILANGUAGE fr
+OLANGUAGE fr
+NUMBEROFGRAPHS 1
+SIZE 1047 763
+SCALE 100
+IFONT Times New Roman:R:18
+OFONT Courier New:B:18
+CFONT Times New Roman:R:18
+AUXICOLOR 16776960
+BACKCOLOR 16777215
+COMMCOLOR 1356862
+FORECOLOR 0
+SELECOLOR 255
+VARCOLOR 16711680
+DISPFRAME y
+DISPDATE y
+DISPFILENAME y
+DISPDIRNAME y
+#
+#
+Main
+3
+"<E>" 49 117 1 2 
+"" 805 116 0 
+"lundi+mardi+mercredi+jeudi+vendredi+samedi+dimanche" 297 123 1 1 
+# NooJ Java v1.0
+# Enter examples, *counter examples and #comments
+#
+

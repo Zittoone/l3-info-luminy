@@ -1,0 +1,20 @@
+Couvreur Alexis - Langage naturel TP2
+
+1.  Exercice : le futur
+1.1 Reconnaître les verbes conjugués au futur
+    Seulement les verbes au futur : 211 séquences.
+    -Pronoms suivis d'un verbe au futur : 32 séquences.
+    -Futur proche : 21 séquences.
+    -Reconnaître les adverbes de futur : 
+	*3 séquences dont deux ambigües avec seulement "NOM prochain"
+	*0 séquences pour "dans X..."
+	*8 séquences avec "demain"
+	On peut continuer d'énumérer tous les marqueurs temporels, lendemain, surlendamain, etc.
+
+2. Exercice : les dates
+   Je vais créer plusieurs automates pour répondre aux besoins suivants :
+   *Reconnaître un jour de la semaine (lundi,mardi,etc.)
+   *Reconnaître un mois (janvier, février,etc.)
+   *Reconnaître les marqueurs temporels (avant, après, dernier, etc.)
+
+Tous les exemples passent, sauf celui avec 1er.
