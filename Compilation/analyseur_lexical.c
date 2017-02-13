@@ -13,6 +13,7 @@
 #define is_alphanum(c)(is_num((c)) || is_alpha((c)))
 
 extern FILE *yyin;
+extern int DISPLAY_SYMBOL;
 
 char *tableMotsClefs[] = {
   "si",
@@ -293,6 +294,8 @@ void test_yylex_internal(FILE *yyin) {
   do {
     uniteCourante = yylex();
     nom_token( uniteCourante, nom, valeur );
-    printf("%s\t%s\t%s\n", yytext, nom, valeur);
+    if(DISPLAY_SYMBOL == 1)
+      printf("%s\t%s\t%s\n", yytext, nom, valeur);
+      
   } while (uniteCourante != FIN);
 }
