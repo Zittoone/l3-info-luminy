@@ -46,6 +46,7 @@ void initialise_premiers(void){
   premiers[_instruction_][RETOUR]             = 1;
   premiers[_instruction_][ECRIRE]             = 1;
   premiers[_instruction_][POINT_VIRGULE]      = 1;
+  premiers[_instruction_][FAIRE]               = 1;
   //IAFF
   premiers[_instructionAffect_][ID_VAR] = 1;
   //IB
@@ -60,6 +61,7 @@ void initialise_premiers(void){
   premiers[_listeInstructions_][RETOUR]             = 1;
   premiers[_listeInstructions_][ECRIRE]             = 1;
   premiers[_listeInstructions_][POINT_VIRGULE]      = 1;
+  premiers[_instructionFaire_][FAIRE]               = 1;
   //ISI
   premiers[_instructionSi_][SI] = 1;
   //OSINON
@@ -67,6 +69,8 @@ void initialise_premiers(void){
   premiers[_optSinon_][EPSILON] = 1;
   //ITQ
   premiers[_instructionTantque_][TANTQUE] = 1;
+  //IFAIRE
+  premiers[_instructionFaire_][FAIRE] = 1;
   //IAPP
   premiers[_instructionAppel_][ID_FCT] = 1;
   //IRET
@@ -159,7 +163,6 @@ void initialise_premiers(void){
   //LEXPB
   premiers[_listeExpressionsBis_][EPSILON]  = 1;
   premiers[_listeExpressionsBis_][VIRGULE]  = 1;
-
 
 }
 // J'ai inversé car je me suis trompé lors de l'écriture du code

@@ -94,6 +94,16 @@ void initialise_suivants(void){
   suivants[_instructionTantque_][RETOUR] = 1;
   suivants[_instructionTantque_][ECRIRE] = 1;
   suivants[_instructionTantque_][POINT_VIRGULE] = 1;
+  //IFAIRE
+  suivants[_instructionFaire_][ACCOLADE_FERMANTE] = 1;
+  suivants[_instructionFaire_][ID_VAR] = 1;
+  suivants[_instructionFaire_][ACCOLADE_OUVRANTE] = 1;
+  suivants[_instructionFaire_][SI] = 1;
+  suivants[_instructionFaire_][TANTQUE] = 1;
+  suivants[_instructionFaire_][ID_FCT] = 1;
+  suivants[_instructionFaire_][RETOUR] = 1;
+  suivants[_instructionFaire_][ECRIRE] = 1;
+  suivants[_instructionFaire_][POINT_VIRGULE] = 1;
   //IAPP
   suivants[_instructionAppel_][ACCOLADE_FERMANTE] = 1;
   suivants[_instructionAppel_][ID_VAR] = 1;

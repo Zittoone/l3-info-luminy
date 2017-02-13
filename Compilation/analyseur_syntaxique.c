@@ -16,7 +16,7 @@ void err(char *attendu){
   nom_token( uniteCourante, nom, valeur );
 
   char err[256];
-  sprintf(err, "\tATTENDU : %s\n\terme\tOBTENU : %s\terme%s", attendu, nom, valeur);
+  sprintf(err, "\n\tATTENDU : %s\n\tOBTENU : %s\t%s", attendu, nom, valeur);
 
   erreur(err);
 }
@@ -279,6 +279,8 @@ void instruction(void){
     instructionEcriture();
   } else if(est_premier(_instructionVide_, uniteCourante)){
     instructionVide();
+  } else if(est_premier(_instructionFaire_, uniteCourante)){
+    instructionFaire();
   } else {
     err("P(instruction...)");
   }
@@ -867,6 +869,35 @@ void listeExpressionsBis(void) {
 
   } else {
     err("VIRGULE ou VIDE");
+  }
+  affiche_balise_fermante(__FUNCTION__, DISPLAY_XML);
+}
+
+/*******************************************************************************
+ * Fonction de la grammaire correspondant à la règle :
+ * instructionFaire -> faire IB tantque E;
+ ******************************************************************************/
+void instructionFaire(void) {
+  affiche_balise_ouvrante(__FUNCTION__, DISPLAY_XML);
+  if(uniteCourante == FAIRE){
+    msg();
+    uniteCourante = yylex();
+    instructionBloc();
+    if(uniteCourante == TANTQUE){
+      msg();
+      uniteCourante = yylex();
+      expression();
+      if(uniteCourante == POINT_VIRGULE){
+        msg();
+        uniteCourante = yylex();
+      } else {
+        err("POINT_VIRGULE");
+      }
+    } else {
+      err("TANTQUE");
+    }
+  } else {
+    err("FAIRE");
   }
   affiche_balise_fermante(__FUNCTION__, DISPLAY_XML);
 }
