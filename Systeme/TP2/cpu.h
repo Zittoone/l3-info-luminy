@@ -11,6 +11,7 @@
 #define INT_SEGV	(2)
 #define INT_INST	(3)
 #define INT_TRACE	(4)
+#define INT_CLOCK	(5)
 
 
 /**********************************************************
@@ -20,7 +21,10 @@
 #define INST_ADD	(0)
 #define INST_SUB	(1)
 #define INST_CMP	(2)
-
+#define INST_IFGT	(3)
+#define INST_NOP	(4)
+#define INST_JUMP	(5)
+#define INST_HALT	(6)
 
 /**********************************************************
 ** definition d'un mot memoire

@@ -30,6 +30,34 @@ static PSW systeme_init(void) {
 	return cpu;
 }
 
+PSW systeme_init_boucle(void) {
+    PSW cpu;
+    const int R1 = 1, R2 = 2, R3 = 3;
+
+    printf("Booting (avec boucle).\n");
+
+    /*** creation d'un programme ***/
+    make_inst( 0, INST_SUB,  R1, R1, 0);    /* R1 = 0              */
+    make_inst( 1, INST_SUB,  R2, R2, 1000); /* R1 = 1000           */
+    make_inst( 2, INST_SUB,  R3, R3, 5);    /* R3 = 5              */
+    make_inst( 3, INST_CMP,  R1, R2, 0);    /* AC = (R1 - R2)      */
+    make_inst( 4, INST_IFGT,  0,  0, 10);   /* if (AC > 0) PC = 10 */
+    make_inst( 5, INST_NOP,   0,  0, 0);    /* no operation        */
+    make_inst( 6, INST_NOP,   0,  0, 0);    /* no operation        */
+    make_inst( 7, INST_NOP,   0,  0, 0);    /* no operation        */
+    make_inst( 8, INST_ADD,  R1, R3, 0);    /* R1 += R3            */
+    make_inst( 9, INST_JUMP,  0,  0, 3);    /* PC = 3              */
+    make_inst(10, INST_HALT,  0,  0, 0);    /* HALT                */
+
+    /*** valeur initiale du PSW ***/
+    memset (&cpu, 0, sizeof(cpu));
+    cpu.PC = 0;
+    cpu.SB = 0;
+    cpu.SS = 20;
+
+    return cpu;
+}
+
 
 /**********************************************************
 ** Simulation du systeme (mode systeme)
@@ -42,7 +70,7 @@ PSW systeme(PSW m) {
 
 	switch (m.IN) {
 		case INT_INIT:
-			return (systeme_init());
+			return (systeme_init_boucle());
 		case INT_SEGV:
 			exit(-1);
 			break;
@@ -56,6 +84,11 @@ PSW systeme(PSW m) {
 		case INT_INST:
 			exit(-1);
 			break;
+		case INT_CLOCK:
+			break;
+		default:
+			printf("Interruption inconnue : %d\n", m.IN);
+			exit(-1);
 	}
 	return m;
 }

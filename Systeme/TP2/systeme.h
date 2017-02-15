@@ -8,6 +8,6 @@
 ***********************************************************/
 
 PSW systeme(PSW m);
+PSW systeme_init_boucle(void);
 
 #endif
-
