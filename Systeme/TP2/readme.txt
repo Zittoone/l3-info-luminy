@@ -13,4 +13,5 @@ Système d'exploitation : TP2
 2.2 Ajout du define et du case dans la gestion des interruptions.
 
 3.  Appels au système
-3.1 
+3.1 Fait un exit(-1) dans la fonction cpu_SYSC
+3.2 Affiche m.RI.i

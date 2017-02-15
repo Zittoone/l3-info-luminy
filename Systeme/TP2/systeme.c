@@ -38,12 +38,12 @@ PSW systeme_init_boucle(void) {
 
     /*** creation d'un programme ***/
     make_inst( 0, INST_SUB,  R1, R1, 0);    /* R1 = 0              */
-    make_inst( 1, INST_SUB,  R2, R2, 1000); /* R1 = 1000           */
-    make_inst( 2, INST_SUB,  R3, R3, 5);    /* R3 = 5              */
+    make_inst( 1, INST_ADD,  R2, R2, 1000); /* R2 = 1000           */
+    make_inst( 2, INST_ADD,  R3, R3, 5);    /* R3 = 5              */
     make_inst( 3, INST_CMP,  R1, R2, 0);    /* AC = (R1 - R2)      */
     make_inst( 4, INST_IFGT,  0,  0, 10);   /* if (AC > 0) PC = 10 */
-    make_inst( 5, INST_NOP,   0,  0, 0);    /* no operation        */
-    make_inst( 6, INST_NOP,   0,  0, 0);    /* no operation        */
+    make_inst( 5, INST_NOP, R1,  R3, 10);    /* sysc       */
+    make_inst( 6, INST_SYSC, R3,  0, SYSC_PUTI);    /* no operation        */
     make_inst( 7, INST_NOP,   0,  0, 0);    /* no operation        */
     make_inst( 8, INST_ADD,  R1, R3, 0);    /* R1 += R3            */
     make_inst( 9, INST_JUMP,  0,  0, 3);    /* PC = 3              */
@@ -72,8 +72,10 @@ PSW systeme(PSW m) {
 		case INT_INIT:
 			return (systeme_init_boucle());
 		case INT_SEGV:
+		printf("Erreur de segmentation (%d)\n", m.AC);
 			exit(-1);
 			break;
+		case INT_CLOCK:
 		case INT_TRACE:
 			printf("Affichage des registres PC et DR:\n");
 			printf("PC:\t%d\n", m.PC);
@@ -84,7 +86,8 @@ PSW systeme(PSW m) {
 		case INT_INST:
 			exit(-1);
 			break;
-		case INT_CLOCK:
+		case INT_SYSC:
+			printf("Appel de INT_SYSC\n");
 			break;
 		default:
 			printf("Interruption inconnue : %d\n", m.IN);

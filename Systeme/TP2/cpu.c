@@ -74,7 +74,7 @@ PSW cpu_CMP(PSW m) {
 
 
 PSW cpu_IFGT(PSW m){
-	m.AC = m.DR[m.RI.i];
+	//m.AC = m.DR[m.RI.i];
 	if(m.AC > 0)
 		m.PC = m.RI.ARG;
 	else m.PC += 1;
@@ -88,6 +88,7 @@ PSW cpu_IFGT(PSW m){
 
 
 PSW cpu_NOP(PSW m){
+	m.PC += 1;
 	return m;
 }
 
@@ -109,7 +110,37 @@ PSW cpu_JUMP(PSW m){
 
 
 PSW cpu_HALT(PSW m){
-	//m.RI = 0;
+	m.PC += 1;
+	return m;
+}
+
+
+PSW cpu_SYSC(PSW m){
+
+	switch (m.RI.ARG) {
+		case SYSC_EXIT:
+			exit(-1);
+		case SYSC_PUTI:
+			printf("Entier dans le 1er reg. de l'inst. SYSC : %d\n", m.DR[m.RI.i]);
+			break;
+	}
+
+	m.PC += 1;
+	return m;
+}
+
+
+PSW cpu_LOAD(PSW m){
+	m.AC = m.DR[m.RI.j] + m.RI.ARG;
+
+	if(m.AC < 0 || m.AC >= m.SS){
+		m.IN = INT_SEGV;
+		return (m);
+	}
+
+	m.AC = mem[m.SB + m.AC];
+	m.DR[m.RI.i] = m.AC;
+	m.PC += 1;
 	return m;
 }
 
@@ -121,7 +152,6 @@ PSW cpu(PSW m) {
 	int i;
 
 	for(i = 0; i < CLOCK_TICK; i++){
-
 
 		/*** lecture et decodage de l'instruction ***/
 		if (m.PC < 0 || m.PC >= m.SS) {
@@ -152,6 +182,16 @@ PSW cpu(PSW m) {
 			break;
 		case INST_HALT:
 			m = cpu_HALT(m);
+			break;
+		case INST_SYSC:
+			/*** interruption instruction sysc ***/
+			m.IN = INT_SYSC;
+			m = cpu_SYSC(m);
+			return (m);
+		case INST_LOAD:
+			m = cpu_LOAD(m);
+			if(m.IN == INT_SEGV)
+				return m;
 			break;
 		default:
 			/*** interruption instruction inconnue ***/
