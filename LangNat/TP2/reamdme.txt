@@ -1,0 +1,5 @@
+Couvreur Alexis - Langage Naturel TP2
+
+2. Travail à réaliser
+2.1
+2.2 LC_ALL=C join test-vec/14.txt.vec test-vec/12.txt.vec
