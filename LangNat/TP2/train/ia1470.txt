@@ -1,0 +1,1 @@
+un processus de comptage , autrement appelé processus de dénombrement , est un processus stochastique à valeurs dans \ mathbb { n } , l&apos; espace des entiers naturels . il a pour vocation à modéliser un nombre entier aléatoire évoluant dans le temps . le processus de comptage le plus classique est le processus de poisson .

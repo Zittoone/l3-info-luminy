@@ -1,0 +1,1 @@
+un processus stochastique x sur un ensemble fini de sites s est dit gaussien si , pour toute partie finie λ ⊂ s et toute suite réelle ( a ) sur λ , ∑ s ∈ λ as x ( s ) est une variable gaussienne .

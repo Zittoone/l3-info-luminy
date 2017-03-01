@@ -1,0 +1,1 @@
+on peut alors utiliser le lemme d&apos; itô et prendre la limite lorsque ε → 0 , pour obtenir la formule de tanaka . ( en ) cet article est partiellement ou en totalité issu de l ’ article de wikipédia en anglais intitulé « tanaka&apos; s formula » ( voir la liste des auteurs ) .

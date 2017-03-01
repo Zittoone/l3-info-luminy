@@ -1,0 +1,1 @@
+un &lt; dfn &gt; drap brownien &lt; / dfn &gt; est un processus gaussien sur le quart de plan ℝ + 2 . son espérance est nulle et sa covariance en ( s1 , s2 ) , ( t1 , t2 ) est min ( s1 , s2 ) × min ( t1 , t2 ) .

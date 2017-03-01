@@ -1,0 +1,1 @@
+vous pouvez partager vos connaissances en l ’ améliorant ( comment ? ) selon les recommandations des projets correspondants . en se basant sur le modèle du robot élaboré avec la modélisation des robots , il s&apos; agit de commander électriquement les articulations du robot afin de lui faire rejoindre une position ou de lui faire suivre une trajectoire .

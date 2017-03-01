@@ -1,0 +1,1 @@
+pour les articles homonymes , voir décalage de bernoulli . on peut définir de même les décalages de bernoulli pour des mots infinis indexés sur \ z et les résultats et propriétés énoncés sont similaires . cette structure rend \ lambda ^ { \ n } compact et σ est alors 2-lipschitzienne donc continue .

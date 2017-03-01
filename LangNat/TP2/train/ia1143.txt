@@ -1,0 +1,1 @@
+la carte de disparité correspondant à une scène désigne une image numérique qui contient uniquement l ’ information sur les correspondances des points entre deux vues d&apos; une même scène prises à deux endroits différents .
