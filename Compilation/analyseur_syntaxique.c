@@ -24,12 +24,19 @@ void err(char *attendu){
 /*******************************************************************************
  * Fonction simplifiant l'affichage d'une variable ou d'un symbole.
  ******************************************************************************/
-void msg(void){
+void consommer(int symbole){
+
   char nom[100];
   char valeur[100];
+  nom_token( symbole, nom, valeur );
+
+  if(uniteCourante != symbole)
+    err(nom);
+
   nom_token( uniteCourante, nom, valeur );
 
   affiche_element(nom, valeur, DISPLAY_XML);
+  uniteCourante = yylex();
 }
 
 
@@ -72,12 +79,7 @@ void optDecVariables(void){
   affiche_balise_ouvrante(__FUNCTION__, DISPLAY_XML);
   if(est_premier(_listeDecVariables_, uniteCourante)){
     listeDecVariables();
-    if(uniteCourante == POINT_VIRGULE){
-      msg();
-      uniteCourante = yylex();
-    } else {
-      err("POINT_VIRGULE");
-    }
+    consommer( POINT_VIRGULE );
   } else if(est_suivant(_optDecVariables_, uniteCourante)){
   } else {
     err("P(listeDecVariables) OU VIDE");
@@ -108,8 +110,7 @@ void listeDecVariables(void){
 void listeDecVariablesBis(void){
   affiche_balise_ouvrante(__FUNCTION__, DISPLAY_XML);
   if(uniteCourante == VIRGULE){
-    msg();
-    uniteCourante = yylex();
+    consommer( VIRGULE );
     declarationVariable();
     listeDecVariablesBis();
   } else if(est_suivant(_listeDecVariablesBis_, uniteCourante)){
@@ -126,15 +127,9 @@ void listeDecVariablesBis(void){
 void declarationVariable(void){
   affiche_balise_ouvrante(__FUNCTION__, DISPLAY_XML);
   if(uniteCourante == ENTIER){
-    msg();
-    uniteCourante = yylex();
-    if(uniteCourante == ID_VAR){
-      msg();
-      uniteCourante = yylex();
-      optTailleTableau();
-    } else {
-      err("ID_VAR");
-    }
+    consommer( ENTIER );
+    consommer( ID_VAR );
+    optTailleTableau();
   } else {
     err("POINT_VIRGULE");
   }
@@ -149,20 +144,9 @@ void declarationVariable(void){
 void optTailleTableau(void){
   affiche_balise_ouvrante(__FUNCTION__, DISPLAY_XML);
   if(uniteCourante == CROCHET_OUVRANT){
-    msg();
-    uniteCourante = yylex();
-    if(uniteCourante == NOMBRE){
-      msg();
-      uniteCourante = yylex();
-      if(uniteCourante == CROCHET_FERMANT){
-        msg();
-        uniteCourante = yylex();
-      } else {
-        err("CROCHET_FERMANT");
-      }
-    } else {
-      err("NOMBRE");
-    }
+    consommer( CROCHET_OUVRANT );
+    consommer( NOMBRE );
+    consommer( CROCHET_FERMANT );
   } else if(est_suivant(_optTailleTableau_, uniteCourante)){
   } else {
     err("CROCHET_OUVRANT ou VIDE");
@@ -194,8 +178,7 @@ void optTailleTableau(void){
 void declarationFonction(void){
   affiche_balise_ouvrante(__FUNCTION__, DISPLAY_XML);
   if(uniteCourante == ID_FCT){
-    msg();
-    uniteCourante = yylex();
+    consommer(ID_FCT);
     listeParam();
     optDecVariables();
     instructionBloc();
@@ -212,15 +195,9 @@ void declarationFonction(void){
 void listeParam(void){
   affiche_balise_ouvrante(__FUNCTION__, DISPLAY_XML);
   if(uniteCourante == PARENTHESE_OUVRANTE){
-    msg();
-    uniteCourante = yylex();
+    consommer( PARENTHESE_OUVRANTE );
     optListeDecVariables();
-    if(uniteCourante == PARENTHESE_FERMANTE){
-      msg();
-      uniteCourante = yylex();
-    } else {
-      err("PARENTHESE_FERMANTE");
-    }
+    consommer( PARENTHESE_FERMANTE );
   } else {
     err("PARENTHESE_OUVRANTE");
   }
@@ -295,19 +272,9 @@ void instruction(void){
    affiche_balise_ouvrante(__FUNCTION__, DISPLAY_XML);
    if(est_premier(_var_, uniteCourante)){
      var();
-     if(uniteCourante == EGAL){
-       msg();
-       uniteCourante = yylex();
-       expression();
-       if(uniteCourante == POINT_VIRGULE){
-         msg();
-         uniteCourante = yylex();
-       } else {
-         err("POINT_VIRGULE");
-       }
-     } else {
-       err("EGAL");
-     }
+     consommer( EGAL );
+     expression();
+     consommer( POINT_VIRGULE );
    } else {
      err("P(var)");
    }
@@ -321,15 +288,9 @@ void instruction(void){
 void instructionBloc(void) {
   affiche_balise_ouvrante(__FUNCTION__, DISPLAY_XML);
   if(uniteCourante == ACCOLADE_OUVRANTE){
-    msg();
-    uniteCourante = yylex();
+    consommer( ACCOLADE_OUVRANTE );
     listeInstructions();
-    if(uniteCourante == ACCOLADE_FERMANTE){
-      msg();
-      uniteCourante = yylex();
-    } else {
-      err("ACCOLADE_FERMANTE");
-    }
+    consommer( ACCOLADE_FERMANTE );
   } else {
     err("ACCOLADE_OUVRANTE");
   }
@@ -361,12 +322,7 @@ void instructionAppel(void) {
   affiche_balise_ouvrante(__FUNCTION__, DISPLAY_XML);
   if(est_premier(_appelFct_, uniteCourante)){
     appelFct();
-    if(uniteCourante == POINT_VIRGULE){
-      msg();
-      uniteCourante = yylex();
-    } else {
-      err("POINT_VIRGULE");
-    }
+    consommer( POINT_VIRGULE );
   } else {
     err("P(appelFct)");
   }
@@ -377,24 +333,22 @@ void instructionAppel(void) {
  * Fonction de la grammaire correspondant à la règle :
  * instructionSi -> SI expression ALORS instructionBloc optSinon
  ******************************************************************************/
-void instructionSi(void) {
+n_instr *instructionSi(void) {
+  n_instr *$$ = NULL;   n_exp *$2 = NULL;
+  n_instr *$4 = NULL;   n_instr *$5 = NULL;
   affiche_balise_ouvrante(__FUNCTION__, DISPLAY_XML);
   if(uniteCourante == SI){
-    msg();
-    uniteCourante = yylex();
-    expression();
-    if(uniteCourante == ALORS){
-      msg();
-      uniteCourante = yylex();
-      instructionBloc();
-      optSinon();
-    } else {
-      err("ALORS");
-    }
+    consommer( SI );
+    $2 =  expression();
+    consommer( ALORS);
+    $4 = instructionBloc();
+    $5 = optSinon();
+    $$ = cree_n_instr_si($2, $4, $5);
   } else {
     err("SI");
   }
   affiche_balise_fermante(__FUNCTION__, DISPLAY_XML);
+  return $$;
 }
 
 /*******************************************************************************
@@ -405,9 +359,9 @@ void instructionSi(void) {
 void optSinon(void) {
   affiche_balise_ouvrante(__FUNCTION__, DISPLAY_XML);
   if(uniteCourante == SINON){
-    msg();
-    uniteCourante = yylex();
+    consommer( SINON );
     instructionBloc();
+
   } else if(est_suivant(_optSinon_, uniteCourante)){
   } else {
     err("SINON ou VIDE");
@@ -422,16 +376,10 @@ void optSinon(void) {
 void instructionTantque(void) {
   affiche_balise_ouvrante(__FUNCTION__, DISPLAY_XML);
   if(uniteCourante == TANTQUE){
-    msg();
-    uniteCourante = yylex();
+    consommer( TANTQUE );
     expression();
-    if(uniteCourante == FAIRE){
-      msg();
-      uniteCourante = yylex();
-      instructionBloc();
-    } else {
-      err("FAIRE");
-    }
+    consommer( FAIRE );
+    instructionBloc();
   } else {
     err("TANTQUE");
   }
@@ -445,15 +393,9 @@ void instructionTantque(void) {
 void instructionRetour(void) {
   affiche_balise_ouvrante(__FUNCTION__, DISPLAY_XML);
   if(uniteCourante == RETOUR){
-    msg();
-    uniteCourante = yylex();
+    consommer( RETOUR );
     expression();
-    if(uniteCourante == POINT_VIRGULE){
-      msg();
-      uniteCourante = yylex();
-    } else {
-      err("POINT_VIRGULE");
-    }
+    consommer( POINT_VIRGULE );
   } else {
     err("RETOUR");
   }
@@ -467,27 +409,11 @@ void instructionRetour(void) {
 void instructionEcriture(void) {
   affiche_balise_ouvrante(__FUNCTION__, DISPLAY_XML);
   if(uniteCourante == ECRIRE){
-    msg();
-    uniteCourante = yylex();
-    if(uniteCourante == PARENTHESE_OUVRANTE){
-      msg();
-      uniteCourante = yylex();
-      expression();
-      if(uniteCourante == PARENTHESE_FERMANTE){
-        msg();
-        uniteCourante = yylex();
-        if(uniteCourante == POINT_VIRGULE){
-          msg();
-          uniteCourante = yylex();
-        } else {
-          err("POINT_VIRGULE");
-        }
-      } else {
-        err("PARENTHESE_FERMANTE");
-      }
-    } else {
-      err("PARENTHESE_OUVRANTE");
-    }
+    consommer( ECRIRE );
+    consommer( PARENTHESE_OUVRANTE );
+    expression();
+    consommer( PARENTHESE_FERMANTE );
+    consommer( POINT_VIRGULE );
   } else {
     err("ECRIRE");
   }
@@ -500,8 +426,7 @@ void instructionEcriture(void) {
 void instructionVide(void) {
   affiche_balise_ouvrante(__FUNCTION__, DISPLAY_XML);
   if(uniteCourante == POINT_VIRGULE){
-    msg();
-    uniteCourante = yylex();
+    consommer( POINT_VIRGULE );
   } else {
     err("POINT_VIRGULE");
   }
@@ -541,8 +466,8 @@ void expression(void) {
  void expressionBis(void) {
    affiche_balise_ouvrante(__FUNCTION__, DISPLAY_XML);
    if(uniteCourante == OU){
-     msg();
-     uniteCourante = yylex();
+     consommer( OU );
+
      if(est_premier(_conjonction_, uniteCourante)){
        conjonction();
        expressionBis();
@@ -575,8 +500,7 @@ void conjonction(void) {
 void conjonctionBis(void) {
   affiche_balise_ouvrante(__FUNCTION__, DISPLAY_XML);
   if(uniteCourante == ET){
-    msg();
-    uniteCourante = yylex();
+    consommer( ET );
     comparaison();
     conjonctionBis();
   } else if(est_suivant(_conjonctionBis_, uniteCourante)){
@@ -606,13 +530,11 @@ void conjonctionBis(void) {
  void comparaisonBis(void) {
    affiche_balise_ouvrante(__FUNCTION__, DISPLAY_XML);
    if(uniteCourante == EGAL){
-     msg();
-     uniteCourante = yylex();
+     consommer( EGAL );
      expArith();
      comparaisonBis();
    } else if(uniteCourante == INFERIEUR){
-     msg();
-     uniteCourante = yylex();
+     consommer( INFERIEUR );
      expArith();
      comparaisonBis();
    } else if(est_suivant(_comparaisonBis_, uniteCourante)){
@@ -642,13 +564,11 @@ void expArith(void) {
 void expArithBis(void) {
   affiche_balise_ouvrante(__FUNCTION__, DISPLAY_XML);
   if(uniteCourante == PLUS){
-    msg();
-    uniteCourante = yylex();
+    consommer( PLUS );
     terme();
     expArithBis();
   } else if(uniteCourante == MOINS){
-    msg();
-    uniteCourante = yylex();
+    consommer( MOINS );
     terme();
     expArithBis();
   } else if(est_suivant(_expArithBis_, uniteCourante)){
@@ -676,24 +596,26 @@ void terme(void) {
  *           | '/' negation termeBis
  *           |
  ******************************************************************************/
-void termeBis(void) {
+n_exp *termeBis( n_exp *herite ) {
+  n_exp *$2;    n_exp *$$;    n_exp *herite_fils;
   affiche_balise_ouvrante(__FUNCTION__, DISPLAY_XML);
   if(uniteCourante == FOIS){
-    msg();
-    uniteCourante = yylex();
-    negation();
-    termeBis();
+    consommer( FOIS );
+    $2 = negation();
+    herite_fils = cree_n_exp_op(FOIS, herite, $2);
+    $$ = termeBis( herite_fils );
   } else if(uniteCourante == DIVISE){
-    msg();
-    uniteCourante = yylex();
-    negation();
-    termeBis();
+    consommer( DIVISE );
+    $2 = negation();
+    herite_fils = cree_n_exp_op(DIVISE, herite, $2);
+    $$ = termeBis();
   } else if(est_suivant(_termeBis_, uniteCourante)){
-
+    $$ = herite;
   } else {
     err("FOIS ou DIVISE ou VIDE");
   }
   affiche_balise_fermante(__FUNCTION__, DISPLAY_XML);
+  return $$;
 }
 
 /*******************************************************************************
@@ -704,8 +626,7 @@ void termeBis(void) {
 void negation(void) {
   affiche_balise_ouvrante(__FUNCTION__, DISPLAY_XML);
   if(uniteCourante == NON){
-    msg();
-    uniteCourante = yylex();
+    consommer( NON );
     negation();
   } else if(est_premier(_facteur_, uniteCourante)){
     facteur();
@@ -726,37 +647,19 @@ void negation(void) {
 void facteur(void) {
   affiche_balise_ouvrante(__FUNCTION__, DISPLAY_XML);
   if(uniteCourante == PARENTHESE_OUVRANTE){
-    msg();
-    uniteCourante = yylex();
+    consommer( PARENTHESE_OUVRANTE );
     expression();
-    if(uniteCourante == PARENTHESE_FERMANTE){
-      msg();
-      uniteCourante = yylex();
-    } else {
-      err("PARENTHESE_FERMANTE");
-    }
+    consommer( PARENTHESE_FERMANTE );
   } else if(uniteCourante == NOMBRE) {
-    msg();
-    uniteCourante = yylex();
+    consommer( NOMBRE );
   } else if(est_premier(_appelFct_, uniteCourante)) {
     appelFct();
   } else if(est_premier(_var_, uniteCourante)) {
     var();
   } else if(uniteCourante == LIRE) {
-    msg();
-    uniteCourante = yylex();
-    if(uniteCourante == PARENTHESE_OUVRANTE){
-      msg();
-      uniteCourante = yylex();
-      if(uniteCourante == PARENTHESE_FERMANTE){
-        msg();
-        uniteCourante = yylex();
-      } else {
-        err("PARENTHESE_FERMANTE");
-      }
-    } else {
-      err("PARENTHESE_OUVRANTE");
-    }
+    consommer( LIRE );
+    consommer( PARENTHESE_OUVRANTE );
+    consommer( PARENTHESE_FERMANTE );
   } else {
     err("PARENTHESE_OUVRANTE ou NOMBRE ou P(appelFct) ou P(var) ou LIRE");
   }
@@ -776,8 +679,7 @@ void facteur(void) {
 void var(void) {
   affiche_balise_ouvrante(__FUNCTION__, DISPLAY_XML);
   if(uniteCourante == ID_VAR){
-    msg();
-    uniteCourante = yylex();
+    consommer( ID_VAR );
     optIndice();
   } else {
     err("ID_VAR");
@@ -792,15 +694,9 @@ void var(void) {
 void optIndice(void) {
   affiche_balise_ouvrante(__FUNCTION__, DISPLAY_XML);
   if(uniteCourante == CROCHET_OUVRANT){
-    msg();
-    uniteCourante = yylex();
+    consommer( CROCHET_OUVRANT );
     expression();
-    if(uniteCourante == CROCHET_FERMANT){
-      msg();
-      uniteCourante = yylex();
-    } else {
-      err("CROCHET_FERMANT");
-    }
+    consommer( CROCHET_FERMANT );
   } else if(est_suivant(_optIndice_, uniteCourante)){
 
   } else {
@@ -815,21 +711,10 @@ void optIndice(void) {
 void appelFct(void) {
   affiche_balise_ouvrante(__FUNCTION__, DISPLAY_XML);
   if(uniteCourante == ID_FCT){
-    msg();
-    uniteCourante = yylex();
-    if(uniteCourante == PARENTHESE_OUVRANTE){
-      msg();
-      uniteCourante = yylex();
-      listeExpressions();
-      if(uniteCourante == PARENTHESE_FERMANTE){
-        msg();
-        uniteCourante = yylex();
-      } else {
-        err("PARENTHESE_FERMANTE");
-      }
-    } else {
-      err("PARENTHESE_OUVRANTE");
-    }
+    consommer( ID_FCT );
+    consommer( PARENTHESE_OUVRANTE );
+    listeExpressions();
+    consommer( PARENTHESE_FERMANTE );
   } else {
     err("ID_FCT");
   }
@@ -861,8 +746,7 @@ void listeExpressions(void){
 void listeExpressionsBis(void) {
   affiche_balise_ouvrante(__FUNCTION__, DISPLAY_XML);
   if(uniteCourante == VIRGULE){
-    msg();
-    uniteCourante = yylex();
+    consommer( VIRGULE );
     expression();
     listeExpressionsBis();
   } else if(est_suivant(_listeExpressionsBis_, uniteCourante)){
@@ -880,22 +764,11 @@ void listeExpressionsBis(void) {
 void instructionFaire(void) {
   affiche_balise_ouvrante(__FUNCTION__, DISPLAY_XML);
   if(uniteCourante == FAIRE){
-    msg();
-    uniteCourante = yylex();
+    consommer( FAIRE );
     instructionBloc();
-    if(uniteCourante == TANTQUE){
-      msg();
-      uniteCourante = yylex();
-      expression();
-      if(uniteCourante == POINT_VIRGULE){
-        msg();
-        uniteCourante = yylex();
-      } else {
-        err("POINT_VIRGULE");
-      }
-    } else {
-      err("TANTQUE");
-    }
+    consommer( TANTQUE );
+    expression();
+    consommer( POINT_VIRGULE );
   } else {
     err("FAIRE");
   }
