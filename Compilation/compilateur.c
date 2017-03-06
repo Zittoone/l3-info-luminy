@@ -37,6 +37,9 @@ int main(int argc, char **argv) {
       initialise_suivants();
       programme();
     }
+    if(strcmp(argv[1], "-a") == 0){
+      // Arbre abstrait
+    }
   } else {
     fprintf(stderr, "Usage : compilateur OPTION file_path\n");
   }

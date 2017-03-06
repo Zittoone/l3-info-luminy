@@ -55,12 +55,20 @@ void consommer(int symbole){
  * Fonction principale de la grammaire correspondant à la règle :
  * programme -> optDecVariables listeDecFonctions
  ******************************************************************************/
-void programme(void){
-  affiche_balise_ouvrante(__FUNCTION__, DISPLAY_XML);
+ n_prog *programme(void){
+   n_l_dec *$1 = NULL;   n_l_dec *$2 = NULL;
+   n_prog *$$ = NULL;
+
+   affiche_balise_ouvrante(__FUNCTION__, DISPLAY_XML);
+
   uniteCourante = yylex();
-  optDecVariables();
-  listeDecFonctions();
+  $1 = optDecVariables();
+  $2 = listeDecFonctions();
+  $$ = cree_n_prog($1, $2);
+
   affiche_balise_fermante(__FUNCTION__, DISPLAY_XML);
+
+  return $$;
 }
 
 
@@ -75,31 +83,36 @@ void programme(void){
  * optDecVariables -> listeDecVariables ';'
  *                  | vide
  ******************************************************************************/
-void optDecVariables(void){
+n_l_dec *optDecVariables(void){
+  n_l_dec *$1 = NULL;
   affiche_balise_ouvrante(__FUNCTION__, DISPLAY_XML);
   if(est_premier(_listeDecVariables_, uniteCourante)){
-    listeDecVariables();
+    $1 = listeDecVariables();
     consommer( POINT_VIRGULE );
   } else if(est_suivant(_optDecVariables_, uniteCourante)){
   } else {
     err("P(listeDecVariables) OU VIDE");
   }
   affiche_balise_fermante(__FUNCTION__, DISPLAY_XML);
+  return $1;
 }
 
 /*******************************************************************************
  * Fonction de la grammaire correspondant à la règle :
  * listeDecVariables -> declarationVariable listeDecVariablesBis
  ******************************************************************************/
-void listeDecVariables(void){
+n_l_dec *listeDecVariables(void){
+  n_dec *$1 = NULL; n_l_dec *$2 = NULL; n_l_dec *$$ = NULL;
   affiche_balise_ouvrante(__FUNCTION__, DISPLAY_XML);
   if(est_premier(_declarationVariable_, uniteCourante)){
-    declarationVariable();
-    listeDecVariablesBis();
+    $1 = declarationVariable();
+    $2 = listeDecVariablesBis();
+    $$ = cree_n_l_dec($1, $2);
   } else {
     err("P(declarationVariable)");
   }
   affiche_balise_fermante(__FUNCTION__, DISPLAY_XML);
+  return $$;
 }
 
 /*******************************************************************************
@@ -107,33 +120,46 @@ void listeDecVariables(void){
  * listeDecVariablesBis -> ',' declarationVariable listeDecVariablesBis
  *                       |
  ******************************************************************************/
-void listeDecVariablesBis(void){
+n_l_dec *listeDecVariablesBis(){
+  n_dec *$2 = NULL; n_l_dec *$3 = NULL;  n_l_dec *$$ = NULL;
   affiche_balise_ouvrante(__FUNCTION__, DISPLAY_XML);
   if(uniteCourante == VIRGULE){
     consommer( VIRGULE );
-    declarationVariable();
-    listeDecVariablesBis();
+    $2 = declarationVariable();
+    $3 = listeDecVariablesBis();
+    $$ = cree_n_l_dec($2, $3);
   } else if(est_suivant(_listeDecVariablesBis_, uniteCourante)){
+    // $$ = herite; On retourne NULL
   } else {
     err("VIRGULE ou VIDE");
   }
   affiche_balise_fermante(__FUNCTION__, DISPLAY_XML);
+  return $$;
 }
 
 /*******************************************************************************
  * Fonction de la grammaire correspondant à la règle :
  * declarationVariable -> ENTIER ID_VAR optTailleTableau
  ******************************************************************************/
-void declarationVariable(void){
+n_dec *declarationVariable(void){
+  int *$3 = NULL; n_dec *$$ = NULL;
+  char[100] nom;
   affiche_balise_ouvrante(__FUNCTION__, DISPLAY_XML);
   if(uniteCourante == ENTIER){
     consommer( ENTIER );
+    nom_token( uniteCourante, nom, NULL );
     consommer( ID_VAR );
-    optTailleTableau();
+    $3 = optTailleTableau();
+    if( $3 > 0 ){
+      $$ = cree_n_dec_tab(nom, $3)
+    } else {
+      $$ = cree_n_dec_var(nom);
+    }
   } else {
     err("POINT_VIRGULE");
   }
   affiche_balise_fermante(__FUNCTION__, DISPLAY_XML);
+  return $$;
 }
 
 /*******************************************************************************
@@ -141,17 +167,23 @@ void declarationVariable(void){
  * optTailleTableau -> '[' NOMBRE ']'
  *                   | vide
  ******************************************************************************/
-void optTailleTableau(void){
+int optTailleTableau(void){
+  int $2 = 0;
+  char[100] valeur;
   affiche_balise_ouvrante(__FUNCTION__, DISPLAY_XML);
   if(uniteCourante == CROCHET_OUVRANT){
     consommer( CROCHET_OUVRANT );
+    nom_token( uniteCourante, NULL, valeur);
+    $2 = atoi($2);
     consommer( NOMBRE );
     consommer( CROCHET_FERMANT );
   } else if(est_suivant(_optTailleTableau_, uniteCourante)){
+    $2 = 0;
   } else {
     err("CROCHET_OUVRANT ou VIDE");
   }
   affiche_balise_fermante(__FUNCTION__, DISPLAY_XML);
+  return $2;
 }
 
 /*******************************************************************************
@@ -159,7 +191,7 @@ void optTailleTableau(void){
  * listeDecFonctions -> declarationFonction listeDecFonctions
  *                    |
  ******************************************************************************/
- void listeDecFonctions(void){
+ void listeDecFonctions(void){ //TODO
    affiche_balise_ouvrante(__FUNCTION__, DISPLAY_XML);
    if(est_premier(_declarationFonction_, uniteCourante)){
      declarationFonction();
