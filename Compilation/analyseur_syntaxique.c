@@ -2,6 +2,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "symboles.h"
+#include"syntabs.h"
+#include "affiche_arbre_abstrait.h"
 #include "analyseur_syntaxique.h"
 #include "util.h"
 
@@ -120,7 +122,7 @@ n_l_dec *listeDecVariables(void){
  * listeDecVariablesBis -> ',' declarationVariable listeDecVariablesBis
  *                       |
  ******************************************************************************/
-n_l_dec *listeDecVariablesBis(){
+n_l_dec *listeDecVariablesBis(void){
   n_dec *$2 = NULL; n_l_dec *$3 = NULL;  n_l_dec *$$ = NULL;
   affiche_balise_ouvrante(__FUNCTION__, DISPLAY_XML);
   if(uniteCourante == VIRGULE){
@@ -142,8 +144,8 @@ n_l_dec *listeDecVariablesBis(){
  * declarationVariable -> ENTIER ID_VAR optTailleTableau
  ******************************************************************************/
 n_dec *declarationVariable(void){
-  int *$3 = NULL; n_dec *$$ = NULL;
-  char[100] nom;
+  int $3 = 0; n_dec *$$ = NULL;
+  char nom[100];
   affiche_balise_ouvrante(__FUNCTION__, DISPLAY_XML);
   if(uniteCourante == ENTIER){
     consommer( ENTIER );
@@ -151,7 +153,7 @@ n_dec *declarationVariable(void){
     consommer( ID_VAR );
     $3 = optTailleTableau();
     if( $3 > 0 ){
-      $$ = cree_n_dec_tab(nom, $3)
+      $$ = cree_n_dec_tab(nom, $3);
     } else {
       $$ = cree_n_dec_var(nom);
     }
@@ -169,12 +171,12 @@ n_dec *declarationVariable(void){
  ******************************************************************************/
 int optTailleTableau(void){
   int $2 = 0;
-  char[100] valeur;
+  char valeur[100];
   affiche_balise_ouvrante(__FUNCTION__, DISPLAY_XML);
   if(uniteCourante == CROCHET_OUVRANT){
     consommer( CROCHET_OUVRANT );
     nom_token( uniteCourante, NULL, valeur);
-    $2 = atoi($2);
+    $2 = atoi(valeur);
     consommer( NOMBRE );
     consommer( CROCHET_FERMANT );
   } else if(est_suivant(_optTailleTableau_, uniteCourante)){
@@ -213,7 +215,7 @@ int optTailleTableau(void){
  ******************************************************************************/
 n_dec *declarationFonction(void){
   n_l_dec *$2 = NULL; n_l_dec *$3 = NULL; n_instr *$4 = NULL; n_dec *$$ = NULL;
-  char[100] nom;
+  char nom[100];
   affiche_balise_ouvrante(__FUNCTION__, DISPLAY_XML);
   if(uniteCourante == ID_FCT){
     nom_token( uniteCourante, nom, NULL);
@@ -285,29 +287,31 @@ n_l_dec *optListeDecVariables(void){
  *          | instructionVide
  ******************************************************************************/
 n_instr *instruction(void){
+  n_instr *$1 = NULL;
   affiche_balise_ouvrante(__FUNCTION__, DISPLAY_XML);
   if(est_premier(_instructionAffect_, uniteCourante)){
-    return instructionAffect();
+    $1 = instructionAffect();
   } else if(est_premier(_instructionBloc_, uniteCourante)){
-    return instructionBloc();
+    $1 = instructionBloc();
   } else if(est_premier(_instructionSi_, uniteCourante)){
-    return instructionSi();
+    $1 = instructionSi();
   } else if(est_premier(_instructionTantque_, uniteCourante)){
-    return instructionTantque();
+    $1 = instructionTantque();
   } else if(est_premier(_instructionAppel_, uniteCourante)){
-    return instructionAppel();
+    $1 = instructionAppel();
   } else if(est_premier(_instructionRetour_, uniteCourante)){
-    return instructionRetour();
+    $1 = instructionRetour();
   } else if(est_premier(_instructionEcriture_, uniteCourante)){
-    return instructionEcriture();
+    $1 = instructionEcriture();
   } else if(est_premier(_instructionVide_, uniteCourante)){
-    return instructionVide();
+    $1 = instructionVide();
   } else if(est_premier(_instructionFaire_, uniteCourante)){
-    return instructionFaire();
+    $1 = instructionFaire();
   } else {
     err("P(instruction...)");
   }
   affiche_balise_fermante(__FUNCTION__, DISPLAY_XML);
+  return $1;
 }
 
 /*******************************************************************************
@@ -320,9 +324,9 @@ n_instr *instruction(void){
    if(est_premier(_var_, uniteCourante)){
      $1 = var();
      consommer( EGAL );
-     $2 = expression();
+     $3 = expression();
      consommer( POINT_VIRGULE );
-     $$ = cree_n_instr_affect($1, $2);
+     $$ = cree_n_instr_affect($1, $3);
    } else {
      err("P(var)");
    }
@@ -334,8 +338,8 @@ n_instr *instruction(void){
  * Fonction de la grammaire correspondant à la règle :
  * instructionBloc -> '{' listeInstructions '}'
  ******************************************************************************/
-n_l_instr *instructionBloc(void) {
-  n_l_dec *$2 = NULL; n_l_instr *$$ = NULL;
+n_instr *instructionBloc(void) {
+  n_l_instr *$2 = NULL; n_instr *$$ = NULL;
   affiche_balise_ouvrante(__FUNCTION__, DISPLAY_XML);
   if(uniteCourante == ACCOLADE_OUVRANTE){
     consommer( ACCOLADE_OUVRANTE );
@@ -523,14 +527,13 @@ n_instr *instructionVide(void) {
  * Fonction de la grammaire correspondant à la règle :
  * expression -> conjonction expressionBis
  ******************************************************************************/
-n_exp *expression(void) { //TODO:
-  n_exp *$1 = NULL; n_exp *$2 = NULL; n_exp *$$ = NULL;
+n_exp *expression(void) {
+  n_exp *$1 = NULL; n_exp *$2 = NULL;
     affiche_balise_ouvrante(__FUNCTION__, DISPLAY_XML);
     $1 = conjonction();
-    $2 = expressionBis();
-    //
+    $2 = expressionBis($1);
     affiche_balise_fermante(__FUNCTION__, DISPLAY_XML);
-    return $$;
+    return $2;
 }
 
 /*******************************************************************************
@@ -538,23 +541,26 @@ n_exp *expression(void) { //TODO:
  * expressionBis -> '|' conjonction expressionBis
  *                |
  ******************************************************************************/
- n_exp *expressionBis(void) {
-
+ n_exp *expressionBis(n_exp* herite) {
+   n_exp *herite_fils = NULL; n_exp *$2 = NULL; n_exp *$$ = NULL;
    affiche_balise_ouvrante(__FUNCTION__, DISPLAY_XML);
    if(uniteCourante == OU){
      consommer( OU );
 
      if(est_premier(_conjonction_, uniteCourante)){
-       conjonction();
-       expressionBis();
+       $2 = conjonction();
+       herite_fils = cree_n_exp_op(OU, herite, $2);
+       $$ = expressionBis(herite_fils);
      } else {
        err("P(conjonction)");
      }
    } else if(est_suivant(_expressionBis_, uniteCourante)){
+     $$ = herite;
    } else {
      err("OU ou VIDE");
    }
    affiche_balise_fermante(__FUNCTION__, DISPLAY_XML);
+   return $$;
  }
 
 /*******************************************************************************
@@ -562,12 +568,12 @@ n_exp *expression(void) { //TODO:
  * conjonction -> comparaison conjonctionBis
  ******************************************************************************/
 n_exp *conjonction(void) {
-  n_exp *$1 = NULL; n_exp *$2 = NULL; n_esp *$$ = NULL;
+  n_exp *$1 = NULL; n_exp *$2 = NULL; n_exp *$$ = NULL;
   affiche_balise_ouvrante(__FUNCTION__, DISPLAY_XML);
   $1 = comparaison();
-  $2 = conjonctionBis();
-  $$ = cree_n
+  $2 = conjonctionBis($1);
   affiche_balise_fermante(__FUNCTION__, DISPLAY_XML);
+  return $2;
 }
 
 /*******************************************************************************
@@ -575,28 +581,34 @@ n_exp *conjonction(void) {
  * conjonctionBis -> '&' comparaison conjonctionBis
  *                |
  ******************************************************************************/
-void conjonctionBis(void) {
+n_exp *conjonctionBis(n_exp* herite) {
+  n_exp *$2 = NULL; n_exp *$$ = NULL; n_exp *herite_fils = NULL;
   affiche_balise_ouvrante(__FUNCTION__, DISPLAY_XML);
   if(uniteCourante == ET){
     consommer( ET );
-    comparaison();
-    conjonctionBis();
+    $2 = comparaison();
+    herite_fils = cree_n_exp_op(ET, herite, $2);
+    $$ = conjonctionBis(herite_fils);
   } else if(est_suivant(_conjonctionBis_, uniteCourante)){
+    $$ = herite;
   } else {
     err("ET ou VIDE");
   }
   affiche_balise_fermante(__FUNCTION__, DISPLAY_XML);
+  return $$;
 }
 
 /*******************************************************************************
  * Fonction de la grammaire correspondant à la règle :
  * comparaison -> expArith comparaisonBis
  ******************************************************************************/
- void comparaison(void) {
+ n_exp *comparaison(void) {
+   n_exp *$1 = NULL;  n_exp *$2 = NULL;
      affiche_balise_ouvrante(__FUNCTION__, DISPLAY_XML);
-     expArith();
-     comparaisonBis();
+     $1 = expArith();
+     $2 = comparaisonBis($1);
      affiche_balise_fermante(__FUNCTION__, DISPLAY_XML);
+     return $2;
  }
 
 /*******************************************************************************
@@ -605,32 +617,39 @@ void conjonctionBis(void) {
  *                 | '<' expArith comparaisonBis
  *                 |
  ******************************************************************************/
- void comparaisonBis(void) {
+ n_exp *comparaisonBis(n_exp *herite) {
+   n_exp *$2 = NULL;  n_exp *$$ = NULL; n_exp *herite_fils = NULL;
    affiche_balise_ouvrante(__FUNCTION__, DISPLAY_XML);
    if(uniteCourante == EGAL){
      consommer( EGAL );
-     expArith();
-     comparaisonBis();
+     $2 = expArith();
+     herite_fils = cree_n_exp_op(EGAL, herite, $2);
+     $$ = comparaisonBis(herite_fils);
    } else if(uniteCourante == INFERIEUR){
      consommer( INFERIEUR );
-     expArith();
-     comparaisonBis();
+     $2 = expArith();
+     herite_fils = cree_n_exp_op(INFERIEUR, herite, $2);
+     $$ = comparaisonBis(herite_fils);
    } else if(est_suivant(_comparaisonBis_, uniteCourante)){
+     $$ = herite;
    } else {
      err("EGAL ou INFERIEUR ou VIDE");
    }
    affiche_balise_fermante(__FUNCTION__, DISPLAY_XML);
+   return $$;
  }
 
 /*******************************************************************************
  * Fonction de la grammaire correspondant à la règle :
  * expArith -> terme expArithBis
  ******************************************************************************/
-void expArith(void) {
+n_exp *expArith(void) {
+  n_exp *$1 = NULL; n_exp *$2 = NULL;
     affiche_balise_ouvrante(__FUNCTION__, DISPLAY_XML);
-    terme();
-    expArithBis();
+    $1 = terme();
+    $2 = expArithBis($1);
     affiche_balise_fermante(__FUNCTION__, DISPLAY_XML);
+    return $2;
 }
 
 /*******************************************************************************
@@ -639,33 +658,39 @@ void expArith(void) {
  *              | '-' terme expArithBis
  *              |
  ******************************************************************************/
-void expArithBis(void) {
+n_exp *expArithBis(n_exp *herite) {
+  n_exp *$2 = NULL; n_exp *$$ = NULL; n_exp *herite_fils = NULL;
   affiche_balise_ouvrante(__FUNCTION__, DISPLAY_XML);
   if(uniteCourante == PLUS){
     consommer( PLUS );
-    terme();
-    expArithBis();
+    $2 = terme();
+    herite_fils = cree_n_exp_op(PLUS, herite, $2);
+    $$ = expArithBis(herite_fils);
   } else if(uniteCourante == MOINS){
     consommer( MOINS );
-    terme();
-    expArithBis();
+    $2 = terme();
+    herite_fils = cree_n_exp_op(MOINS, herite, $2);
+    $$ = expArithBis(herite_fils);
   } else if(est_suivant(_expArithBis_, uniteCourante)){
-
+    $$ = herite;
   } else {
     err("PLUS ou MOINS ou VIDE");
   }
   affiche_balise_fermante(__FUNCTION__, DISPLAY_XML);
+  return $$;
 }
 
 /*******************************************************************************
  * Fonction de la grammaire correspondant à la règle :
  * terme -> negation termeBis
  ******************************************************************************/
-void terme(void) {
+n_exp *terme(void) {
+  n_exp *$1 = NULL; n_exp *$2 = NULL;
   affiche_balise_ouvrante(__FUNCTION__, DISPLAY_XML);
-  negation();
-  termeBis();
+  $1 = negation();
+  $2 = termeBis($1);
   affiche_balise_fermante(__FUNCTION__, DISPLAY_XML);
+  return $2;
 }
 
 /*******************************************************************************
@@ -686,7 +711,7 @@ n_exp *termeBis( n_exp *herite ) {
     consommer( DIVISE );
     $2 = negation();
     herite_fils = cree_n_exp_op(DIVISE, herite, $2);
-    $$ = termeBis();
+    $$ = termeBis(herite_fils);
   } else if(est_suivant(_termeBis_, uniteCourante)){
     $$ = herite;
   } else {
@@ -701,17 +726,20 @@ n_exp *termeBis( n_exp *herite ) {
  * negation -> '!' negation
  *           | facteur
  ******************************************************************************/
-void negation(void) {
+n_exp *negation(void) {
+  n_exp *$2 = NULL; n_exp *$$ = NULL;
   affiche_balise_ouvrante(__FUNCTION__, DISPLAY_XML);
   if(uniteCourante == NON){
     consommer( NON );
-    negation();
+    $2 = negation();
+    $$ = cree_n_exp_op(NON, $2, NULL);
   } else if(est_premier(_facteur_, uniteCourante)){
-    facteur();
+    $$ = facteur();
   } else {
     err("NON ou VIDE");
   }
   affiche_balise_fermante(__FUNCTION__, DISPLAY_XML);
+  return $$;
 }
 
 /*******************************************************************************
@@ -722,26 +750,37 @@ void negation(void) {
  *          | var
  *          | LIRE '(' ')'
  ******************************************************************************/
-void facteur(void) {
+n_exp *facteur(void) {
+  n_exp *$$ = NULL;
+  char valeur[100];
   affiche_balise_ouvrante(__FUNCTION__, DISPLAY_XML);
   if(uniteCourante == PARENTHESE_OUVRANTE){
     consommer( PARENTHESE_OUVRANTE );
-    expression();
+    $$ = expression();
     consommer( PARENTHESE_FERMANTE );
   } else if(uniteCourante == NOMBRE) {
+    nom_token(uniteCourante, NULL, valeur);
+    int entier = atoi(valeur);
+    $$ = cree_n_exp_entier(entier);
     consommer( NOMBRE );
   } else if(est_premier(_appelFct_, uniteCourante)) {
-    appelFct();
+    n_appel *$1 = NULL;
+    $1 = appelFct();
+    $$ = cree_n_exp_appel($1);
   } else if(est_premier(_var_, uniteCourante)) {
-    var();
+    n_var *$1 = NULL;
+    $1 = var();
+    $$ = cree_n_exp_var($1);
   } else if(uniteCourante == LIRE) {
     consommer( LIRE );
     consommer( PARENTHESE_OUVRANTE );
     consommer( PARENTHESE_FERMANTE );
+    $$ = cree_n_exp_lire();
   } else {
     err("PARENTHESE_OUVRANTE ou NOMBRE ou P(appelFct) ou P(var) ou LIRE");
   }
   affiche_balise_fermante(__FUNCTION__, DISPLAY_XML);
+  return $$;
 }
 
 /*******************************************************************************
@@ -754,26 +793,36 @@ void facteur(void) {
  * Fonction de la grammaire correspondant à la règle :
  * var -> ID_VAR optIndice
  ******************************************************************************/
-void var(void) {
+n_var *var(void) {
+  n_exp* $2 = NULL; n_var *$$ = NULL;
+  char nom[100];
   affiche_balise_ouvrante(__FUNCTION__, DISPLAY_XML);
   if(uniteCourante == ID_VAR){
+    nom_token(uniteCourante, nom, NULL);
     consommer( ID_VAR );
-    optIndice();
+    $2 = optIndice();
+    if($2 == NULL){
+      $$ = cree_n_var_simple(nom);
+    } else {
+      $$ = cree_n_var_indicee(nom, $2);
+    }
   } else {
     err("ID_VAR");
   }
   affiche_balise_fermante(__FUNCTION__, DISPLAY_XML);
+  return $$;
 }
 /*******************************************************************************
  * Fonction de la grammaire correspondant à la règle :
  * optIndice -> '[' expression ']'
  *           |
  ******************************************************************************/
-void optIndice(void) {
+n_exp *optIndice(void) {
+  n_exp *$2 = NULL;
   affiche_balise_ouvrante(__FUNCTION__, DISPLAY_XML);
   if(uniteCourante == CROCHET_OUVRANT){
     consommer( CROCHET_OUVRANT );
-    expression();
+    $2 = expression();
     consommer( CROCHET_FERMANT );
   } else if(est_suivant(_optIndice_, uniteCourante)){
 
@@ -781,39 +830,48 @@ void optIndice(void) {
     err("CROCHET_OUVRANT ou VIDE");
   }
   affiche_balise_fermante(__FUNCTION__, DISPLAY_XML);
+  return $2;
 }
 /*******************************************************************************
  * Fonction de la grammaire correspondant à la règle :
  * appelFct -> ID_FCT '(' listeExpressions ')'
  ******************************************************************************/
-void appelFct(void) {
+n_appel *appelFct(void) {
+  n_appel *$$ = NULL; n_l_exp *$2 = NULL;
+  char nom[100];
   affiche_balise_ouvrante(__FUNCTION__, DISPLAY_XML);
   if(uniteCourante == ID_FCT){
+    nom_token(uniteCourante, nom, NULL);
     consommer( ID_FCT );
     consommer( PARENTHESE_OUVRANTE );
-    listeExpressions();
+    $2 = listeExpressions();
     consommer( PARENTHESE_FERMANTE );
+    $$ = cree_n_appel(nom, $2);
   } else {
     err("ID_FCT");
   }
   affiche_balise_fermante(__FUNCTION__, DISPLAY_XML);
+  return $$;
 }
 /*******************************************************************************
  * Fonction de la grammaire correspondant à la règle :
  * listeExpressions -> expression listeExpressionsBis
  *                  |
  ******************************************************************************/
-void listeExpressions(void){
+n_l_exp *listeExpressions(void){
+  n_exp *$1 = NULL; n_l_exp *$2 = NULL; n_l_exp *$$ = NULL;
   affiche_balise_ouvrante(__FUNCTION__, DISPLAY_XML);
   if(est_premier(_expression_, uniteCourante)){
-    expression();
-    listeExpressionsBis();
+    $1 = expression();
+    $2 = listeExpressionsBis();
+    $$ = cree_n_l_exp($1, $2);
   } else if(est_suivant(_listeExpressions_, uniteCourante)){
 
   } else {
     err("P(expression) ou VIDE");
   }
   affiche_balise_fermante(__FUNCTION__, DISPLAY_XML);
+  return $$;
 }
 
 /*******************************************************************************
@@ -821,34 +879,40 @@ void listeExpressions(void){
  * listeExpressionsBis -> ',' expression listeExpressionsBis
  *                     |
  ******************************************************************************/
-void listeExpressionsBis(void) {
+n_l_exp *listeExpressionsBis(void) {
+  n_exp *$2 = NULL; n_l_exp *$3 = NULL; n_l_exp *$$ = NULL;
   affiche_balise_ouvrante(__FUNCTION__, DISPLAY_XML);
   if(uniteCourante == VIRGULE){
     consommer( VIRGULE );
-    expression();
-    listeExpressionsBis();
+    $2 = expression();
+    $3 = listeExpressionsBis();
+    $$ = cree_n_l_exp($2, $3);
   } else if(est_suivant(_listeExpressionsBis_, uniteCourante)){
 
   } else {
     err("VIRGULE ou VIDE");
   }
   affiche_balise_fermante(__FUNCTION__, DISPLAY_XML);
+  return $$;
 }
 
 /*******************************************************************************
  * Fonction de la grammaire correspondant à la règle :
  * instructionFaire -> faire IB tantque E;
  ******************************************************************************/
-void instructionFaire(void) {
+n_instr *instructionFaire(void) {
+  n_instr *$2 = NULL; n_exp *$4 = NULL; n_instr *$$ = NULL;
   affiche_balise_ouvrante(__FUNCTION__, DISPLAY_XML);
   if(uniteCourante == FAIRE){
     consommer( FAIRE );
-    instructionBloc();
+    $2 = instructionBloc();
     consommer( TANTQUE );
-    expression();
+    $4 = expression();
     consommer( POINT_VIRGULE );
+    $$ = cree_n_instr_faire($2, $4);
   } else {
     err("FAIRE");
   }
   affiche_balise_fermante(__FUNCTION__, DISPLAY_XML);
+  return $$;
 }
