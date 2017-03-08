@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "symboles.h"
-#include"syntabs.h"
+#include "syntabs.h"
 #include "affiche_arbre_abstrait.h"
 #include "analyseur_syntaxique.h"
 #include "util.h"
@@ -145,11 +145,11 @@ n_l_dec *listeDecVariablesBis(void){
  ******************************************************************************/
 n_dec *declarationVariable(void){
   int $3 = 0; n_dec *$$ = NULL;
-  char nom[100];
+  char nom[100]; char valeur[100];
   affiche_balise_ouvrante(__FUNCTION__, DISPLAY_XML);
   if(uniteCourante == ENTIER){
     consommer( ENTIER );
-    nom_token( uniteCourante, nom, NULL );
+    nom_token( uniteCourante, nom, valeur );
     consommer( ID_VAR );
     $3 = optTailleTableau();
     if( $3 > 0 ){
@@ -171,11 +171,11 @@ n_dec *declarationVariable(void){
  ******************************************************************************/
 int optTailleTableau(void){
   int $2 = 0;
-  char valeur[100];
+  char nom[100]; char valeur[100];
   affiche_balise_ouvrante(__FUNCTION__, DISPLAY_XML);
   if(uniteCourante == CROCHET_OUVRANT){
     consommer( CROCHET_OUVRANT );
-    nom_token( uniteCourante, NULL, valeur);
+    nom_token( uniteCourante, nom, valeur);
     $2 = atoi(valeur);
     consommer( NOMBRE );
     consommer( CROCHET_FERMANT );
@@ -215,10 +215,10 @@ int optTailleTableau(void){
  ******************************************************************************/
 n_dec *declarationFonction(void){
   n_l_dec *$2 = NULL; n_l_dec *$3 = NULL; n_instr *$4 = NULL; n_dec *$$ = NULL;
-  char nom[100];
+  char nom[100];  char valeur[100];
   affiche_balise_ouvrante(__FUNCTION__, DISPLAY_XML);
   if(uniteCourante == ID_FCT){
-    nom_token( uniteCourante, nom, NULL);
+    nom_token( uniteCourante, nom, valeur);
     consommer(ID_FCT);
     $2 = listeParam();
     $3 = optDecVariables();
@@ -752,14 +752,14 @@ n_exp *negation(void) {
  ******************************************************************************/
 n_exp *facteur(void) {
   n_exp *$$ = NULL;
-  char valeur[100];
+  char nom[100]; char valeur[100];
   affiche_balise_ouvrante(__FUNCTION__, DISPLAY_XML);
   if(uniteCourante == PARENTHESE_OUVRANTE){
     consommer( PARENTHESE_OUVRANTE );
     $$ = expression();
     consommer( PARENTHESE_FERMANTE );
   } else if(uniteCourante == NOMBRE) {
-    nom_token(uniteCourante, NULL, valeur);
+    nom_token(uniteCourante, nom, valeur);
     int entier = atoi(valeur);
     $$ = cree_n_exp_entier(entier);
     consommer( NOMBRE );
@@ -795,16 +795,17 @@ n_exp *facteur(void) {
  ******************************************************************************/
 n_var *var(void) {
   n_exp* $2 = NULL; n_var *$$ = NULL;
-  char nom[100];
+  char nom[100]; char valeur[100];
   affiche_balise_ouvrante(__FUNCTION__, DISPLAY_XML);
   if(uniteCourante == ID_VAR){
-    nom_token(uniteCourante, nom, NULL);
+    nom_token(uniteCourante, nom, valeur);
+    printf("%s\n", valeur);
     consommer( ID_VAR );
     $2 = optIndice();
     if($2 == NULL){
-      $$ = cree_n_var_simple(nom);
+      $$ = cree_n_var_simple(valeur);
     } else {
-      $$ = cree_n_var_indicee(nom, $2);
+      $$ = cree_n_var_indicee(valeur, $2);
     }
   } else {
     err("ID_VAR");
@@ -838,10 +839,10 @@ n_exp *optIndice(void) {
  ******************************************************************************/
 n_appel *appelFct(void) {
   n_appel *$$ = NULL; n_l_exp *$2 = NULL;
-  char nom[100];
+  char nom[100]; char valeur[100];
   affiche_balise_ouvrante(__FUNCTION__, DISPLAY_XML);
   if(uniteCourante == ID_FCT){
-    nom_token(uniteCourante, nom, NULL);
+    nom_token(uniteCourante, nom, valeur);
     consommer( ID_FCT );
     consommer( PARENTHESE_OUVRANTE );
     $2 = listeExpressions();

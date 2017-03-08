@@ -2,8 +2,9 @@
 #include <stdlib.h>
 #include "premiers.h"
 #include "suivants.h"
-#include"syntabs.h"
+#include "syntabs.h"
 #include "affiche_arbre_abstrait.h"
+#include "analyseur_syntaxique.h"
 
 void open_file(char *arg);
 
