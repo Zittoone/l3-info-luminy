@@ -10,4 +10,11 @@
 PSW systeme(PSW m);
 PSW systeme_init_boucle(void);
 
+
+/**********************************************************
+** simulation entrée systeme
+***********************************************************/
+
+void frappe_clavier(void);
+
 #endif
