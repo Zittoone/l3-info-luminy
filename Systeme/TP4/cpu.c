@@ -88,6 +88,7 @@ PSW cpu_IFGT(PSW m){
 
 
 PSW cpu_NOP(PSW m){
+	//printf("nop from %d\n", m.PC);
 	m.PC += 1;
 	return m;
 }
@@ -99,6 +100,7 @@ PSW cpu_NOP(PSW m){
 
 
 PSW cpu_JUMP(PSW m){
+	//printf("jump to %d from %d\n", m.RI.ARG, m.PC);
 	m.PC = m.RI.ARG;
 	return m;
 }
@@ -120,57 +122,6 @@ PSW cpu_HALT(PSW m){
 
 
 PSW cpu_SYSC(PSW m){
-	int fils = -1, i;
-
-	switch (m.RI.ARG) {
-		case SYSC_EXIT:
-		printf("Exit thread %d\n", current_process);
-			process[current_process].state = EMPTY;
-		case SYSC_PUTI:
-			printf("Entier dans le 1er reg. de l'inst. SYSC : %d\n", m.DR[m.RI.i]);
-			break;
-		case SYSC_NEW_THREAD:
-			printf("Création thread\n");
-			/* Création */
-			for( i = 0; i < MAX_PROCESS; i ++){
-				if(process[fils].state == EMPTY){
-					fils = i;
-					break;
-				}
-			}
-
-			if(fils == -1){
-				// MAX THREAD
-				printf("MAX_THREAD reached");
-				exit(1);
-			}
-
-			/* Fils */
-			process[fils].cpu		= m;
-			process[fils].cpu.AC = 0;
-			process[fils].cpu.DR[m.RI.i] = 0;
-			process[fils].state	= READY;
-			process[fils].cpu.PC += 1;
-
-			/* Père */
-			m.DR[m.RI.i] = fils;
-			m.AC = fils;
-			break;
-		case SYSC_SLEEP:
-			process[current_process].state = ASLEEP;
-			process[current_process].awake = time(NULL) + m.DR[m.RI.i];
-			break;
-		case SYSC_GETCHAR:
-			if(tampon == '\0'){
-					// Le tampon est vide
-					process[current_process].state = GETCHAR;
-					gc_process_n++;
-			} else {
-				m.DR[m.RI.i] = tampon;
-			}
-			break;
-	}
-
 	m.PC += 1;
 	return m;
 }
@@ -226,11 +177,8 @@ PSW cpu_STORE(PSW m){
 ** Simulation de la CPU (mode utilisateur)
 ***********************************************************/
 
-PSW cpu(PSW mm) {
+PSW cpu(PSW m) {
 	int i;
-
-	reveil();
-	PSW m = ordonnanceur(mm);
 
 	for(i = 0; i < CLOCK_TICK; i++){
 
@@ -291,41 +239,4 @@ PSW cpu(PSW mm) {
 	m.IN = INT_CLOCK;
 
 	return m;
-}
-
-
-/**********************************************************
-** Un ordonnanceur simplifié
-***********************************************************/
-
-PSW ordonnanceur(PSW m){
-	// sauvegarder le processus courant si il existe
-	if(process[current_process].state == READY){
-		process[current_process].cpu = m;
-	}
-
-	do {
-	  current_process = (current_process + 1) % MAX_PROCESS;
-	} while (process[current_process].state != READY);
-
-	// relancer ce processus
-	return process[current_process].cpu;
-}
-
-
-/**********************************************************
-** Réveille les threads endormis
-***********************************************************/
-
-void reveil(void){
-	time_t t = time(NULL);
-	int i;
-
-	for(i = 0; i < MAX_PROCESS; i++){
-		if(process[i].state == ASLEEP){
-			if(process[i].awake - t <= 0){
-				process[i].state = READY;
-			}
-		}
-	}
 }
