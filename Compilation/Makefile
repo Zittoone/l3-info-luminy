@@ -1,8 +1,8 @@
-OBJS := compilateur.o analyseur_lexical.o analyseur_syntaxique.o premiers.o suivants.o util.o
+OBJS := compilateur.o analyseur_lexical.o analyseur_syntaxique.o premiers.o suivants.o util.o syntabs.o affiche_arbre_abstrait.o
 
 # link
 compilateur: $(OBJS)
-	gcc $(OBJS) -o compilateur
+	gcc -g $(OBJS) -o compilateur
 
 # compile
 %.o: %.c
