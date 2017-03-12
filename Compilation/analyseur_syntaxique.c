@@ -145,7 +145,9 @@ n_l_dec *listeDecVariablesBis(void){
  ******************************************************************************/
 n_dec *declarationVariable(void){
   int $3 = 0; n_dec *$$ = NULL;
-  char nom[100]; char valeur[100];
+  char *nom; char *valeur;
+  nom = malloc(sizeof(char) * 100);
+  valeur = malloc(sizeof(char) * 100);
   affiche_balise_ouvrante(__FUNCTION__, DISPLAY_XML);
   if(uniteCourante == ENTIER){
     consommer( ENTIER );
@@ -153,9 +155,9 @@ n_dec *declarationVariable(void){
     consommer( ID_VAR );
     $3 = optTailleTableau();
     if( $3 > 0 ){
-      $$ = cree_n_dec_tab(nom, $3);
+      $$ = cree_n_dec_tab(valeur, $3);
     } else {
-      $$ = cree_n_dec_var(nom);
+      $$ = cree_n_dec_var(valeur);
     }
   } else {
     err("POINT_VIRGULE");
@@ -171,7 +173,9 @@ n_dec *declarationVariable(void){
  ******************************************************************************/
 int optTailleTableau(void){
   int $2 = 0;
-  char nom[100]; char valeur[100];
+  char *nom; char *valeur;
+  nom = malloc(sizeof(char) * 100);
+  valeur = malloc(sizeof(char) * 100);
   affiche_balise_ouvrante(__FUNCTION__, DISPLAY_XML);
   if(uniteCourante == CROCHET_OUVRANT){
     consommer( CROCHET_OUVRANT );
@@ -215,7 +219,9 @@ int optTailleTableau(void){
  ******************************************************************************/
 n_dec *declarationFonction(void){
   n_l_dec *$2 = NULL; n_l_dec *$3 = NULL; n_instr *$4 = NULL; n_dec *$$ = NULL;
-  char nom[100];  char valeur[100];
+  char *nom; char *valeur;
+  nom = malloc(sizeof(char) * 100);
+  valeur = malloc(sizeof(char) * 100);
   affiche_balise_ouvrante(__FUNCTION__, DISPLAY_XML);
   if(uniteCourante == ID_FCT){
     nom_token( uniteCourante, nom, valeur);
@@ -223,7 +229,7 @@ n_dec *declarationFonction(void){
     $2 = listeParam();
     $3 = optDecVariables();
     $4 = instructionBloc();
-    $$ = cree_n_dec_fonc(nom, $2, $3, $4);
+    $$ = cree_n_dec_fonc(valeur, $2, $3, $4);
   } else {
     err("ID_FCT");
   }
@@ -549,7 +555,7 @@ n_exp *expression(void) {
 
      if(est_premier(_conjonction_, uniteCourante)){
        $2 = conjonction();
-       herite_fils = cree_n_exp_op(OU, herite, $2);
+       herite_fils = cree_n_exp_op(ou, herite, $2);
        $$ = expressionBis(herite_fils);
      } else {
        err("P(conjonction)");
@@ -587,7 +593,7 @@ n_exp *conjonctionBis(n_exp* herite) {
   if(uniteCourante == ET){
     consommer( ET );
     $2 = comparaison();
-    herite_fils = cree_n_exp_op(ET, herite, $2);
+    herite_fils = cree_n_exp_op(et, herite, $2);
     $$ = conjonctionBis(herite_fils);
   } else if(est_suivant(_conjonctionBis_, uniteCourante)){
     $$ = herite;
@@ -623,12 +629,12 @@ n_exp *conjonctionBis(n_exp* herite) {
    if(uniteCourante == EGAL){
      consommer( EGAL );
      $2 = expArith();
-     herite_fils = cree_n_exp_op(EGAL, herite, $2);
+     herite_fils = cree_n_exp_op(egal, herite, $2);
      $$ = comparaisonBis(herite_fils);
    } else if(uniteCourante == INFERIEUR){
      consommer( INFERIEUR );
      $2 = expArith();
-     herite_fils = cree_n_exp_op(INFERIEUR, herite, $2);
+     herite_fils = cree_n_exp_op(inf, herite, $2);
      $$ = comparaisonBis(herite_fils);
    } else if(est_suivant(_comparaisonBis_, uniteCourante)){
      $$ = herite;
@@ -664,12 +670,12 @@ n_exp *expArithBis(n_exp *herite) {
   if(uniteCourante == PLUS){
     consommer( PLUS );
     $2 = terme();
-    herite_fils = cree_n_exp_op(PLUS, herite, $2);
+    herite_fils = cree_n_exp_op(plus, herite, $2);
     $$ = expArithBis(herite_fils);
   } else if(uniteCourante == MOINS){
     consommer( MOINS );
     $2 = terme();
-    herite_fils = cree_n_exp_op(MOINS, herite, $2);
+    herite_fils = cree_n_exp_op(moins, herite, $2);
     $$ = expArithBis(herite_fils);
   } else if(est_suivant(_expArithBis_, uniteCourante)){
     $$ = herite;
@@ -705,12 +711,12 @@ n_exp *termeBis( n_exp *herite ) {
   if(uniteCourante == FOIS){
     consommer( FOIS );
     $2 = negation();
-    herite_fils = cree_n_exp_op(FOIS, herite, $2);
+    herite_fils = cree_n_exp_op(fois, herite, $2);
     $$ = termeBis( herite_fils );
   } else if(uniteCourante == DIVISE){
     consommer( DIVISE );
     $2 = negation();
-    herite_fils = cree_n_exp_op(DIVISE, herite, $2);
+    herite_fils = cree_n_exp_op(divise, herite, $2);
     $$ = termeBis(herite_fils);
   } else if(est_suivant(_termeBis_, uniteCourante)){
     $$ = herite;
@@ -732,7 +738,7 @@ n_exp *negation(void) {
   if(uniteCourante == NON){
     consommer( NON );
     $2 = negation();
-    $$ = cree_n_exp_op(NON, $2, NULL);
+    $$ = cree_n_exp_op(non, $2, NULL);
   } else if(est_premier(_facteur_, uniteCourante)){
     $$ = facteur();
   } else {
@@ -752,7 +758,9 @@ n_exp *negation(void) {
  ******************************************************************************/
 n_exp *facteur(void) {
   n_exp *$$ = NULL;
-  char nom[100]; char valeur[100];
+  char *nom; char *valeur;
+  nom = malloc(sizeof(char) * 100);
+  valeur = malloc(sizeof(char) * 100);
   affiche_balise_ouvrante(__FUNCTION__, DISPLAY_XML);
   if(uniteCourante == PARENTHESE_OUVRANTE){
     consommer( PARENTHESE_OUVRANTE );
@@ -795,11 +803,12 @@ n_exp *facteur(void) {
  ******************************************************************************/
 n_var *var(void) {
   n_exp* $2 = NULL; n_var *$$ = NULL;
-  char nom[100]; char valeur[100];
+  char *nom; char *valeur;
+  nom = malloc(sizeof(char) * 100);
+  valeur = malloc(sizeof(char) * 100);
   affiche_balise_ouvrante(__FUNCTION__, DISPLAY_XML);
   if(uniteCourante == ID_VAR){
     nom_token(uniteCourante, nom, valeur);
-    printf("%s\n", valeur);
     consommer( ID_VAR );
     $2 = optIndice();
     if($2 == NULL){
@@ -839,7 +848,9 @@ n_exp *optIndice(void) {
  ******************************************************************************/
 n_appel *appelFct(void) {
   n_appel *$$ = NULL; n_l_exp *$2 = NULL;
-  char nom[100]; char valeur[100];
+  char *nom; char *valeur;
+  nom = malloc(sizeof(char) * 100);
+  valeur = malloc(sizeof(char) * 100);
   affiche_balise_ouvrante(__FUNCTION__, DISPLAY_XML);
   if(uniteCourante == ID_FCT){
     nom_token(uniteCourante, nom, valeur);
@@ -847,7 +858,7 @@ n_appel *appelFct(void) {
     consommer( PARENTHESE_OUVRANTE );
     $2 = listeExpressions();
     consommer( PARENTHESE_FERMANTE );
-    $$ = cree_n_appel(nom, $2);
+    $$ = cree_n_appel(valeur, $2);
   } else {
     err("ID_FCT");
   }
