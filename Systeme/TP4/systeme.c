@@ -1,4 +1,3 @@
-
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -125,7 +124,13 @@ PSW systeme_init_getchar(void){
 	printf("Booting (avec getchar).\n");
 
 	/*** Lecture d'un caractère et endormissement ***/
-	make_inst( 0, INST_SUB,   R3, R3, -3);           /* R3 = 1         */
+
+	/*
+	 * Passer la valeur de R3 à -5 pour constater que le sleep
+	 * est plus long que le délai d'input clavier et donc
+	 * qu'il ne passe plus jamais en état GETCHAR.
+	 */
+	make_inst( 0, INST_SUB,   R3, R3, -3);           /* R3 = 3        */
 	make_inst( 1, INST_SYSC,  R4,  0, SYSC_GETCHAR); /* R4 = getchar() */
 	make_inst( 2, INST_SYSC,  R4,  0, SYSC_PUTI);    /* puti(R4)       */
 	make_inst( 3, INST_SYSC,  R3,  0, SYSC_SLEEP);   /* sleep(R3)      */
@@ -153,7 +158,7 @@ PSW systeme_idle(void){
 	memset (&cpu, 0, sizeof(cpu));
 	cpu.PC = 0;
 	cpu.SB = 100;
-	cpu.SS = 120;
+	cpu.SS = 20;
 
 	return cpu;
 }
@@ -166,8 +171,12 @@ PSW systeme_idle(void){
 PSW systeme(PSW m) {
 
 	int i;
-	if(current_process != 0)printf("interruption code %d pour le thread %d\n", m.IN, current_process);
-	frappe_clavier();
+	if(current_process != 0) /* On affiche pas les informations de l'idle */
+		printf("interruption code %d pour le thread %d\n", m.IN, current_process);
+
+	/* Toutes les 4 secondes */
+	if((last_call + 4) - time(NULL) < 0)
+		last_call = frappe_clavier();
 
 	switch (m.IN) {
 		case INT_INIT:
@@ -185,7 +194,7 @@ PSW systeme(PSW m) {
 			break;
 		case INT_CLOCK:
 			m = ordonnanceur(m);
-			//break;
+			break;
 		case INT_TRACE:
 			if(current_process != 0){
 				printf("Affichage des registres PC et DR pour le processus %d:\n", current_process);
@@ -201,29 +210,32 @@ PSW systeme(PSW m) {
 			m = ordonnanceur(m);
 			break;
 		case INT_SYSC:
-			printf("Appel de INT_SYSC\n");
+			printf("Appel de INT_SYSC : ");
 			int fils = -1, i;
 
 			switch (m.RI.ARG) {
 				case SYSC_EXIT:
-				printf("Exit thread %d\n", current_process);
+					printf("SYSC_EXIT\n");
+					printf("Exit thread %d\n", current_process);
 					process[current_process].state = EMPTY;
 				case SYSC_PUTI:
+					printf("SYSC_PUTI\n");
 					printf("Entier dans le 1er reg. de l'inst. SYSC : %c\n", m.DR[m.RI.i]);
 					break;
 				case SYSC_NEW_THREAD:
+					printf("SYSC_NEW_THREAD\n");
 					printf("Création thread\n");
 					/* Création */
 					for( i = 0; i < MAX_PROCESS; i ++){
-						if(process[fils].state == EMPTY){
+						if(process[i].state == EMPTY){
 							fils = i;
 							break;
 						}
 					}
 
 					if(fils == -1){
-						// MAX THREAD
-						printf("MAX_THREAD reached");
+						// MAX PROCESS
+						printf("MAX_PROCESS reached");
 						m.IN = INT_SEGV;
 					} else {
 						/* Fils */
@@ -239,21 +251,30 @@ PSW systeme(PSW m) {
 					}
 					break;
 				case SYSC_SLEEP:
+					printf("SYSC_SLEEP\n");
+					process[current_process].cpu = m;
 					process[current_process].state = ASLEEP;
 					process[current_process].awake = time(NULL) + m.DR[m.RI.i];
 					break;
 				case SYSC_GETCHAR:
+					printf("SYSC_GETCHAR\n");
 					if(tampon == '\0'){
-						//printf("Process %d est en attente de getchar\n", current_process);
+						printf(">>Process %d passe dans l'état GETCHAR (tampon vide)\n", current_process);
 						// Le tampon est vide
+						process[current_process].cpu = m;
 						process[current_process].state = GETCHAR;
 						gc_process_n++;
 					} else {
 						m.DR[m.RI.i] = tampon;
+						// On consomme le tampon
+						tampon = '\0';
 					}
 					break;
+				case SYSC_FORK:
+					
+					break;
 			}
-			//m = ordonnanceur(m);
+			m = ordonnanceur(m);
 			break;
 		default:
 			printf("Interruption inconnue : %d\n", m.IN);
@@ -265,25 +286,29 @@ PSW systeme(PSW m) {
 }
 
 
-void frappe_clavier(void){
+/**********************************************************
+** simulation entrée systeme
+***********************************************************/
+
+/* Renvoie le temps en seconde du dernier appel */
+time_t frappe_clavier(void){
 	int i;
 
-	//sleep(4); Cela va endormir le totalité du programme
 	char randomletter = 'A' + (random() % 26);
-	//printf("%s\n", &randomletter);
-
-	//if(gc_process_n > 0)
-		for(i = 0; i < MAX_PROCESS; i++){
-			if(process[i].state == GETCHAR){
-				//printf("Process %d n'est plus en attente de getchar\n", i);
-				process[i].state = READY;
-				gc_process_n--;
-				break;
-			}
+	for(i = 0; i < MAX_PROCESS; i++){
+		if(process[i].state == GETCHAR){
+			process[i].state = READY;
+			/* On fournit au processus en état GETCHAR une lettre au hasard
+			 * et on lui rend la main
+			 */
+			process[i].cpu.DR[process[i].cpu.RI.i] = randomletter;
+			gc_process_n--;
+			return time(NULL);
 		}
+	}
 
 	tampon = randomletter;
-
+	return time(NULL);
 }
 
 /**********************************************************

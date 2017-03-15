@@ -72,9 +72,7 @@ PSW cpu_CMP(PSW m) {
 ** instruction de if Greater Than
 ***********************************************************/
 
-
 PSW cpu_IFGT(PSW m){
-	//m.AC = m.DR[m.RI.i];
 	if(m.AC > 0)
 		m.PC = m.RI.ARG;
 	else m.PC += 1;
@@ -88,7 +86,6 @@ PSW cpu_IFGT(PSW m){
 
 
 PSW cpu_NOP(PSW m){
-	//printf("nop from %d\n", m.PC);
 	m.PC += 1;
 	return m;
 }
@@ -100,7 +97,6 @@ PSW cpu_NOP(PSW m){
 
 
 PSW cpu_JUMP(PSW m){
-	//printf("jump to %d from %d\n", m.RI.ARG, m.PC);
 	m.PC = m.RI.ARG;
 	return m;
 }
@@ -120,7 +116,6 @@ PSW cpu_HALT(PSW m){
 ** instruction SYSC
 ***********************************************************/
 
-
 PSW cpu_SYSC(PSW m){
 	m.PC += 1;
 	return m;
@@ -130,7 +125,6 @@ PSW cpu_SYSC(PSW m){
 /**********************************************************
 ** instruction LOAD
 ***********************************************************/
-
 
 PSW cpu_LOAD(PSW m){
 	m.AC = m.DR[m.RI.j] + m.RI.ARG;
