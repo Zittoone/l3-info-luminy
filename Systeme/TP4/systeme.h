@@ -15,7 +15,9 @@ PSW systeme_init_boucle(void);
 ** simulation entrée systeme
 ***********************************************************/
 
-void frappe_clavier(void);
+/* Renvoie le temps en seconde du dernier appel */
+time_t frappe_clavier(void);
+time_t last_call;
 
 /**********************************************************
 ** Réveille les threads endormis

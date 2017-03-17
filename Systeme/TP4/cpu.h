@@ -41,6 +41,8 @@
 #define SYSC_NEW_THREAD (2)
 #define SYSC_SLEEP			(3)
 #define SYSC_GETCHAR		(4)
+#define SYSC_FORK				(5)
+
 
 /**********************************************************
 ** definition d'un mot memoire
