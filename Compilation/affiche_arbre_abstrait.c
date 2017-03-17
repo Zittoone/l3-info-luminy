@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include "syntabs.h"
 #include "util.h"
-#include "tabsymboles.h"
 
 void affiche_n_prog(n_prog *n);
 void affiche_l_instr(n_l_instr *n);
@@ -105,12 +104,6 @@ void affiche_instr_affect(n_instr *n)
 {
   char *fct = "instr_affect";
   affiche_balise_ouvrante(fct, trace_abs);
-
-  /* Vérification de l'existant */
-  if(rechercheDeclarative(n->u.affecte_.var.nom) == -1){
-    erreur_1s("La variable <%s> n'est pas déclarée.", n->u.affecte_.var.nom);
-  }
-
   affiche_var(n->u.affecte_.var);
   affiche_exp(n->u.affecte_.exp);
   affiche_balise_fermante(fct, trace_abs);
@@ -133,12 +126,6 @@ void affiche_appel(n_appel *n)
 {
   char *fct = "appel";
   affiche_balise_ouvrante(fct, trace_abs);
-
-  /* Vérification de l'existant */
-  if(rechercheDeclarative(n->fonction) == -1){
-    erreur_1s("La fonction <%s> n'est pas déclarée.", n->fonction);
-  }
-
   affiche_texte( n->fonction, trace_abs);
   affiche_l_exp(n->args);
   affiche_balise_fermante(fct, trace_abs);
