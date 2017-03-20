@@ -1,4 +1,4 @@
-OBJS := compilateur.o analyseur_lexical.o analyseur_syntaxique.o premiers.o suivants.o util.o syntabs.o affiche_arbre_abstrait.o dico.o
+OBJS := compilateur.o analyseur_lexical.o analyseur_syntaxique.o premiers.o suivants.o util.o syntabs.o affiche_arbre_abstrait.o tabsymboles.o analyse_semantique.o
 
 # link
 compilateur: $(OBJS)

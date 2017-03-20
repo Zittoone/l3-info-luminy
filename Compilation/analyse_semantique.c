@@ -3,33 +3,46 @@
 #include "util.h"
 #include "tabsymboles.h"
 
-void affiche_n_prog(n_prog *n);
-void affiche_l_instr(n_l_instr *n);
-void affiche_instr(n_instr *n);
-void affiche_instr_si(n_instr *n);
-void affiche_instr_tantque(n_instr *n);
-void affiche_instr_affect(n_instr *n);
-void affiche_instr_appel(n_instr *n);
-void affiche_instr_retour(n_instr *n);
-void affiche_instr_ecrire(n_instr *n);
-void affiche_l_exp(n_l_exp *n);
-void affiche_exp(n_exp *n);
-void affiche_varExp(n_exp *n);
-void affiche_opExp(n_exp *n);
-void affiche_intExp(n_exp *n);
-void affiche_lireExp(n_exp *n);
-void affiche_appelExp(n_exp *n);
-void affiche_l_dec(n_l_dec *n);
-void affiche_dec(n_dec *n);
-void affiche_foncDec(n_dec *n);
-void affiche_varDec(n_dec *n);
-void affiche_tabDec(n_dec *n);
-void affiche_var(n_var *n);
-void affiche_var_simple(n_var *n);
-void affiche_var_indicee(n_var *n);
-void affiche_appel(n_appel *n);
+void analyse_n_prog(n_prog *n);
+void analyse_l_instr(n_l_instr *n);
+void analyse_instr(n_instr *n);
+void analyse_instr_si(n_instr *n);
+void analyse_instr_tantque(n_instr *n);
+void analyse_instr_affect(n_instr *n);
+void analyse_instr_appel(n_instr *n);
+void analyse_instr_retour(n_instr *n);
+void analyse_instr_ecrire(n_instr *n);
+void analyse_l_exp(n_l_exp *n);
+void analyse_exp(n_exp *n);
+void analyse_varExp(n_exp *n);
+void analyse_opExp(n_exp *n);
+void analyse_intExp(n_exp *n);
+void analyse_lireExp(n_exp *n);
+void analyse_appelExp(n_exp *n);
+void analyse_l_dec(n_l_dec *n);
+void analyse_dec(n_dec *n);
+void analyse_foncDec(n_dec *n);
+void analyse_varDec(n_dec *n);
+void analyse_tabDec(n_dec *n);
+void analyse_var(n_var *n);
+void analyse_var_simple(n_var *n);
+void analyse_var_indicee(n_var *n);
+void analyse_appel(n_appel *n);
+
+int portee;
+int adresseLocaleCourante;
+int adresseArgumentCourant;
 
 int nb_param(n_l_dec* liste){
+	int n = 0;
+	while(liste != NULL){
+		n++;
+		liste = liste->queue;
+	}
+	return n;
+}
+
+int nb_args(n_l_exp* liste){
 	int n = 0;
 	while(liste != NULL){
 		n++;
@@ -41,235 +54,228 @@ int nb_param(n_l_dec* liste){
 
 /*-------------------------------------------------------------------------*/
 
-void affiche_n_prog(n_prog *n)
+void analyse_n_prog(n_prog *n)
 {
   portee = P_VARIABLE_GLOBALE;
+	analyse_l_dec(n->variables);
+  analyse_l_dec(n->fonctions);
+	//afficheTabsymboles();
 }
 
 /*-------------------------------------------------------------------------*/
 /*-------------------------------------------------------------------------*/
 
-void affiche_l_instr(n_l_instr *n)
+void analyse_l_instr(n_l_instr *n)
 {
   if(n){
-    affiche_instr(n->tete);
-    affiche_l_instr(n->queue);
+    analyse_instr(n->tete);
+    analyse_l_instr(n->queue);
   }
 }
 
 /*-------------------------------------------------------------------------*/
 
-void affiche_instr(n_instr *n)
+void analyse_instr(n_instr *n)
 {
   if(n){
-    if(n->type == blocInst) affiche_l_instr(n->u.liste);
-    else if(n->type == affecteInst) affiche_instr_affect(n);
-    else if(n->type == siInst) affiche_instr_si(n);
-    else if(n->type == tantqueInst) affiche_instr_tantque(n);
-    else if(n->type == appelInst) affiche_instr_appel(n);
-    else if(n->type == retourInst) affiche_instr_retour(n);
-    else if(n->type == ecrireInst) affiche_instr_ecrire(n);
+    if(n->type == blocInst) analyse_l_instr(n->u.liste);
+    else if(n->type == affecteInst) analyse_instr_affect(n);
+    else if(n->type == siInst) analyse_instr_si(n);
+    else if(n->type == tantqueInst) analyse_instr_tantque(n);
+    else if(n->type == appelInst) analyse_instr_appel(n);
+    else if(n->type == retourInst) analyse_instr_retour(n);
+    else if(n->type == ecrireInst) analyse_instr_ecrire(n);
   }
 }
 
 /*-------------------------------------------------------------------------*/
 
-void affiche_instr_si(n_instr *n)
+void analyse_instr_si(n_instr *n)
 {
-  affiche_exp(n->u.si_.test);
-  affiche_instr(n->u.si_.alors);
+  analyse_exp(n->u.si_.test);
+  analyse_instr(n->u.si_.alors);
   if(n->u.si_.sinon){
-    affiche_instr(n->u.si_.sinon);
+    analyse_instr(n->u.si_.sinon);
   }
 }
 
 /*-------------------------------------------------------------------------*/
 
-void affiche_instr_tantque(n_instr *n)
+void analyse_instr_tantque(n_instr *n)
 {
 
-  affiche_exp(n->u.tantque_.test);
-  affiche_instr(n->u.tantque_.faire);
+  analyse_exp(n->u.tantque_.test);
+  analyse_instr(n->u.tantque_.faire);
 }
 
 /*-------------------------------------------------------------------------*/
 
-void affiche_instr_affect(n_instr *n)
+void analyse_instr_affect(n_instr *n)
 {
-  char *fct = "instr_affect";
-  affiche_balise_ouvrante(fct, trace_abs);
 
   /* Vérification de l'existant */
-  if(rechercheDeclarative(n->u.affecte_.var.nom) == -1){
-    erreur_1s("La variable <%s> n'est pas déclarée.", n->u.affecte_.var.nom);
+  if(rechercheExecutable(n->u.affecte_.var->nom) == -1){
+    erreur_1s("La variable <%s> n'est pas déclarée (affect).", n->u.affecte_.var->nom);
   }
 
-  affiche_var(n->u.affecte_.var);
-  affiche_exp(n->u.affecte_.exp);
-  affiche_balise_fermante(fct, trace_abs);
+  analyse_var(n->u.affecte_.var);
+  analyse_exp(n->u.affecte_.exp);
 }
 
 /*-------------------------------------------------------------------------*/
 
-void affiche_instr_appel(n_instr *n)
+void analyse_instr_appel(n_instr *n)
 {
-  affiche_appel(n->u.appel);
+  analyse_appel(n->u.appel);
 }
 /*-------------------------------------------------------------------------*/
 
-void affiche_appel(n_appel *n)
+void analyse_appel(n_appel *n)
 {
   /* Vérification de l'existant */
-  if(rechercheDeclarative(n->fonction) == -1){
+	int indice = rechercheExecutable(n->fonction);
+  if(indice == -1){
     erreur_1s("La fonction <%s> n'est pas déclarée.", n->fonction);
   }
 
-  affiche_texte( n->fonction, trace_abs);
-  affiche_l_exp(n->args);
+	/* Vérification du nombre de paramètre */
+	if(tabsymboles.tab[indice].complement != nb_args(n->args)){
+		erreur_1s("La fonction <%s> n'a pas reçu le bon nombre d'argument.", n->fonction);
+	}
+
+  analyse_l_exp(n->args);
 }
 
 /*-------------------------------------------------------------------------*/
 
-void affiche_instr_retour(n_instr *n)
+void analyse_instr_retour(n_instr *n)
 {
-  char *fct = "instr_retour";
-  affiche_balise_ouvrante(fct, trace_abs);
-  affiche_exp(n->u.retour_.expression);
-  affiche_balise_fermante(fct, trace_abs);
+  analyse_exp(n->u.retour_.expression);
 
 }
 
 /*-------------------------------------------------------------------------*/
 
-void affiche_instr_ecrire(n_instr *n)
+void analyse_instr_ecrire(n_instr *n)
 {
-  char *fct = "instr_ecrire";
-  affiche_balise_ouvrante(fct, trace_abs);
-  affiche_exp(n->u.ecrire_.expression);
-  affiche_balise_fermante(fct, trace_abs);
+  analyse_exp(n->u.ecrire_.expression);
 }
 
 /*-------------------------------------------------------------------------*/
 
-void affiche_l_exp(n_l_exp *n)
+void analyse_l_exp(n_l_exp *n)
 {
-  char *fct = "l_exp";
-  affiche_balise_ouvrante(fct, trace_abs);
-
   if(n){
-    affiche_exp(n->tete);
-    affiche_l_exp(n->queue);
+    analyse_exp(n->tete);
+    analyse_l_exp(n->queue);
   }
-  affiche_balise_fermante(fct, trace_abs);
 }
 
 /*-------------------------------------------------------------------------*/
 
-void affiche_exp(n_exp *n)
+void analyse_exp(n_exp *n)
 {
 
-  if(n->type == varExp) affiche_varExp(n);
-  else if(n->type == opExp) affiche_opExp(n);
-  else if(n->type == intExp) affiche_intExp(n);
-  else if(n->type == appelExp) affiche_appelExp(n);
-  else if(n->type == lireExp) affiche_lireExp(n);
+  if(n->type == varExp) analyse_varExp(n);
+  else if(n->type == opExp) analyse_opExp(n);
+  else if(n->type == intExp) analyse_intExp(n);
+  else if(n->type == appelExp) analyse_appelExp(n);
+  else if(n->type == lireExp) analyse_lireExp(n);
 }
 
 /*-------------------------------------------------------------------------*/
 
-void affiche_varExp(n_exp *n)
+void analyse_varExp(n_exp *n)
 {
-  char *fct = "varExp";
-  affiche_balise_ouvrante(fct, trace_abs);
-  affiche_var(n->u.var);
-  affiche_balise_fermante(fct, trace_abs);
+  analyse_var(n->u.var);
 }
 
 /*-------------------------------------------------------------------------*/
-void affiche_opExp(n_exp *n)
+void analyse_opExp(n_exp *n)
 {
-  char *fct = "opExp";
-  affiche_balise_ouvrante(fct, trace_abs);
-  if(n->u.opExp_.op == plus) affiche_texte("plus", trace_abs);
-  else if(n->u.opExp_.op == moins) affiche_texte("moins", trace_abs);
-  else if(n->u.opExp_.op == fois) affiche_texte("fois", trace_abs);
-  else if(n->u.opExp_.op == divise) affiche_texte("divise", trace_abs);
-  else if(n->u.opExp_.op == egal) affiche_texte("egal", trace_abs);
-  else if(n->u.opExp_.op == diff) affiche_texte("diff", trace_abs);
-  else if(n->u.opExp_.op == inf) affiche_texte("inf", trace_abs);
-  else if(n->u.opExp_.op == infeg) affiche_texte("infeg", trace_abs);
-  else if(n->u.opExp_.op == ou) affiche_texte("ou", trace_abs);
-  else if(n->u.opExp_.op == et) affiche_texte("et", trace_abs);
-  else if(n->u.opExp_.op == non) affiche_texte("non", trace_abs);
+  if(n->u.opExp_.op == plus){
+
+	} else if(n->u.opExp_.op == moins) {
+
+	} else if(n->u.opExp_.op == fois) {
+
+	} else if(n->u.opExp_.op == divise) {
+
+	} else if(n->u.opExp_.op == egal) {
+
+	} else if(n->u.opExp_.op == diff) {
+
+	} else if(n->u.opExp_.op == inf) {
+
+	} else if(n->u.opExp_.op == infeg) {
+
+	} else if(n->u.opExp_.op == ou) {
+
+	} else if(n->u.opExp_.op == et) {
+
+	} else if(n->u.opExp_.op == non) {
+
+	}
   if( n->u.opExp_.op1 != NULL ) {
-    affiche_exp(n->u.opExp_.op1);
+    analyse_exp(n->u.opExp_.op1);
   }
   if( n->u.opExp_.op2 != NULL ) {
-    affiche_exp(n->u.opExp_.op2);
+    analyse_exp(n->u.opExp_.op2);
   }
-  affiche_balise_fermante(fct, trace_abs);
 }
 
 /*-------------------------------------------------------------------------*/
 
-void affiche_intExp(n_exp *n)
+void analyse_intExp(n_exp *n)
 {
-  char texte[ 50 ]; // Max. 50 chiffres
-  sprintf(texte, "%d", n->u.entier);
-  affiche_element( "intExp", texte, trace_abs );
+	// Pas de vérification
 }
 
 /*-------------------------------------------------------------------------*/
-void affiche_lireExp(n_exp *n)
+void analyse_lireExp(n_exp *n)
 {
-  char *fct = "lireExp";
-  affiche_balise_ouvrante(fct, trace_abs);
-  affiche_balise_fermante(fct, trace_abs);
-
+	// Pas de vérification
 }
 
 /*-------------------------------------------------------------------------*/
 
-void affiche_appelExp(n_exp *n)
+void analyse_appelExp(n_exp *n)
 {
-  char *fct = "appelExp";
-  affiche_balise_ouvrante(fct, trace_abs);
-  affiche_appel(n->u.appel);
-  affiche_balise_fermante(fct, trace_abs);
+  analyse_appel(n->u.appel);
 }
 
 /*-------------------------------------------------------------------------*/
 
-void affiche_l_dec(n_l_dec *n)
+void analyse_l_dec(n_l_dec *n)
 {
 
   if( n ){
-    affiche_dec(n->tete);
-    affiche_l_dec(n->queue);
+    analyse_dec(n->tete);
+    analyse_l_dec(n->queue);
   }
 }
 
 /*-------------------------------------------------------------------------*/
 
-void affiche_dec(n_dec *n)
+void analyse_dec(n_dec *n)
 {
 
   if(n){
     if(n->type == foncDec) {
-      affiche_foncDec(n);
+      analyse_foncDec(n);
     }
     else if(n->type == varDec) {
-      affiche_varDec(n);
+      analyse_varDec(n);
     }
     else if(n->type == tabDec) {
-      affiche_tabDec(n);
+      analyse_tabDec(n);
     }
   }
 }
 
 /*-------------------------------------------------------------------------*/
 
-void affiche_foncDec(n_dec *n)
+void analyse_foncDec(n_dec *n)
 {
 
 	/* Vérification de l'existant */
@@ -278,55 +284,88 @@ void affiche_foncDec(n_dec *n)
   }
 
 	/* Création */
-	ajouteIdentificateur(n->nom, portee, T_FONCTION, 0, nb_param(n->u.foncDec_.param));
+	ajouteIdentificateur(n->nom, P_VARIABLE_GLOBALE, T_FONCTION, 0, nb_param(n->u.foncDec_.param));
 
-  portee = P_ARGUMENT;
-  affiche_l_dec(n->u.foncDec_.param);
+	/* Entree fonction */
+	entreeFonction();
+  analyse_l_dec(n->u.foncDec_.param);
+
   portee = P_VARIABLE_LOCALE;
-  affiche_l_dec(n->u.foncDec_.variables);
-  affiche_instr(n->u.foncDec_.corps);
-  portee = P_VARIABLE_GLOBALE;
+  analyse_l_dec(n->u.foncDec_.variables);
+  analyse_instr(n->u.foncDec_.corps);
+
+	/* Sortie de fonction */
+	afficheTabsymboles();
+	sortieFonction();
 }
 
 /*-------------------------------------------------------------------------*/
 
-void affiche_varDec(n_dec *n)
+void analyse_varDec(n_dec *n)
 {
-  
-  /* Vérification de l'existant */
+
+  /* Vérification de l'existant dans la table LOCALE */
   if(rechercheDeclarative(n->nom) != -1){
     erreur_1s("La variable <%s> est déjà déclarée.", n->nom);
   }
 
   /* Création */
-	ajouteIdentificateur(n->nom, portee, T_ENTIER, 0, n->u.varDec_.type);
+	if(portee == P_ARGUMENT){
+		ajouteIdentificateur(n->nom, P_ARGUMENT, T_ENTIER, adresseArgumentCourant, 1);
+		adresseArgumentCourant += 4;
+	} else if(portee == P_VARIABLE_LOCALE){
+		ajouteIdentificateur(n->nom, P_VARIABLE_LOCALE, T_ENTIER, adresseLocaleCourante, 1);
+		adresseLocaleCourante += 4;
+	}
 }
 
 /*-------------------------------------------------------------------------*/
 
-void affiche_tabDec(n_dec *n)
+void analyse_tabDec(n_dec *n)
 {
 	/* Vérification de l'existant */
   if(rechercheDeclarative(n->nom) != -1){
     erreur_1s("Le tableau <%s> est déjà déclaré.", n->nom);
   }
 
-  /* Création */
-	ajouteIdentificateur(n->nom, portee, T_TABLEAU_ENTIER, 0, n->u.tabDec_.taille);
+	if(portee != P_VARIABLE_GLOBALE){
+		warning_1s("Le tableau <%s> n'est pas déclaré dans un contexte global.", n->nom);
+	}
+
+  /* Création : un tableau est toujours une variable globale */
+	ajouteIdentificateur(n->nom, P_VARIABLE_GLOBALE, T_TABLEAU_ENTIER, 0, n->u.tabDec_.taille);
 }
 
 /*-------------------------------------------------------------------------*/
 
-void affiche_var(n_var *n)
+void analyse_var(n_var *n)
 {
 	/* Vérification de l'existant */
-  if(rechercheDeclarative(n->nom) != -1){
+  if(rechercheExecutable(n->nom) == -1){
     erreur_1s("La variable <%s> n'est pas déclarée.", n->nom);
   }
 
   if(n->type == indicee) {
-    if(n->u.indicee_.indice.u.entier < 0 || n->u.indicee_.indice.u.entier >= n->u.tabDec_.taille){
-    erreur_1s("Accès dans une case hors déclaration du tableau <%s>.", n->nom);
-  }
-  }
+		analyse_var_indicee(n);
+	} else {
+		analyse_var_simple(n);
+	}
 }
+
+/*-------------------------------------------------------------------------*/
+void analyse_var_simple(n_var *n)
+{
+	if(n->u.indicee_.indice != NULL){
+		erreur_1s("Utilisation de l'entier' <%s> avec indice.", n->nom);
+	}
+}
+
+/*-------------------------------------------------------------------------*/
+void analyse_var_indicee(n_var *n)
+{
+	if(n->u.indicee_.indice == NULL){
+		erreur_1s("Utilisation du tableau <%s> sans spécifier l'indice.", n->nom);
+	}
+  analyse_exp(n->u.indicee_.indice);
+}
+/*-------------------------------------------------------------------------*/

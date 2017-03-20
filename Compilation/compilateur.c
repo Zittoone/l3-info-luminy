@@ -5,6 +5,7 @@
 #include "syntabs.h"
 #include "affiche_arbre_abstrait.h"
 #include "analyseur_syntaxique.h"
+#include "analyse_semantique.h"
 
 void open_file(char *arg);
 
@@ -45,7 +46,7 @@ int main(int argc, char **argv) {
       programme();
     }
     if(strcmp(argv[1], "-a") == 0){
-      
+
       DISPLAY_XML = 0;
       DISPLAY_SYMBOL = 0;
       DISPLAY_ABSTRACT = 1;
@@ -55,7 +56,19 @@ int main(int argc, char **argv) {
       n_prog *p = NULL;
       p = programme();
       affiche_n_prog(p);
-      
+
+    }
+    if(strcmp(argv[1], "-t") == 0){
+      DISPLAY_XML = 0;
+      DISPLAY_SYMBOL = 0;
+      DISPLAY_ABSTRACT = 0;
+      initialise_premiers();
+      initialise_suivants();
+
+      n_prog *p = NULL;
+      p = programme();
+      affiche_n_prog(p);
+      analyse_n_prog(p);
     }
   } else {
     fprintf(stderr, "Usage : compilateur OPTION file_path\n");
