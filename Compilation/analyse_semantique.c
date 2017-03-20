@@ -59,7 +59,6 @@ void analyse_n_prog(n_prog *n)
   portee = P_VARIABLE_GLOBALE;
 	analyse_l_dec(n->variables);
   analyse_l_dec(n->fonctions);
-	//afficheTabsymboles();
 }
 
 /*-------------------------------------------------------------------------*/
@@ -112,12 +111,6 @@ void analyse_instr_tantque(n_instr *n)
 
 void analyse_instr_affect(n_instr *n)
 {
-
-  /* Vérification de l'existant */
-  if(rechercheExecutable(n->u.affecte_.var->nom) == -1){
-    erreur_1s("La variable <%s> n'est pas déclarée (affect).", n->u.affecte_.var->nom);
-  }
-
   analyse_var(n->u.affecte_.var);
   analyse_exp(n->u.affecte_.exp);
 }
@@ -310,13 +303,13 @@ void analyse_varDec(n_dec *n)
   }
 
   /* Création */
+	ajouteIdentificateur(n->nom, portee, T_ENTIER, adresseLocaleCourante, 1);
 	if(portee == P_ARGUMENT){
-		ajouteIdentificateur(n->nom, P_ARGUMENT, T_ENTIER, adresseArgumentCourant, 1);
 		adresseArgumentCourant += 4;
 	} else if(portee == P_VARIABLE_LOCALE){
-		ajouteIdentificateur(n->nom, P_VARIABLE_LOCALE, T_ENTIER, adresseLocaleCourante, 1);
 		adresseLocaleCourante += 4;
 	}
+
 }
 
 /*-------------------------------------------------------------------------*/
@@ -345,10 +338,12 @@ void analyse_var(n_var *n)
     erreur_1s("La variable <%s> n'est pas déclarée.", n->nom);
   }
 
+	if(n->type == simple) {
+    analyse_var_simple(n);
+  }
+
   if(n->type == indicee) {
 		analyse_var_indicee(n);
-	} else {
-		analyse_var_simple(n);
 	}
 }
 

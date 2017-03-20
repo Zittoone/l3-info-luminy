@@ -23,10 +23,6 @@ int main(int argc, char **argv) {
     DISPLAY_XML = 0;
     DISPLAY_SYMBOL = 0;
     DISPLAY_ABSTRACT = 0;
-    initialise_premiers();
-    initialise_suivants();
-    programme();
-
   } else if(argc == 3){
 
     open_file(argv[2]);
@@ -41,38 +37,28 @@ int main(int argc, char **argv) {
       DISPLAY_XML = 1;
       DISPLAY_SYMBOL = 0;
       DISPLAY_ABSTRACT = 0;
-      initialise_premiers();
-      initialise_suivants();
-      programme();
     }
     if(strcmp(argv[1], "-a") == 0){
-
       DISPLAY_XML = 0;
       DISPLAY_SYMBOL = 0;
       DISPLAY_ABSTRACT = 1;
-      initialise_premiers();
-      initialise_suivants();
-
-      n_prog *p = NULL;
-      p = programme();
-      affiche_n_prog(p);
-
     }
     if(strcmp(argv[1], "-t") == 0){
       DISPLAY_XML = 0;
       DISPLAY_SYMBOL = 0;
       DISPLAY_ABSTRACT = 0;
-      initialise_premiers();
-      initialise_suivants();
-
-      n_prog *p = NULL;
-      p = programme();
-      affiche_n_prog(p);
-      analyse_n_prog(p);
     }
   } else {
     fprintf(stderr, "Usage : compilateur OPTION file_path\n");
   }
+
+  initialise_premiers();
+  initialise_suivants();
+
+  n_prog *p = NULL;
+  p = programme();
+  affiche_n_prog(p);
+  analyse_n_prog(p);
 
   return 0;
 }
