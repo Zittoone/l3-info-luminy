@@ -280,10 +280,12 @@ void affiche_foncDec(n_dec *n)
 	/* Création */
 	ajouteIdentificateur(n->nom, portee, T_FONCTION, 0, nb_param(n->u.foncDec_.param));
 
-  affiche_texte( n->nom, trace_abs );
+  portee = P_ARGUMENT;
   affiche_l_dec(n->u.foncDec_.param);
+  portee = P_VARIABLE_LOCALE;
   affiche_l_dec(n->u.foncDec_.variables);
   affiche_instr(n->u.foncDec_.corps);
+  portee = P_VARIABLE_GLOBALE;
 }
 
 /*-------------------------------------------------------------------------*/

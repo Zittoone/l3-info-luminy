@@ -84,6 +84,8 @@ PSW systeme_init_thread(void){
 	make_inst(11, INST_SYSC,  R3,  0, SYSC_PUTI);       /* afficher R3   */
 	make_inst(12, INST_SYSC,   0,  0, SYSC_EXIT);       /* fin du thread */
 
+	/* L'idle va prendre le relais et boucler à l'infini */
+
 	/*** valeur initiale du PSW ***/
 	memset (&cpu, 0, sizeof(cpu));
 	cpu.PC = 0;
@@ -93,7 +95,7 @@ PSW systeme_init_thread(void){
 	return cpu;
 }
 
-PSW systeme_init_thread_asleep(void){
+PSW systeme_init_asleep(void){
 
 	PSW cpu;
 	const int /*R1 = 1, R2 = 2,*/ R3 = 3;
@@ -175,7 +177,7 @@ PSW systeme(PSW m) {
 		printf("interruption code %d pour le thread %d\n", m.IN, current_process);
 
 	/* Toutes les 4 secondes */
-	if((last_call + 4) - time(NULL) < 0)
+	if((last_call + 4) - time(NULL) <= 0)
 		last_call = frappe_clavier();
 
 	switch (m.IN) {
@@ -183,11 +185,11 @@ PSW systeme(PSW m) {
 			process[current_process].cpu		= systeme_idle();
 			process[current_process].state	= READY;
 			current_process++;
-			process[current_process].cpu		= systeme_init_getchar();
+			process[current_process].cpu		= systeme_init_boucle();
 			process[current_process].state	= READY;
 			return process[current_process].cpu;
 		case INT_SEGV:
-			printf("Erreur de segmentation (%d)\n", m.AC);
+			printf("Erreur de segmentation thread %d (AC: %d)\n", current_process, m.AC);
 			// Le thread a une Erreur
 			process[current_process].state = EMPTY;
 			m = ordonnanceur(m);
@@ -220,7 +222,7 @@ PSW systeme(PSW m) {
 					process[current_process].state = EMPTY;
 				case SYSC_PUTI:
 					printf("SYSC_PUTI\n");
-					printf("Entier dans le 1er reg. de l'inst. SYSC : %c\n", m.DR[m.RI.i]);
+					printf("Entier dans le 1er reg. de l'inst. SYSC : %d\n", m.DR[m.RI.i]);
 					break;
 				case SYSC_NEW_THREAD:
 					printf("SYSC_NEW_THREAD\n");
@@ -271,7 +273,12 @@ PSW systeme(PSW m) {
 					}
 					break;
 				case SYSC_FORK:
-					
+					/* Verification de la mémoire */
+					if((MAX_PROCESS * 20) > MEM_SIZE){
+						m.IN = INT_SEGV;
+						return m;
+					}
+					// Non implémenté
 					break;
 			}
 			m = ordonnanceur(m);

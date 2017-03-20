@@ -47,10 +47,13 @@
 /**********************************************************
 ** definition d'un mot memoire
 ***********************************************************/
+#define MEM_SIZE	(512)
+//#define SS				(22)
 
-typedef int WORD;         /* un mot est un entier 32 bits  */
+typedef int WORD;         /* un mot est un entier 32 bits */
 
-extern WORD mem[128];     /* memoire                       */
+
+extern WORD mem[MEM_SIZE]; /* memoire                     */
 
 
 /**********************************************************

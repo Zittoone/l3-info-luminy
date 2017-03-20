@@ -11,7 +11,7 @@
 ** definition de la memoire simulee
 ***********************************************************/
 
-WORD mem[128];     /* memoire                       */
+WORD mem[MEM_SIZE];     /* memoire (old value : 128)      */
 
 
 /**********************************************************
