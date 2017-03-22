@@ -39,30 +39,27 @@ void* travail (void* _numero) {
             pthread_cond_wait(&condition, &mutex);
             /* je suis réveillé et j'ai repris mutex */
         }
-        pthread_mutex_unlock(&mutex);
+
         fourchettes[gauche] = 0;
         fourchettes[droite] = 0;
+        pthread_mutex_unlock(&mutex);
         printf("le philosophe %d prend les fourchettes %d (gauche) et %d (droite).\n", *numero, gauche, droite);
 
         sleep(1);
         printf("le philosophe %d commence à manger\n", *numero);
         sleep(1);
         printf("le philosophe %d repose les fourchettes %d et %d\n", *numero, gauche, droite);
+
+        pthread_mutex_lock(&mutex);
         fourchettes[gauche] = 1;
         fourchettes[droite] = 1;
-        pthread_mutex_lock(&mutex);
+
+
         pthread_cond_broadcast(&condition);
         pthread_mutex_unlock(&mutex);
 
         printf("le philosophe %d pense ...\n", *numero);
-
         sleep(1);
-
-        /* modifier tour et réveiller les autres */
-
-        //pthread_mutex_lock(&mutex);
-        //pthread_cond_broadcast(&condition);
-        //pthread_mutex_unlock(&mutex);
     }
 
     return NULL;
