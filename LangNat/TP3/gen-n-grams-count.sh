@@ -29,6 +29,12 @@ do
 done
 paste -d' ' $files > $1.$2-grams
 
+for f in $(ls | grep 1word-line) # delete files
+do
+    rm $f
+done
+
+
 cat $1.$2-grams | sort | uniq -c |
     awk '{for(i=2;i<=NF;i++){printf "%s ", $i}; printf "\t%d\n", $1}' > $1.$2-grams.count
 

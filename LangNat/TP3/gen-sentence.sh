@@ -21,6 +21,6 @@ while [ "$cw" != "</s>" ]; do        # while sentence end not reached
   awk 'BEGIN{FS="\t"}{print $1}'  |  # keep only the n-gram, remove the score
   cut -d " " -f 2- |                 # next prefix starts from 2nd word of ngram
   sed -E 's/(\.|]|\[)/\\\\&/g'`      # escape dot and brackets for grep
-  #echo "pref=$pref, chosen-word=$cw" # uncomment for debugging 
+  echo "pref=$pref, chosen-word=$cw" # uncomment for debugging 
 done
 echo $sent | sed -E -e 's@ ?</?s> ?@@g' -e 's/\\//g'
