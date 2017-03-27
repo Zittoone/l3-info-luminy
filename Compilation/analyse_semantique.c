@@ -2,6 +2,7 @@
 #include "syntabs.h"
 #include "util.h"
 #include "tabsymboles.h"
+#include "generation_code.h"
 
 void parcours_n_prog(n_prog *n);
 void parcours_l_instr(n_l_instr *n);
@@ -33,6 +34,8 @@ int portee;
 int adresseLocaleCourante;
 int adresseArgumentCourant;
 
+extern int DISPLAY_TABSYMBOL;
+
 int nb_param(n_l_dec* liste){
 	int n = 0;
 	while(liste != NULL){
@@ -59,23 +62,23 @@ void parcours_n_prog(n_prog *n)
   portee = P_VARIABLE_GLOBALE;
 
   /* Initialisation .bss */
-  printf("section .bss\n");
-  printf("$sinput: resb 255\t;reserve a 255 byte space in memory for the users input string\n");
+	generer_ligne("include \"io.asm\"");
+	generer_ligne("section .bss");
+	generer_ligne("\t$sinput: resb 255\t;reserve a 255 byte space in memory for the users input string");
 
 	parcours_l_dec(n->variables);
 
-  /* Terminaison .bss */
-  printf("\n");
-
   /* section .text */
-  printf("section	.text\n");
-  printf("global _start\n");
-  printf("_start:\n");
-  printf("\tcall	main\n");
-  printf("\tmov	eax, 1\t\t; 1 est le code de SYS_EXIT\n");
-  printf("\tint	0x80\t\t; exit\n");
+	generer_ligne("section	.text");
+	generer_ligne("\tglobal _start");
+  generer_ligne("_start:");
+  generer_ligne("\tcall	main");
+  generer_ligne("\tmov	eax, 1\t\t; 1 est le code de SYS_EXIT");
+  generer_ligne("\tint	0x80\t\t; exit");
 
+	generer_ligne("main:"); // to be removed
   parcours_l_dec(n->fonctions);
+	generer_ligne("ret"); // to be removed
 }
 
 /*-------------------------------------------------------------------------*/
@@ -128,8 +131,12 @@ void parcours_instr_tantque(n_instr *n)
 
 void parcours_instr_affect(n_instr *n)
 {
+	generer_ligne("\tsub\tesp, 4\t\t; VR");
+
   parcours_var(n->u.affecte_.var);
   parcours_exp(n->u.affecte_.exp);
+
+	generer_ligne_1s("\tmov\t%s, eax", "not_impl");
 }
 
 /*-------------------------------------------------------------------------*/
@@ -153,7 +160,9 @@ void parcours_appel(n_appel *n)
 		erreur_1s("La fonction <%s> n'a pas reçu le bon nombre d'argument.", n->fonction);
 	}
 
+	/* Arguments */
   parcours_l_exp(n->args);
+	generer_ligne_1s("\tcall\t%s", n->fonction);
 }
 
 /*-------------------------------------------------------------------------*/
@@ -161,7 +170,8 @@ void parcours_appel(n_appel *n)
 void parcours_instr_retour(n_instr *n)
 {
   parcours_exp(n->u.retour_.expression);
-
+	generer_ligne("\tpop\tebp");
+	generer_ligne("\tret");
 }
 
 /*-------------------------------------------------------------------------*/
@@ -205,15 +215,34 @@ void parcours_varExp(n_exp *n)
 /*-------------------------------------------------------------------------*/
 void parcours_opExp(n_exp *n)
 {
+
+	if( n->u.opExp_.op2 != NULL ) {
+    parcours_exp(n->u.opExp_.op2);
+  }
+
+	if( n->u.opExp_.op1 != NULL ) {
+    parcours_exp(n->u.opExp_.op1);
+  }
+
+  if( n->u.opExp_.op2 != NULL ) {
+    generer_ligne("\tpop\tebx");
+  }
+
+	if( n->u.opExp_.op1 != NULL ) {
+    generer_ligne("\tpop\teax");
+  }
+
   if(n->u.opExp_.op == plus){
-
+		generer_ligne("\tadd\teax, ebx");
 	} else if(n->u.opExp_.op == moins) {
-
+		generer_ligne("\tsub\teax, ebx");
 	} else if(n->u.opExp_.op == fois) {
-
+		generer_ligne("\timul\teax, ebx");
 	} else if(n->u.opExp_.op == divise) {
-
+		generer_ligne("\tidiv ebx");
 	} else if(n->u.opExp_.op == egal) {
+		generer_ligne("\tcmp\teax, ebx");
+
 
 	} else if(n->u.opExp_.op == diff) {
 
@@ -228,19 +257,16 @@ void parcours_opExp(n_exp *n)
 	} else if(n->u.opExp_.op == non) {
 
 	}
-  if( n->u.opExp_.op1 != NULL ) {
-    parcours_exp(n->u.opExp_.op1);
-  }
-  if( n->u.opExp_.op2 != NULL ) {
-    parcours_exp(n->u.opExp_.op2);
-  }
+
+	generer_ligne("\tpush\teax");
+
 }
 
 /*-------------------------------------------------------------------------*/
 
 void parcours_intExp(n_exp *n)
 {
-	// Pas de vérification
+	generer_ligne_1n("\tpush\t%d", n->u.entier);
 }
 
 /*-------------------------------------------------------------------------*/
@@ -300,6 +326,10 @@ void parcours_foncDec(n_dec *n)
 
 	/* Entree fonction */
 	entreeFonction();
+
+	/* Déclaration fonction */
+	// generer_debut_fonction(n->nom);
+
   parcours_l_dec(n->u.foncDec_.param);
 
   portee = P_VARIABLE_LOCALE;
@@ -307,8 +337,12 @@ void parcours_foncDec(n_dec *n)
   parcours_instr(n->u.foncDec_.corps);
 
 	/* Sortie de fonction */
-	afficheTabsymboles();
+	if(DISPLAY_TABSYMBOL)
+		afficheTabsymboles();
 	sortieFonction();
+
+	/* Fin de fonction */
+	// generer_fin_fonction();
 }
 
 /*-------------------------------------------------------------------------*/
@@ -326,7 +360,7 @@ void parcours_varDec(n_dec *n)
 
   /* Ajout déclaration .bss */
   if(portee == P_VARIABLE_GLOBALE)
-    printf("%s: resb 4\n", n->nom);
+    generer_ligne_1s("\t%s:\tresb 4", n->nom);
 
   /* Décalage adresse */
 	if(portee == P_ARGUMENT){
@@ -355,7 +389,7 @@ void parcours_tabDec(n_dec *n)
 
   /* Ajout déclaration .bss */
   if(portee == P_VARIABLE_GLOBALE)
-    printf("%s: resb %d\n", n->nom, n->u.tabDec_.taille * 4);
+    generer_tableau_dec(n->nom, n->u.tabDec_.taille);
 }
 
 /*-------------------------------------------------------------------------*/
@@ -380,7 +414,18 @@ void parcours_var(n_var *n)
 void parcours_var_simple(n_var *n)
 {
 	if(n->u.indicee_.indice != NULL){
-		erreur_1s("Utilisation de l'entier' <%s> avec indice.", n->nom);
+		erreur_1s("Utilisation de l'entier <%s> avec indice.", n->nom);
+	}
+
+	int indice = rechercheExecutable(n->nom);
+
+	// TODO; determine if its eax or ebx
+	if(portee == P_VARIABLE_GLOBALE){
+		generer_ligne_1s("\tmov\teax, [%s]", n->nom);
+	} else if(portee == P_ARGUMENT){
+		generer_ligne_1s("\tmov\t[]", tabsymboles.tab[indice].adresse)
+	} else if(portee == P_VARIABLE_LOCALE) {
+
 	}
 }
 

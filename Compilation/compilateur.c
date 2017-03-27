@@ -11,42 +11,36 @@ void open_file(char *arg);
 
 char yytext[100];
 FILE *yyin;
-int DISPLAY_XML;
-int DISPLAY_SYMBOL;
-int DISPLAY_ABSTRACT;
+int DISPLAY_XML       = 0;
+int DISPLAY_SYMBOL    = 0;
+int DISPLAY_ABSTRACT  = 0;
+int DISPLAY_NASM      = 0;
+int DISPLAY_TABSYMBOL = 0;
 
 int main(int argc, char **argv) {
 
   if(argc == 2){
 
     open_file(argv[1]);
-    DISPLAY_XML = 0;
-    DISPLAY_SYMBOL = 0;
-    DISPLAY_ABSTRACT = 0;
   } else if(argc == 3){
 
     open_file(argv[2]);
 
     if(strcmp(argv[1], "-l") == 0){
-      DISPLAY_XML = 0;
       DISPLAY_SYMBOL = 1;
-      DISPLAY_ABSTRACT = 0;
       test_yylex_internal(yyin);
     }
     if(strcmp(argv[1], "-s") == 0){
       DISPLAY_XML = 1;
-      DISPLAY_SYMBOL = 0;
-      DISPLAY_ABSTRACT = 0;
     }
     if(strcmp(argv[1], "-a") == 0){
-      DISPLAY_XML = 0;
-      DISPLAY_SYMBOL = 0;
       DISPLAY_ABSTRACT = 1;
     }
     if(strcmp(argv[1], "-t") == 0){
-      DISPLAY_XML = 0;
-      DISPLAY_SYMBOL = 0;
-      DISPLAY_ABSTRACT = 0;
+      DISPLAY_TABSYMBOL = 1;
+    }
+    if(strcmp(argv[1], "-n") == 0){
+      DISPLAY_NASM = 1;
     }
   } else {
     fprintf(stderr, "Usage : compilateur OPTION file_path\n");
