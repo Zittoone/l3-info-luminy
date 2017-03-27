@@ -58,7 +58,7 @@ int main(int argc, char **argv) {
   n_prog *p = NULL;
   p = programme();
   affiche_n_prog(p);
-  analyse_n_prog(p);
+  parcours_n_prog(p);
 
   return 0;
 }
