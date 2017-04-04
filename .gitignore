@@ -54,3 +54,6 @@ buildNumber.properties
 # C language
 *.o
 
+# Visual Studio / Code
+*.vs
+*.vscode
