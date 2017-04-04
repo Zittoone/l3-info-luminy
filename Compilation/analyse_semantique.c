@@ -39,6 +39,7 @@ int portee;
 int adresseLocaleCourante;
 int adresseArgumentCourant;
 int adresseGlobaleCourante;
+int fonctionCourante;
 int jumpCountLocal;
 int isIgnored = 0;
 int jumpCount = 0;
@@ -249,7 +250,7 @@ void parcours_instr_retour(n_instr *n)
 {
   parcours_exp(n->u.retour_.expression);
   generer_ligne("\tpop\teax");
-	generer_ligne_1n("\tmov\t[ebp + %d], eax\t\t ; ecriture de la valeur de retour", 8 + 4 * tabsymboles.tab[adresseGlobaleCourante].complement);
+	generer_ligne_1n("\tmov\t[ebp + %d], eax\t\t ; ecriture de la valeur de retour", 8 + 4 * tabsymboles.tab[fonctionCourante].complement);
   generer_ligne("\tpop\tebp");
   generer_ligne("\tret");
 }
@@ -481,7 +482,7 @@ void parcours_foncDec(n_dec *n)
 
 	/* Création */
 	ajouteIdentificateur(n->nom, P_VARIABLE_GLOBALE, T_FONCTION, 0, nb_param(n->u.foncDec_.param));
-  adresseGlobaleCourante = tabsymboles.sommet - 1;
+  fonctionCourante = tabsymboles.sommet - 1;
 
 	/* Entree fonction */
 	entreeFonction();
@@ -555,7 +556,8 @@ void parcours_varDec(n_dec *n)
   /* Ajout déclaration .bss */
   if(portee == P_VARIABLE_GLOBALE){
     generer_ligne_1s("%s:\trest\t1", n->nom);
-    ajouteIdentificateur(n->nom, portee, T_ENTIER, 0, 1);
+    ajouteIdentificateur(n->nom, portee, T_ENTIER, adresseGlobaleCourante, 1);
+    adresseGlobaleCourante += 4;
   }
 }
 
@@ -571,7 +573,7 @@ void parcours_tabDec(n_dec *n)
 
 	if(portee != P_VARIABLE_GLOBALE){
 		if(DISPLAY_NASM)
-      warning_1s("Le tableau <%s> n'est pas déclaré dans un contexte global.", n->nom);
+      erreur_1s("Le tableau <%s> n'est pas déclaré dans un contexte global.", n->nom);
 	}
 
   /* Création : un tableau est toujours une variable globale */
@@ -639,7 +641,7 @@ void parcours_var_simple_gauche(n_var *n)
 	if(tabsymboles.tab[indice].portee == P_VARIABLE_GLOBALE){
 		generer_ligne_1s("\tmov\t[%s], ebx\t\t ; stocke registre dans variable", n->nom);
 	} else if(tabsymboles.tab[indice].portee == P_ARGUMENT){
-    generer_ligne_1n("\tmov\t[ebp + %d], ebx\t\t ; stocke registre dans variable", 4 + 4 * tabsymboles.tab[adresseGlobaleCourante].complement - tabsymboles.tab[indice].adresse);
+    generer_ligne_1n("\tmov\t[ebp + %d], ebx\t\t ; stocke registre dans variable", 4 + 4 * tabsymboles.tab[fonctionCourante].complement - tabsymboles.tab[indice].adresse);
 	} else if(tabsymboles.tab[indice].portee == P_VARIABLE_LOCALE) {
     generer_ligne_1n("\tmov\t[ebp - %d], ebx\t\t ; stocke registre dans variable", 4 + tabsymboles.tab[indice].adresse); // ebp - (4+adr)
 	}
@@ -676,7 +678,7 @@ void parcours_var_simple_droit(n_var *n)
 	if(tabsymboles.tab[indice].portee == P_VARIABLE_GLOBALE){    
 		generer_ligne_1s("\tmov\tebx, [%s]\t\t ; lit variable dans ebx", n->nom);
 	} else if(tabsymboles.tab[indice].portee == P_ARGUMENT){
-    generer_ligne_1n("\tmov\tebx, [ebp + %d]\t\t ; lit variable dans ebx", 4 + 4 * tabsymboles.tab[adresseGlobaleCourante].complement - tabsymboles.tab[indice].adresse);
+    generer_ligne_1n("\tmov\tebx, [ebp + %d]\t\t ; lit variable dans ebx", 4 + 4 * tabsymboles.tab[fonctionCourante].complement - tabsymboles.tab[indice].adresse);
 	} else if(tabsymboles.tab[indice].portee == P_VARIABLE_LOCALE) {
     generer_ligne_1n("\tmov\tebx, [ebp - %d]\t\t ; lit variable dans ebx", 4 + tabsymboles.tab[indice].adresse); // ebp - (4+adr)
 	}
