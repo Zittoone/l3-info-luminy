@@ -31,5 +31,5 @@ void generer_tableau_dec(char* n, int taille){
   if(!DISPLAY_NASM)
     return;
 
-  printf("\t%s:\tresb %d\n", n, taille * 4);
+  printf("%s:\trest\t%d\n", n, taille);
 }
