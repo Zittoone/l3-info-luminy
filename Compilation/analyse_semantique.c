@@ -45,6 +45,7 @@ int jumpCount = 0;
 int totalLocalVar = 0;
 
 extern int DISPLAY_TABSYMBOL;
+extern int DISPLAY_NASM;
 
 int nb_param(n_l_dec* liste){
 	int n = 0;
@@ -94,19 +95,19 @@ void parcours_n_prog(n_prog *n)
   int i = rechercheExecutable("main");
 
   /* Si elle n'existe pas */
-  if(i < 0){
-    erreur("La fonction <main> n'est pas présente dans le programme.");
+  if(i < 0 && DISPLAY_NASM){
+      erreur("La fonction <main> n'est pas présente dans le programme.");
   }
 
   /* Si elle n'est pas appelée à la fin / après les autres fonctions */
   int j;
   for(j = i+1; j < tabsymboles.sommet; i++){
-    if(tabsymboles.tab[j].type == T_FONCTION)
+    if(tabsymboles.tab[j].type == T_FONCTION && DISPLAY_NASM)
       erreur_1s("La fonction <%s> est définie après la fonction main.", tabsymboles.tab[j].identif);
   }
 
   /* Si la fonction contient des arguments */
-  if(tabsymboles.tab[i].complement != 0){
+  if(tabsymboles.tab[i].complement != 0 && DISPLAY_NASM){
     erreur("La fonction main contient des arguments.");
   }
 
@@ -216,12 +217,14 @@ void parcours_appel(n_appel *n)
   /* Vérification de l'existant */
 	int indice = rechercheExecutable(n->fonction);
   if(indice == -1){
-    erreur_1s("La fonction <%s> n'est pas déclarée.", n->fonction);
+    if(DISPLAY_NASM)
+      erreur_1s("La fonction <%s> n'est pas déclarée.", n->fonction);
   }
 
 	/* Vérification du nombre de paramètre */
 	if(tabsymboles.tab[indice].complement != nb_args(n->args)){
-		erreur_1s("La fonction <%s> n'a pas reçu le bon nombre d'argument.", n->fonction);
+		if(DISPLAY_NASM)
+      erreur_1s("La fonction <%s> n'a pas reçu le bon nombre d'argument.", n->fonction);
 	}
 
   generer_ligne("\tsub\tesp, 4\t\t ; allocation valeur de retour");
@@ -472,7 +475,8 @@ void parcours_foncDec(n_dec *n)
 
 	/* Vérification de l'existant */
   if(rechercheDeclarative(n->nom) != -1){
-    erreur_1s("La fonction <%s> est déjà déclarée.", n->nom);
+    if(DISPLAY_NASM)
+      erreur_1s("La fonction <%s> est déjà déclarée.", n->nom);
   }
 
 	/* Création */
@@ -528,11 +532,13 @@ void parcours_varDec(n_dec *n)
 
   /* Vérification de l'existant dans la table LOCALE */
   if(rechercheDeclarative(n->nom) != -1){
-    erreur_1s("La variable <%s> est déjà déclarée.", n->nom);
+    if(DISPLAY_NASM)
+      erreur_1s("La variable <%s> est déjà déclarée.", n->nom);
   }
 
   if(rechercheExecutable(n->nom) != -1){
-    warning_1s("La variable <%s> est déjà déclarée dans un autre contexte.", n->nom);
+    if(DISPLAY_NASM)
+      warning_1s("La variable <%s> est déjà déclarée dans un autre contexte.", n->nom);
   }
 
   /* Création */
@@ -559,11 +565,13 @@ void parcours_tabDec(n_dec *n)
 {
 	/* Vérification de l'existant */
   if(rechercheDeclarative(n->nom) != -1){
-    erreur_1s("Le tableau <%s> est déjà déclaré.", n->nom);
+    if(DISPLAY_NASM)
+      erreur_1s("Le tableau <%s> est déjà déclaré.", n->nom);
   }
 
 	if(portee != P_VARIABLE_GLOBALE){
-		warning_1s("Le tableau <%s> n'est pas déclaré dans un contexte global.", n->nom);
+		if(DISPLAY_NASM)
+      warning_1s("Le tableau <%s> n'est pas déclaré dans un contexte global.", n->nom);
 	}
 
   /* Création : un tableau est toujours une variable globale */
@@ -580,7 +588,8 @@ void parcours_var_gauche(n_var *n)
 {
 	/* Vérification de l'existant */
   if(rechercheExecutable(n->nom) == -1){
-    erreur_1s("La variable <%s> n'est pas déclarée.", n->nom);
+    if(DISPLAY_NASM)
+      erreur_1s("La variable <%s> n'est pas déclarée.", n->nom);
   }
 
 	if(n->type == simple) {
@@ -598,7 +607,8 @@ void parcours_var_droit(n_var *n)
 {
 	/* Vérification de l'existant */
   if(rechercheExecutable(n->nom) == -1){
-    erreur_1s("La variable <%s> n'est pas déclarée.", n->nom);
+    if(DISPLAY_NASM)
+      erreur_1s("La variable <%s> n'est pas déclarée.", n->nom);
   }
 
 	if(n->type == simple) {
@@ -614,12 +624,14 @@ void parcours_var_droit(n_var *n)
 void parcours_var_simple_gauche(n_var *n)
 {
 	if(n->u.indicee_.indice != NULL){
-		erreur_1s("Utilisation de l'entier <%s> avec indice.", n->nom);
+		if(DISPLAY_NASM)
+      erreur_1s("Utilisation de l'entier <%s> avec indice.", n->nom);
 	}
 
 	int indice = rechercheExecutable(n->nom);
   if(indice < 0){
-    erreur_1s("L'entier <%s> n'a pas été trouvé.", n->nom);
+    if(DISPLAY_NASM)
+      erreur_1s("L'entier <%s> n'a pas été trouvé.", n->nom);
   }
 
   generer_ligne("\tpop\tebx");
@@ -637,7 +649,8 @@ void parcours_var_simple_gauche(n_var *n)
 void parcours_var_indicee_gauche(n_var *n)
 {
 	if(n->u.indicee_.indice == NULL){
-		erreur_1s("Utilisation du tableau <%s> sans spécifier l'indice.", n->nom);
+		if(DISPLAY_NASM)
+      erreur_1s("Utilisation du tableau <%s> sans spécifier l'indice.", n->nom);
 	}
   parcours_exp(n->u.indicee_.indice);
   generer_ligne("\tpop\teax");
@@ -650,12 +663,14 @@ void parcours_var_indicee_gauche(n_var *n)
 void parcours_var_simple_droit(n_var *n)
 {
 	if(n->u.indicee_.indice != NULL){
-		erreur_1s("Utilisation de l'entier <%s> avec indice.", n->nom);
+		if(DISPLAY_NASM)
+      erreur_1s("Utilisation de l'entier <%s> avec indice.", n->nom);
 	}
 
 	int indice = rechercheExecutable(n->nom);
   if(indice < 0){
-    erreur_1s("L'entier <%s> n'a pas été trouvé.", n->nom);
+    if(DISPLAY_NASM)
+      erreur_1s("L'entier <%s> n'a pas été trouvé.", n->nom);
   }
 
 	if(tabsymboles.tab[indice].portee == P_VARIABLE_GLOBALE){    
@@ -671,7 +686,8 @@ void parcours_var_simple_droit(n_var *n)
 void parcours_var_indicee_droit(n_var *n)
 {
 	if(n->u.indicee_.indice == NULL){
-		erreur_1s("Utilisation du tableau <%s> sans spécifier l'indice.", n->nom);
+		if(DISPLAY_NASM)
+      erreur_1s("Utilisation du tableau <%s> sans spécifier l'indice.", n->nom);
 	}
   parcours_exp(n->u.indicee_.indice);
   generer_ligne("\tpop\teax");

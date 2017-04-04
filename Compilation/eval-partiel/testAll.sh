@@ -40,14 +40,14 @@ MYCOMPILODEFAULT="${MYCOMPILO}"  # utilisé pour test reconnaissance et erreur
 MYCOMPILOLEX="${MYCOMPILO} -l"   # exécuter l'analyseur lexical
 MYCOMPILOSYNT="${MYCOMPILO} -s"  # exécuter l'analyseur syntaxique
 MYCOMPILOASYNT="${MYCOMPILO} -a" # afficher l'arbre abstrait
-#MYCOMPILOTAB="${MYCOMPILO} -t"   # afficher les tables des symboles
+MYCOMPILOTAB="${MYCOMPILO} -t"   # afficher les tables des symboles
 #MYCOMPILOMIPS="${MYCOMPILO} -m"  # générer code MIPS
-#MYCOMPILONASM="${MYCOMPILO} -n"  # générer code Intel
+MYCOMPILONASM="${MYCOMPILO} -n"  # générer code Intel
 #MARS="./Mars4_5.jar"             # utilisez autre version de Mars si besoin
-#NASM="nasm"                      # utilisez autre version de nasm si besoin
-#NASMOPTS="-f elf -g -F dwarf"
+NASM="nasm"                      # utilisez autre version de nasm si besoin
+NASMOPTS="-f elf -g -F dwarf"
 #LD="ld"                          # utilisez autre version de ld si besoin
-#LDOPTS="-m elf_i386"
+LDOPTS="-m elf_i386"
 ##############################################################################
 # NE PLUS LIRE À PARTIR D'ICI ;-)
 ##############################################################################
