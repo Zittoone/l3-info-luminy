@@ -727,7 +727,7 @@ n_exp *termeBis( n_exp *herite ) {
   } else if(est_suivant(_termeBis_, uniteCourante)){
     $$ = herite;
   } else {
-    err("FOIS ou DIVISE ou VIDE");
+    err("FOIS ou DIVISE ou MODULO ou VIDE");
   }
   affiche_balise_fermante(__FUNCTION__, DISPLAY_XML);
   return $$;

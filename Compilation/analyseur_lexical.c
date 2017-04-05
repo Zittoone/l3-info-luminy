@@ -45,7 +45,7 @@ char *tableSymbole[] = {
   "|",
   "!",
   ",",
-  "%%" // eval-final
+  "%" // eval-final
 };
 
 int codeMotClefs[] = {
@@ -84,7 +84,7 @@ int codeSymbole[] = {
 char yytext[YYTEXT_MAX];
 int yyleng;
 int nbMotsClefs = 9;
-int nbSymboles = 17;
+int nbSymboles = 18;
 /* Compter les lignes pour afficher les messages d'erreur avec numero ligne */
 int nb_ligne = 0;
 
