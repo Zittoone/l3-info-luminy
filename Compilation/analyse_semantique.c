@@ -42,7 +42,7 @@ int adresseGlobaleCourante;
 int fonctionCourante;
 int jumpCountLocal;
 int isIgnored = 0;
-int jumpCount = 0;
+int jumpCount = 1;
 int totalLocalVar = 0;
 
 extern int DISPLAY_TABSYMBOL;
@@ -383,9 +383,9 @@ void parcours_opExp(n_exp *n)
       break;
     case modulo:
       // eval-final
+      generer_ligne("\tCDQ\t\t;this will clear EDX due to the sign extension"); // http://stackoverflow.com/questions/8231882/how-to-implement-the-mod-operator-in-assembly
       generer_ligne("\tidiv\tebx"); // Division
-      generer_ligne("\tpush\tedx"); // On push le reste
-      generer_ligne("\tpop\teax");  // On pop le reste sur eax pour qu'on empile le résultat
+      generer_ligne("\tmov\teax, edx"); // On place le reste dans eax
       break;
   }
 
