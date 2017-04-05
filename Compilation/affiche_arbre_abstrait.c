@@ -204,6 +204,7 @@ void affiche_opExp(n_exp *n)
   else if(n->u.opExp_.op == ou) affiche_texte("ou", DISPLAY_ABSTRACT);
   else if(n->u.opExp_.op == et) affiche_texte("et", DISPLAY_ABSTRACT);
   else if(n->u.opExp_.op == non) affiche_texte("non", DISPLAY_ABSTRACT);
+  else if(n->u.opExp_.op == modulo) affiche_texte("modulo", DISPLAY_ABSTRACT); // eval-final
   if( n->u.opExp_.op1 != NULL ) {
     affiche_exp(n->u.opExp_.op1);
   }

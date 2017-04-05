@@ -132,6 +132,7 @@ void initialise_premiers(void){
   premiers[_termeBis_][EPSILON]  = 1;
   premiers[_termeBis_][FOIS]  = 1;
   premiers[_termeBis_][DIVISE]  = 1;
+  premiers[_termeBis_][MODULO]  = 1; // eval-final
   //NEG
   premiers[_negation_][NON] = 1;
   premiers[_negation_][PARENTHESE_OUVRANTE] = 1;

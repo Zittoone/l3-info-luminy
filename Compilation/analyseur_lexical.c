@@ -44,7 +44,8 @@ char *tableSymbole[] = {
   "&",
   "|",
   "!",
-  ","
+  ",",
+  "%%" // eval-final
 };
 
 int codeMotClefs[] = {
@@ -76,7 +77,8 @@ int codeSymbole[] = {
   ET,
   OU,
   NON,
-  VIRGULE
+  VIRGULE,
+  MODULO // eval-final
 };
 
 char yytext[YYTEXT_MAX];
@@ -118,7 +120,6 @@ char lireCar(void)
 {
   yytext[yyleng++] = fgetc(yyin);
   yytext[yyleng] = '\0';
-  //printf("%c\n", *(yytext - 1));
   return yytext[yyleng - 1];
 }
 
@@ -259,6 +260,7 @@ void nom_token( int token, char *nom, char *valeur ) {
   else if(token == NON) strcpy(valeur, "NON");
   else if(token == FIN) strcpy(valeur, "FIN");
   else if(token == VIRGULE) strcpy(valeur, "VIRGULE");
+  else if(token == MODULO) strcpy(valeur, "MODULO"); // eval-final
 
   else if( token == ID_VAR ) {
     strcpy( nom, "id_variable" );

@@ -703,6 +703,7 @@ n_exp *terme(void) {
  * Fonction de la grammaire correspondant à la règle :
  * termeBis -> '*' negation termeBis
  *           | '/' negation termeBis
+ *           | '%' negation termeBis  -- eval-final
  *           |
  ******************************************************************************/
 n_exp *termeBis( n_exp *herite ) {
@@ -717,6 +718,11 @@ n_exp *termeBis( n_exp *herite ) {
     consommer( DIVISE );
     $2 = negation();
     herite_fils = cree_n_exp_op(divise, herite, $2);
+    $$ = termeBis(herite_fils);
+  } else if(uniteCourante == MODULO){
+    consommer( MODULO );
+    $2 = negation();
+    herite_fils = cree_n_exp_op(modulo, herite, $2);
     $$ = termeBis(herite_fils);
   } else if(est_suivant(_termeBis_, uniteCourante)){
     $$ = herite;

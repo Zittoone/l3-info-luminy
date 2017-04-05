@@ -239,7 +239,7 @@ void initialise_suivants(void){
   suivants[_termeBis_][ET] = 1;
   suivants[_termeBis_][INFERIEUR] = 1;
   suivants[_termeBis_][PLUS] = 1;
-  suivants[_termeBis_][MOINS] = 1; //
+  suivants[_termeBis_][MOINS] = 1; 
   suivants[_termeBis_][EGAL] = 1;
   //NEG
   suivants[_termeBis_][PARENTHESE_FERMANTE] = 1;
@@ -252,10 +252,11 @@ void initialise_suivants(void){
   suivants[_termeBis_][ET] = 1;
   suivants[_termeBis_][INFERIEUR] = 1;
   suivants[_termeBis_][PLUS] = 1;
-  suivants[_termeBis_][MOINS] = 1; //
+  suivants[_termeBis_][MOINS] = 1;
   suivants[_termeBis_][EGAL] = 1;
   suivants[_negation_][FOIS] = 1;
   suivants[_negation_][DIVISE] = 1;
+  suivants[_negation_][MODULO] = 1; // eval-final
   //F
   suivants[_facteur_][PARENTHESE_FERMANTE] = 1;
   suivants[_facteur_][CROCHET_FERMANT] = 1;
@@ -270,6 +271,7 @@ void initialise_suivants(void){
   suivants[_facteur_][MOINS] = 1;
   suivants[_facteur_][FOIS] = 1;
   suivants[_facteur_][DIVISE] = 1;
+  suivants[_facteur_][MODULO] = 1; // eval-final
   suivants[_facteur_][EGAL] = 1;
   //VAR
   suivants[_var_][EGAL] = 1;
@@ -286,6 +288,7 @@ void initialise_suivants(void){
   suivants[_var_][MOINS] = 1;
   suivants[_var_][FOIS] = 1;
   suivants[_var_][DIVISE] = 1;
+  suivants[_var_][MODULO] = 1; // eval-final
   //OIND
   suivants[_optIndice_][EGAL] = 1;
   suivants[_optIndice_][PARENTHESE_FERMANTE] = 1;
@@ -301,6 +304,7 @@ void initialise_suivants(void){
   suivants[_optIndice_][MOINS] = 1;
   suivants[_optIndice_][FOIS] = 1;
   suivants[_optIndice_][DIVISE] = 1;
+  suivants[_optIndice_][MODULO] = 1; // eval-final
   //APPF
   suivants[_appelFct_][PARENTHESE_FERMANTE] = 1;
   suivants[_appelFct_][CROCHET_FERMANT] = 1;
@@ -316,6 +320,7 @@ void initialise_suivants(void){
   suivants[_appelFct_][MOINS] = 1;
   suivants[_appelFct_][FOIS] = 1;
   suivants[_appelFct_][DIVISE] = 1;
+  suivants[_appelFct_][MODULO] = 1; // eval-final
   //LEXP
   suivants[_listeExpressions_][PARENTHESE_FERMANTE] = 1;
   //LEXPB
