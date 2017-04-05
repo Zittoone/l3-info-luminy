@@ -335,9 +335,6 @@ void parcours_opExp(n_exp *n)
     case infeg:
       generer_ligne("\tcmp\teax, ebx");
       break;
-    case ou:
-    case et:
-      break;
   }
 
   /* Traitement */
@@ -367,11 +364,28 @@ void parcours_opExp(n_exp *n)
       generer_ligne_1n("\tjle\te%d", jumpCount++); // JLE Jump if less or equal 
       break;
     case ou:
+      generer_ligne("\tor\teax, ebx"); // A tester
       break;
     case et:
+      // Test de vérité sur la première opérande
+      generer_ligne("\tcmp\teax, 00");
+      generer_ligne_1n("\tjne\te%d", jumpCount); // JNE Jump if not equal
+      
+      generer_ligne("\tcmp\tebx, 00");
+      generer_ligne_1n("\tjne\te%d", jumpCount); // JNE Jump if not equal
+
+      // On incrémente maintenant car les deux opérations au dessus sautent au même label
+      jumpCount++;
+
       break;
     case non:
       generer_ligne("\timul\teax, -1");
+      break;
+    case modulo:
+      // eval-final
+      generer_ligne("\tidiv\tebx"); // Division
+      generer_ligne("\tpush\tedx"); // On push le reste
+      generer_ligne("\tpop\teax");  // On pop le reste sur eax pour qu'on empile le résultat
       break;
   }
 
@@ -381,6 +395,8 @@ void parcours_opExp(n_exp *n)
     case diff:
     case inf:
     case infeg:
+    case et:
+    case ou:
       /* Faux */
       generer_ligne("\tpush\t0"); 
       generer_ligne_1n("\tjmp\te%d", jumpCount++); 
@@ -392,10 +408,7 @@ void parcours_opExp(n_exp *n)
       generer_ligne_1n("e%d:", jumpCount - 1);
       generer_ligne("\tpop\teax");
 	    generer_ligne("\tcmp\teax, 00");
-	    generer_ligne_1n("\tjz\te%d", jumpCount - 3);
-      break;
-    case ou:
-    case et:
+	    generer_ligne_1n("\tjz\te%d", jumpCount - 3);    
       break;
     default:
       generer_ligne("\tpush\teax\t\t; empile le résultat");
