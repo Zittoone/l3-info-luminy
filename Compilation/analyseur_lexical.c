@@ -27,25 +27,25 @@ char *tableMotsClefs[] = {
   "ecrire"
 };
 
-char *tableSymbole[] = {
-  ";",
-  "+",
-  "-",
-  "*",
-  "/",
-  "(",
-  ")",
-  "[",
-  "]",
-  "{",
-  "}",
-  "=",
-  "<",
-  "&",
-  "|",
-  "!",
-  ",",
-  "%" // eval-final
+char tableSymbole[] = {
+  ';',
+  '+',
+  '-',
+  '*',
+  '/',
+  '(',
+  ')',
+  '[',
+  ']',
+  '{',
+  '}',
+  '=',
+  '<',
+  '&',
+  '|',
+  '!',
+  ',',
+  '%' // eval-final
 };
 
 int codeMotClefs[] = {
@@ -177,7 +177,7 @@ int proceder_symbole(char c){
   int i;
 
   for(i = 0; i < nbSymboles; i++){
-    if(strcmp(&c, *(tableSymbole + i)) == 0){
+    if(c == *(tableSymbole + i)){
       return *(codeSymbole + i);
     }
   }
@@ -205,7 +205,7 @@ int proceder_alpha(char c){
    * non alpha. (Soit un espace soit un ';' en général.)
   */
 
-  if(strcmp(&c, "$") == 0){
+  if(c == '$'){
     while(is_alphanum(c) == 1){
       c = lireCar();
     }
@@ -298,6 +298,6 @@ void test_yylex_internal(FILE *yyin) {
     nom_token( uniteCourante, nom, valeur );
     if(DISPLAY_SYMBOL == 1)
       printf("%s\t%s\t%s\n", yytext, nom, valeur);
-      
+
   } while (uniteCourante != FIN);
 }

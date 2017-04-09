@@ -153,8 +153,8 @@ void parcours_instr_si(n_instr *n)
     jumpCount++;
 
   /* On fait le test */
-  parcours_exp(n->u.si_.test);    
-  
+  parcours_exp(n->u.si_.test);
+
   /* Label de l'instruction alors */
   //generer_ligne_1n("e%d:\t\t\t\t ; Label de l'instruction alors", jumpCount++); Inutile car le test devrait gérer ça
   parcours_instr(n->u.si_.alors);
@@ -196,10 +196,10 @@ void parcours_instr_affect(n_instr *n)
 {
   // Retourne le résultat au sommet de la pile
   parcours_exp(n->u.affecte_.exp);
-  
+
   // Parcours var partie gauche de l'affectation'
   parcours_var_gauche(n->u.affecte_.var);
-  
+
 }
 
 /*-------------------------------------------------------------------------*/
@@ -352,16 +352,16 @@ void parcours_opExp(n_exp *n)
       generer_ligne("\tidiv ebx");
       break;
     case egal:
-      generer_ligne_1n("\tje\te%d", jumpCount++); // JE Jump if equal  
+      generer_ligne_1n("\tje\te%d", jumpCount++); // JE Jump if equal
       break;
     case diff:
-      generer_ligne_1n("\tjne\te%d", jumpCount++); // JNE Jump if not equal  
+      generer_ligne_1n("\tjne\te%d", jumpCount++); // JNE Jump if not equal
       break;
     case inf:
-      generer_ligne_1n("\tjl\te%d", jumpCount++);  // JL Jump if less 
+      generer_ligne_1n("\tjl\te%d", jumpCount++);  // JL Jump if less
       break;
     case infeg:
-      generer_ligne_1n("\tjle\te%d", jumpCount++); // JLE Jump if less or equal 
+      generer_ligne_1n("\tjle\te%d", jumpCount++); // JLE Jump if less or equal
       break;
     case ou:
       generer_ligne("\tor\teax, ebx"); // A tester
@@ -370,7 +370,7 @@ void parcours_opExp(n_exp *n)
       // Test de vérité sur la première opérande
       generer_ligne("\tcmp\teax, 00");
       generer_ligne_1n("\tjne\te%d", jumpCount); // JNE Jump if not equal
-      
+
       generer_ligne("\tcmp\tebx, 00");
       generer_ligne_1n("\tjne\te%d", jumpCount); // JNE Jump if not equal
 
@@ -398,8 +398,8 @@ void parcours_opExp(n_exp *n)
     case et:
     case ou:
       /* Faux */
-      generer_ligne("\tpush\t0"); 
-      generer_ligne_1n("\tjmp\te%d", jumpCount++); 
+      generer_ligne("\tpush\t0");
+      generer_ligne_1n("\tjmp\te%d", jumpCount++);
 
       /* Vrai */
       generer_ligne_1n("e%d:", jumpCount - 2);
@@ -408,7 +408,7 @@ void parcours_opExp(n_exp *n)
       generer_ligne_1n("e%d:", jumpCount - 1);
       generer_ligne("\tpop\teax");
 	    generer_ligne("\tcmp\teax, 00");
-	    generer_ligne_1n("\tjz\te%d", jumpCount - 3);    
+	    generer_ligne_1n("\tjz\te%d", jumpCount - 3);
       break;
     default:
       generer_ligne("\tpush\teax\t\t; empile le résultat");
@@ -656,7 +656,7 @@ void parcours_var_simple_gauche(n_var *n)
 	} else if(tabsymboles.tab[indice].portee == P_ARGUMENT){
     generer_ligne_1n("\tmov\t[ebp + %d], ebx\t\t ; stocke registre dans variable", 4 + 4 * tabsymboles.tab[fonctionCourante].complement - tabsymboles.tab[indice].adresse);
 	} else if(tabsymboles.tab[indice].portee == P_VARIABLE_LOCALE) {
-    generer_ligne_1n("\tmov\t[ebp - %d], ebx\t\t ; stocke registre dans variable", 4 + tabsymboles.tab[indice].adresse); // ebp - (4+adr)
+    generer_ligne_1n("\tmov\t[ebp - %d], ebx\t\t ; stocke registre dans variable", 4 + tabsymboles.tab[indice].adresse); // ebp - (4+adr) -> ebp - 4 - adr
 	}
 }
 
@@ -688,7 +688,7 @@ void parcours_var_simple_droit(n_var *n)
       erreur_1s("L'entier <%s> n'a pas été trouvé.", n->nom);
   }
 
-	if(tabsymboles.tab[indice].portee == P_VARIABLE_GLOBALE){    
+	if(tabsymboles.tab[indice].portee == P_VARIABLE_GLOBALE){
 		generer_ligne_1s("\tmov\tebx, [%s]\t\t ; lit variable dans ebx", n->nom);
 	} else if(tabsymboles.tab[indice].portee == P_ARGUMENT){
     generer_ligne_1n("\tmov\tebx, [ebp + %d]\t\t ; lit variable dans ebx", 4 + 4 * tabsymboles.tab[fonctionCourante].complement - tabsymboles.tab[indice].adresse);
