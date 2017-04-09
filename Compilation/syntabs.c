@@ -24,6 +24,7 @@ n_var *cree_n_var_simple(char *nom)
   n_var *n = malloc(sizeof(n_var));
   n->type = simple;
   n->nom = nom;
+  n->u.indicee_.indice = NULL;
   return n;
 }
 
