@@ -32,6 +32,7 @@
 # 1) MODIFIEZ LA VARIABLE CI-DESSOUS AVEC LE CHEMIN VERS VOTRE COMPILATEUR
 
 MYCOMPILO="/media/sf_Licence/Compilation/compilateur"
+#MYCOMPILO="/cygdrive/c/Users/zT00N/Documents/Licence/Compilation/compilateur.exe"
 
 # 2) DÉCOMMENTEZ + MODIFIEZ LES COMMANDES POUR GÉNÉRER LES DIFFÉRENTES SORTIES
 
