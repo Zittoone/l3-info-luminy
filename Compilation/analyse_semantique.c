@@ -159,9 +159,11 @@ void parcours_instr_si(n_instr *n)
 	generer_ligne("\tcmp\teax, 00");
 	if(n->u.si_.sinon)
 		generer_ligne_1n("\tjz\te%d", jumpCountLocal + 1);
+  else {
+    generer_ligne_1n("\tjz\te%d", jumpCountLocal);
+  }
 
   /* Label de l'instruction alors */
-  //generer_ligne_1n("e%d:\t\t\t\t ; Label de l'instruction alors", jumpCount++); Inutile car le test devrait gérer ça
   parcours_instr(n->u.si_.alors);
 
   /* Si il y a une sinon */
@@ -261,7 +263,8 @@ void parcours_instr_retour(n_instr *n)
   parcours_exp(n->u.retour_.expression);
   generer_ligne("\tpop\teax");
 	generer_ligne_1n("\tmov\t[ebp + %d], eax\t\t ; ecriture de la valeur de retour", 8 + 4 * tabsymboles.tab[fonctionCourante].complement);
-	generer_ligne_1n("\tadd\tesp, %d\t\t ; desallocation variables locales", totalLocalVar);
+  if(totalLocalVar)
+    generer_ligne_1n("\tadd\tesp, %d\t\t ; desallocation variables locales", totalLocalVar);
   generer_ligne("\tpop\tebp");
   generer_ligne("\tret");
 }
@@ -379,25 +382,25 @@ void parcours_opExp(n_exp *n)
       //generer_ligne("\tor\teax, ebx"); // A tester
 			generer_ligne("\tcmp\teax, 0\t; ou");
 			generer_ligne_1n("\tje\te%d", jumpCount++); // JE Jump if equal
-			generer_ligne("\tpush\t0");
-			generer_ligne_1n("\tjmp\t%d", jumpCount++);
-			generer_ligne_1n("e%d:", jumpCount - 2);
 			generer_ligne("\tpush\t1");
+			generer_ligne_1n("\tjmp\te%d", jumpCount++);
+			generer_ligne_1n("e%d:", jumpCount - 2);
+			generer_ligne("\tpush\t0");
 
-			generer_ligne_1n("e%d", jumpCount - 1);
+			generer_ligne_1n("e%d:", jumpCount - 1);
 			generer_ligne("\tcmp\tebx, 0\t; ou");
 			generer_ligne_1n("\tje\te%d", jumpCount++); // JE Jump if equal
-			generer_ligne("\tpush\t0");
-			generer_ligne_1n("\tjmp\t%d", jumpCount++);
-			generer_ligne_1n("e%d:", jumpCount - 2);
 			generer_ligne("\tpush\t1");
+			generer_ligne_1n("\tjmp\te%d", jumpCount++);
+			generer_ligne_1n("e%d:", jumpCount - 2);
+			generer_ligne("\tpush\t0");
 
 			generer_ligne_1n("\te%d:", jumpCount - 1);
-			generer_ligne("\tpop\teax");
 			generer_ligne("\tpop\tebx");
+			generer_ligne("\tpop\teax");
 			generer_ligne("\tadd\teax, ebx");
-			generer_ligne("\tcmp\teax, 2");
-			generer_ligne_1n("\tje\t%d", jumpCount++);
+			generer_ligne("\tcmp\teax, 0");
+			generer_ligne_1n("\tje\te%d", jumpCount++);
 			generer_ligne("\tpush\t1");
 			generer_ligne_1n("\tjmp\te%d", jumpCount++);
 			generer_ligne_1n("e%d:", jumpCount - 2);
@@ -408,13 +411,23 @@ void parcours_opExp(n_exp *n)
     case et:
       // Test de vérité sur la première opérande
       generer_ligne("\tcmp\teax, 0");
-      generer_ligne_1n("\tjne\te%d", jumpCount); // JNE Jump if not equal
+      generer_ligne_1n("\tje\te%d", jumpCount); // JNE Jump if equal
 
       generer_ligne("\tcmp\tebx, 0");
-      generer_ligne_1n("\tjne\te%d", jumpCount); // JNE Jump if not equal
+      generer_ligne_1n("\tje\te%d", jumpCount); // JNE Jump if equal
 
       // On incrémente maintenant car les deux opérations au dessus sautent au même label
       jumpCount++;
+
+      /* Vrai */
+      generer_ligne("\tpush\t1");
+      generer_ligne_1n("\tjmp\te%d", jumpCount++);
+
+      /* Faux */
+      generer_ligne_1n("e%d:", jumpCount - 2);
+      generer_ligne("\tpush\t0");
+      /* Bloc de sortie */
+      generer_ligne_1n("e%d:", jumpCount - 1);
       break;
     case non:
       generer_ligne("\timul\teax, -1");
@@ -433,7 +446,7 @@ void parcours_opExp(n_exp *n)
     case diff:
     case inf:
     case infeg:
-    case et:
+    //case et:
     //case ou:
       /* Faux */
       generer_ligne("\tpush\t0");
@@ -444,9 +457,9 @@ void parcours_opExp(n_exp *n)
       generer_ligne("\tpush\t1");
       /* Bloc de sortie */
       generer_ligne_1n("e%d:", jumpCount - 1);
-      /*generer_ligne("\tpop\teax");
-	    generer_ligne("\tcmp\teax, 00");
-	    generer_ligne_1n("\tjz\te%d", jumpCount - 4);*/
+      break;
+    case et:
+    case ou:
       break;
     default:
       generer_ligne("\tpush\teax\t\t; empile le résultat");
@@ -463,11 +476,11 @@ void parcours_intExp(n_exp *n)
 /*-------------------------------------------------------------------------*/
 void parcours_lireExp(n_exp *n)
 {
-  generer_ligne("\tmov\tecx, sinput");
-  generer_ligne("\tmov\tedx, 255");
-  generer_ligne("\tmov\teax, 3\t\t ; 3 est le code de SYS_READ");
+  generer_ligne("\tmov\teax, sinput");
+  generer_ligne("\tcall\treadline");
+  /*generer_ligne("\tmov\teax, 3\t\t ; 3 est le code de SYS_READ");
 	generer_ligne("\tmov\tebx, 0\t\t ; 0 est le code de STDIN");
-	generer_ligne("\tint\t80h");
+	generer_ligne("\tint\t80h");*/
   generer_ligne("\tmov\teax, sinput");
 	generer_ligne("\tcall\tatoi");
 	generer_ligne("\tpush\teax");
