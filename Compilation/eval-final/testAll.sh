@@ -31,6 +31,8 @@
 
 # 1) MODIFIEZ LA VARIABLE CI-DESSOUS AVEC LE CHEMIN VERS VOTRE COMPILATEUR
 
+#MYCOMPILO="../../../TP/src/compilo-ext"
+#MYCOMPILO="/home/alexis/gitlab/compilationl3/supports/TP/src/compilo-ext"
 MYCOMPILO="/amuhome/c16017548/l3-info-luminy/Compilation/compilateur"
 
 
@@ -337,7 +339,9 @@ test_fichier_ok procedure_retour
 test_fichier_ok procedure_varloc
 test_fichier_ok pgcd "30\n45"
 test_fichier_ok associativite
-test_fichier_ok factorielle "5"
+test_fichier_ok fibo "5"
+test_fichier_ok condexp "40"
+test_fichier_ok imbrique
 
 ################################################################################
 

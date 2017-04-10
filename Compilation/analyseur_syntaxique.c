@@ -311,12 +311,12 @@ n_instr *instruction(void){
     $1 = instructionEcriture();
   } else if(est_premier(_instructionVide_, uniteCourante)){
     $1 = instructionVide();
-  } else if(est_premier(_instructionFaire_, uniteCourante)){
-    $1 = instructionFaire();
   } else if(est_premier(_instructionIncr_, uniteCourante)){
     /* EVAL FINAL */
     $1 = instructionIncr();
-  } else {
+  } else if(est_premier(_instructionFaire_, uniteCourante)){
+    $1 = instructionFaire();
+  }  else {
     err("P(instruction...)");
   }
   affiche_balise_fermante(__FUNCTION__, DISPLAY_XML);

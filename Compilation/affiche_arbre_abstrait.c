@@ -11,6 +11,7 @@ void affiche_instr_affect(n_instr *n);
 void affiche_instr_appel(n_instr *n);
 void affiche_instr_retour(n_instr *n);
 void affiche_instr_ecrire(n_instr *n);
+void affiche_instr_incr(n_instr *n);
 void affiche_l_exp(n_l_exp *n);
 void affiche_exp(n_exp *n);
 void affiche_varExp(n_exp *n);
@@ -18,6 +19,7 @@ void affiche_opExp(n_exp *n);
 void affiche_intExp(n_exp *n);
 void affiche_lireExp(n_exp *n);
 void affiche_appelExp(n_exp *n);
+void affiche_incrExp(n_exp *n);
 void affiche_l_dec(n_l_dec *n);
 void affiche_dec(n_dec *n);
 void affiche_foncDec(n_dec *n);
@@ -68,6 +70,7 @@ void affiche_instr(n_instr *n)
     else if(n->type == appelInst) affiche_instr_appel(n);
     else if(n->type == retourInst) affiche_instr_retour(n);
     else if(n->type == ecrireInst) affiche_instr_ecrire(n);
+    else if(n->type == incrInst) affiche_instr_incr(n); /* EVAL FINAL */
   }
 }
 
@@ -154,6 +157,15 @@ void affiche_instr_ecrire(n_instr *n)
 
 /*-------------------------------------------------------------------------*/
 
+void affiche_instr_incr(n_instr *n){
+  char *fct = "intr_incr";
+  affiche_balise_ouvrante(fct, DISPLAY_ABSTRACT);
+  affiche_exp(n->u.incr);
+  affiche_balise_fermante(fct, DISPLAY_ABSTRACT);
+}
+
+/*-------------------------------------------------------------------------*/
+
 void affiche_l_exp(n_l_exp *n)
 {
   char *fct = "l_exp";
@@ -176,6 +188,17 @@ void affiche_exp(n_exp *n)
   else if(n->type == intExp) affiche_intExp(n);
   else if(n->type == appelExp) affiche_appelExp(n);
   else if(n->type == lireExp) affiche_lireExp(n);
+  else if(n->type == incrExp) affiche_incrExp(n); /* EVAL FINAL */
+}
+
+/*-------------------------------------------------------------------------*/
+
+void affiche_incrExp(n_exp *n)
+{
+  char *fct = "incrExp";
+  affiche_balise_ouvrante(fct, DISPLAY_ABSTRACT);
+  affiche_var(n->u.incr);
+  affiche_balise_fermante(fct, DISPLAY_ABSTRACT);
 }
 
 /*-------------------------------------------------------------------------*/

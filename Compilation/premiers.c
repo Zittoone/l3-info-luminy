@@ -47,6 +47,7 @@ void initialise_premiers(void){
   premiers[_instruction_][ECRIRE]             = 1;
   premiers[_instruction_][POINT_VIRGULE]      = 1;
   premiers[_instruction_][FAIRE]               = 1;
+  premiers[_instruction_][INCR]               = 1;
   //IAFF
   premiers[_instructionAffect_][ID_VAR] = 1;
   //IB
@@ -61,7 +62,6 @@ void initialise_premiers(void){
   premiers[_listeInstructions_][RETOUR]             = 1;
   premiers[_listeInstructions_][ECRIRE]             = 1;
   premiers[_listeInstructions_][POINT_VIRGULE]      = 1;
-  premiers[_instructionFaire_][FAIRE]               = 1;
   //ISI
   premiers[_instructionSi_][SI] = 1;
   //OSINON

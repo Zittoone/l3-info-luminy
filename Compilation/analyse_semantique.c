@@ -13,6 +13,7 @@ void parcours_instr_affect(n_instr *n);
 void parcours_instr_appel(n_instr *n);
 void parcours_instr_retour(n_instr *n);
 void parcours_instr_ecrire(n_instr *n);
+void parcours_instr_incr(n_instr *n);
 void parcours_l_exp(n_l_exp *n);
 void parcours_l_exp_arg(n_l_exp *n, int d);
 void parcours_exp(n_exp *n);
@@ -21,6 +22,7 @@ void parcours_opExp(n_exp *n);
 void parcours_intExp(n_exp *n);
 void parcours_lireExp(n_exp *n);
 void parcours_appelExp(n_exp *n);
+void parcours_incrExp(n_exp *n);
 void parcours_l_dec(n_l_dec *n);
 void parcours_l_dec_reverse(n_l_dec *n);
 void parcours_dec(n_dec *n);
@@ -137,7 +139,23 @@ void parcours_instr(n_instr *n)
     else if(n->type == appelInst) parcours_instr_appel(n);
     else if(n->type == retourInst) parcours_instr_retour(n);
     else if(n->type == ecrireInst) parcours_instr_ecrire(n);
+		else if(n->type == incrInst) parcours_instr_incr(n); /* EVAL FINAL */
   }
+}
+
+/*-------------------------------------------------------------------------*/
+
+void parcours_instr_incr(n_instr *n)
+{
+	// Retourne le résultat au sommet de la pile
+  parcours_exp(n->u.incr);
+
+	generer_ligne("\tpop\teax");
+	generer_ligne("\tadd\teax, 1");
+	generer_ligne("\tpush\teax");
+
+	// Parcours var partie gauche de l'affectation'
+  parcours_var_gauche(n->u.incr->u.incr);
 }
 
 /*-------------------------------------------------------------------------*/
@@ -310,6 +328,15 @@ void parcours_exp(n_exp *n)
   else if(n->type == intExp) parcours_intExp(n);
   else if(n->type == appelExp) parcours_appelExp(n);
   else if(n->type == lireExp) parcours_lireExp(n);
+	else if(n->type == incrExp) parcours_incrExp(n); /* EVAL FINAL */
+}
+
+/*-------------------------------------------------------------------------*/
+
+void parcours_incrExp(n_exp *n)
+{
+	parcours_var_droit(n->u.incr);
+	generer_ligne("\tpush\tebx");
 }
 
 /*-------------------------------------------------------------------------*/

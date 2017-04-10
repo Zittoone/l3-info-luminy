@@ -49,7 +49,6 @@ void initialise_suivants(void){
   suivants[_instruction_][RETOUR] = 1;
   suivants[_instruction_][ECRIRE] = 1;
   suivants[_instruction_][POINT_VIRGULE] = 1;
-  suivants[_instruction_][INCR] = 1; /* EVAL FINAL */
   //IAFF
   suivants[_instructionAffect_][ACCOLADE_FERMANTE] = 1;
   suivants[_instructionAffect_][ID_VAR] = 1;
@@ -150,7 +149,7 @@ void initialise_suivants(void){
   suivants[_instructionIncr_][ACCOLADE_FERMANTE] = 1;
   suivants[_instructionIncr_][ID_VAR] = 1;
   suivants[_instructionIncr_][ACCOLADE_OUVRANTE] = 1;
-  suivants[_instructionVide_][SI] = 1;
+  suivants[_instructionIncr_][SI] = 1;
   suivants[_instructionIncr_][TANTQUE] = 1;
   suivants[_instructionIncr_][ID_FCT] = 1;
   suivants[_instructionIncr_][RETOUR] = 1;
