@@ -24,7 +24,9 @@ char *tableMotsClefs[] = {
   "entier",
   "retour",
   "lire",
-  "ecrire"
+  "ecrire",
+  /* EVAL FINAL */
+  "incr"
 };
 
 char tableSymbole[] = {
@@ -45,7 +47,7 @@ char tableSymbole[] = {
   '|',
   '!',
   ',',
-  '%' // eval-final
+  '%'
 };
 
 int codeMotClefs[] = {
@@ -57,7 +59,9 @@ int codeMotClefs[] = {
   ENTIER,
   RETOUR,
   LIRE,
-  ECRIRE
+  ECRIRE,
+  /* EVAL FINAL */
+  INCR
 };
 
 int codeSymbole[] = {
@@ -78,12 +82,12 @@ int codeSymbole[] = {
   OU,
   NON,
   VIRGULE,
-  MODULO // eval-final
+  MODULO
 };
 
 char yytext[YYTEXT_MAX];
 int yyleng;
-int nbMotsClefs = 9;
+int nbMotsClefs = 10;
 int nbSymboles = 18;
 /* Compter les lignes pour afficher les messages d'erreur avec numero ligne */
 int nb_ligne = 0;
@@ -260,7 +264,7 @@ void nom_token( int token, char *nom, char *valeur ) {
   else if(token == NON) strcpy(valeur, "NON");
   else if(token == FIN) strcpy(valeur, "FIN");
   else if(token == VIRGULE) strcpy(valeur, "VIRGULE");
-  else if(token == MODULO) strcpy(valeur, "MODULO"); // eval-final
+  else if(token == MODULO) strcpy(valeur, "MODULO");
 
   else if( token == ID_VAR ) {
     strcpy( nom, "id_variable" );

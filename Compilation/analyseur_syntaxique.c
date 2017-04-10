@@ -313,6 +313,9 @@ n_instr *instruction(void){
     $1 = instructionVide();
   } else if(est_premier(_instructionFaire_, uniteCourante)){
     $1 = instructionFaire();
+  } else if(est_premier(_instructionIncr_, uniteCourante)){
+    /* EVAL FINAL */
+    $1 = instructionIncr();
   } else {
     err("P(instruction...)");
   }
@@ -703,7 +706,7 @@ n_exp *terme(void) {
  * Fonction de la grammaire correspondant à la règle :
  * termeBis -> '*' negation termeBis
  *           | '/' negation termeBis
- *           | '%' negation termeBis  -- eval-final
+ *           | '%' negation termeBis
  *           |
  ******************************************************************************/
 n_exp *termeBis( n_exp *herite ) {
@@ -930,6 +933,26 @@ n_instr *instructionFaire(void) {
     $$ = cree_n_instr_faire($2, $4);
   } else {
     err("FAIRE");
+  }
+  affiche_balise_fermante(__FUNCTION__, DISPLAY_XML);
+  return $$;
+}
+
+/*******************************************************************************
+ * Fonction de la grammaire correspondant à la règle :
+ * instructionIncr -> INCR var;
+ ******************************************************************************/
+n_instr *instructionIncr(void) {
+  n_exp *$22 = NULL; n_var *$21 = NULL; n_instr *$$ = NULL;
+  affiche_balise_ouvrante(__FUNCTION__, DISPLAY_XML);
+  if(uniteCourante == INCR){
+    consommer( INCR );
+    $21 = var();
+    consommer( POINT_VIRGULE );
+    $22 = cree_n_exp_incr($21);
+    $$ = cree_n_instr_incr($22);
+  } else {
+    err("INCR");
   }
   affiche_balise_fermante(__FUNCTION__, DISPLAY_XML);
   return $$;

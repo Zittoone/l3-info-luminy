@@ -49,6 +49,7 @@ void initialise_suivants(void){
   suivants[_instruction_][RETOUR] = 1;
   suivants[_instruction_][ECRIRE] = 1;
   suivants[_instruction_][POINT_VIRGULE] = 1;
+  suivants[_instruction_][INCR] = 1; /* EVAL FINAL */
   //IAFF
   suivants[_instructionAffect_][ACCOLADE_FERMANTE] = 1;
   suivants[_instructionAffect_][ID_VAR] = 1;
@@ -144,6 +145,17 @@ void initialise_suivants(void){
   suivants[_instructionVide_][RETOUR] = 1;
   suivants[_instructionVide_][ECRIRE] = 1;
   suivants[_instructionVide_][POINT_VIRGULE] = 1;
+  //IINCR
+  /* EVAL FINAL */
+  suivants[_instructionIncr_][ACCOLADE_FERMANTE] = 1;
+  suivants[_instructionIncr_][ID_VAR] = 1;
+  suivants[_instructionIncr_][ACCOLADE_OUVRANTE] = 1;
+  suivants[_instructionVide_][SI] = 1;
+  suivants[_instructionIncr_][TANTQUE] = 1;
+  suivants[_instructionIncr_][ID_FCT] = 1;
+  suivants[_instructionIncr_][RETOUR] = 1;
+  suivants[_instructionIncr_][ECRIRE] = 1;
+  suivants[_instructionIncr_][POINT_VIRGULE] = 1;
   //EXP
   suivants[_expression_][PARENTHESE_FERMANTE] = 1;
   suivants[_expression_][CROCHET_FERMANT] = 1;
@@ -239,7 +251,7 @@ void initialise_suivants(void){
   suivants[_termeBis_][ET] = 1;
   suivants[_termeBis_][INFERIEUR] = 1;
   suivants[_termeBis_][PLUS] = 1;
-  suivants[_termeBis_][MOINS] = 1; 
+  suivants[_termeBis_][MOINS] = 1;
   suivants[_termeBis_][EGAL] = 1;
   //NEG
   suivants[_termeBis_][PARENTHESE_FERMANTE] = 1;

@@ -40,10 +40,10 @@ typedef enum {plus, moins, fois, divise, modulo, egal, diff, inf, sup, infeg, su
 
 /* typedef enum {plus, moins, fois, divise, egal, diff, inf, infeg, ou, et, variable, entier} operation; */
 struct n_exp_ {
-  enum{varExp, opExp, intExp, appelExp, lireExp} type; /*, incrExp*/
+  enum{varExp, opExp, intExp, appelExp, lireExp, incrExp} type;
   union{
     struct{operation op; struct n_exp_ *op1; struct n_exp_ *op2;} opExp_;
-    /* n_var *incr; */
+    n_var *incr; /* EVAL FINAL */
     n_var *var;
     int entier;
     n_appel *appel;

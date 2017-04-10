@@ -79,6 +79,8 @@ void initialise_premiers(void){
   premiers[_instructionEcriture_][ECRIRE] = 1;
   //IVIDE
   premiers[_instructionVide_][POINT_VIRGULE]  = 1;
+  //IINCR
+  premiers[_instructionIncr_][INCR] = 1;
   //EXP
   premiers[_expression_][NON] = 1;
   premiers[_expression_][PARENTHESE_OUVRANTE] = 1;

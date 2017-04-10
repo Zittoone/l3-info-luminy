@@ -29,6 +29,9 @@ n_instr *instructionTantque(void);
 n_instr *instructionRetour(void);
 n_instr *instructionEcriture(void);
 n_instr *instructionVide(void);
+/* EVAL FINAL */
+n_instr *instructionIncr(void);
+
 n_exp *expression(void);
 n_exp *expressionBis(n_exp* herite);
 n_exp *conjonction(void);
