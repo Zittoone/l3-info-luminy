@@ -31,23 +31,21 @@
 
 # 1) MODIFIEZ LA VARIABLE CI-DESSOUS AVEC LE CHEMIN VERS VOTRE COMPILATEUR
 
-MYCOMPILO="/media/sf_Licence/Compilation/compilateur"
-#MYCOMPILO="/cygdrive/c/Users/zT00N/Documents/Licence/Compilation/compilateur.exe"
+MYCOMPILO="/amuhome/c16017548/l3-info-luminy/Compilation/compilateur"
+
 
 # 2) DÉCOMMENTEZ + MODIFIEZ LES COMMANDES POUR GÉNÉRER LES DIFFÉRENTES SORTIES
 
-EXITONFAIL=1                     # mettre à zéro pour continuer après erreurs
-MYCOMPILODEFAULT="${MYCOMPILO}"  # utilisé pour test reconnaissance et erreur
-MYCOMPILOLEX="${MYCOMPILO} -l"   # exécuter l'analyseur lexical
-MYCOMPILOSYNT="${MYCOMPILO} -s"  # exécuter l'analyseur syntaxique
-MYCOMPILOASYNT="${MYCOMPILO} -a" # afficher l'arbre abstrait
-MYCOMPILOTAB="${MYCOMPILO} -t"   # afficher les tables des symboles
-#MYCOMPILOMIPS="${MYCOMPILO} -m"  # générer code MIPS
+EXITONFAIL=0                     # mettre à zéro pour continuer après erreurs
+MYCOMPILODEFAULT="${MYCOMPILO} -n"  # utilisé pour test reconnaissance et erreur
+#MYCOMPILOLEX="${MYCOMPILO} -l"   # exécuter l'analyseur lexical
+#MYCOMPILOSYNT="${MYCOMPILO} -s"  # exécuter l'analyseur syntaxique
+#MYCOMPILOASYNT="${MYCOMPILO} -a" # afficher l'arbre abstrait
+#MYCOMPILOTAB="${MYCOMPILO} -t"   # afficher les tables des symboles
 MYCOMPILONASM="${MYCOMPILO} -n"  # générer code Intel
-#MARS="./Mars4_5.jar"             # utilisez autre version de Mars si besoin
 NASM="nasm"                      # utilisez autre version de nasm si besoin
 NASMOPTS="-f elf -g -F dwarf"
-#LD="ld"                          # utilisez autre version de ld si besoin
+LD="ld"                          # utilisez autre version de ld si besoin
 LDOPTS="-m elf_i386"
 ##############################################################################
 # NE PLUS LIRE À PARTIR D'ICI ;-)
@@ -125,7 +123,7 @@ function nasm_exec(){
   ./"${nasmfile}".exe |
   sed ':a;N;$!ba;s/[ \n]/_/g' # Homogenize whitespace
   # Comment the line below out if you want to keep .o and executable
-  rm "${nasmfile}.o" "${nasmfile}.exe" 
+#  rm "${nasmfile}.o" "${nasmfile}.exe" 
 }
 
 ##############################################################################
@@ -239,6 +237,7 @@ function test_fichier_ok() {
       # Teste génération de code Intel
       if [ -n "${MYCOMPILONASM}" ]; then
         ${MYCOMPILONASM} input/$input.l > output/$input.nasm
+	  (nasm_exec output/$input.nasm "$2")
         diff_prog NASMOUTDIFF $input nasm "$2"
       fi
       # Sanity check: MIPS et Intel génèrent la même sortie
@@ -321,55 +320,33 @@ echo -e "\033[1m\n>> 1.1) Tests connus OK\033[0m"
 
 test_fichier_ok affect
 test_fichier_ok boucle
-test_fichier_ok expression
-test_fichier_ok max
+test_fichier_ok expression "5\n2\n"
+# 3 cas de figure selon les entrées tapées
+test_fichier_ok max "3\n10\n"
+test_fichier_ok max "11\n10\n"
+test_fichier_ok max "-3\n-10\n"
 test_fichier_ok tri
-
-################################################################################
-
-echo -e "\033[1m\n>> 1.2) Tests connus FAIL\033[0m"
-
-test_fichier_fail affect-err
 
 ################################################################################
 
 echo -e "\033[1m\n>> 2.1) Tests nouveaux OK\033[0m"
 
-test_fichier_ok appel
 test_fichier_ok procedure_arg
 test_fichier_ok procedure
 test_fichier_ok procedure_retour
 test_fichier_ok procedure_varloc
-test_fichier_ok si
-test_fichier_ok sinon
-test_fichier_ok tableau
-test_fichier_ok tantque
-test_fichier_ok lexunits
-test_fichier_ok factorielle
-test_fichier_ok fibo
-test_fichier_ok pgcd
+test_fichier_ok pgcd "30\n45"
+test_fichier_ok associativite
+test_fichier_ok factorielle "5"
 
 ################################################################################
 
 echo -e "\033[1m\n>> 2.2) Tests nouveaux FAIL\033[0m"
 
-test_fichier_fail lex-err     # fails at lex
-test_fichier_fail synt-err    # fails at synt
-test_fichier_fail extra       # fails at synt
-test_fichier_fail 33a         # fails at lex
-
-################################################################################
-
-echo -e "\033[1m\n>> 3.1) Tests nouvelle fonctionnalité OK\033[0m"
-
-# Boucle faire-tantque
-test_fichier_ok faire-simple
-test_fichier_ok faireNonNeg
-test_fichier_ok faire-complexe
-
-################################################################################
-echo -e "\033[1m\n>> 3.2) Tests nouvelle fonctionnalité FAIL\033[0m"
-
-# Boucle faire-tantque
-test_fichier_fail faireErreur
+test_fichier_fail semantique1 
+test_fichier_fail semantique2 
+test_fichier_fail semantique3 
+test_fichier_fail semantique4 
+test_fichier_fail semantique5 
+test_fichier_fail semantique6 
 

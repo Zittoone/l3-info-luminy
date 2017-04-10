@@ -155,6 +155,11 @@ void parcours_instr_si(n_instr *n)
   /* On fait le test */
   parcours_exp(n->u.si_.test);
 
+	generer_ligne("\tpop\teax");
+	generer_ligne("\tcmp\teax, 00");
+	if(n->u.si_.sinon)
+		generer_ligne_1n("\tjz\te%d", jumpCountLocal + 1);
+
   /* Label de l'instruction alors */
   //generer_ligne_1n("e%d:\t\t\t\t ; Label de l'instruction alors", jumpCount++); Inutile car le test devrait gérer ça
   parcours_instr(n->u.si_.alors);
@@ -169,6 +174,7 @@ void parcours_instr_si(n_instr *n)
   }
   /* Sortie */
   generer_ligne_1n("e%d:\t\t\t\t ; Sortie Si", jumpCountLocal);
+	//jumpCount++;
 }
 
 /*-------------------------------------------------------------------------*/
@@ -182,6 +188,10 @@ void parcours_instr_tantque(n_instr *n)
   generer_ligne_1n("e%d:\t\t\t\t ; TantQue", jumpCountLocal);
   jumpCount++;
   parcours_exp(n->u.tantque_.test);
+
+	generer_ligne("\tpop\teax");
+	generer_ligne("\tcmp\teax, 00");
+	generer_ligne_1n("\tjz\te%d", jumpCountLocal + 1);
 
   parcours_instr(n->u.tantque_.faire);
   /* Après la fin de l'instruction on retourne au test */
@@ -251,6 +261,7 @@ void parcours_instr_retour(n_instr *n)
   parcours_exp(n->u.retour_.expression);
   generer_ligne("\tpop\teax");
 	generer_ligne_1n("\tmov\t[ebp + %d], eax\t\t ; ecriture de la valeur de retour", 8 + 4 * tabsymboles.tab[fonctionCourante].complement);
+	generer_ligne_1n("\tadd\tesp, %d\t\t ; desallocation variables locales", totalLocalVar);
   generer_ligne("\tpop\tebp");
   generer_ligne("\tret");
 }
@@ -346,10 +357,11 @@ void parcours_opExp(n_exp *n)
       generer_ligne("\tsub\teax, ebx\t\t; effectue l'opération");
       break;
     case fois:
-      generer_ligne("\timul\teax, ebx\t\t; effectue l'opération");
+      generer_ligne("\tmul\tebx\t\t; effectue l'opération");
       break;
     case divise:
-      generer_ligne("\tidiv ebx");
+			generer_ligne("\tmov\tedx, 0\t\t ; initialise edx à zéro");
+      generer_ligne("\tdiv\tebx");
       break;
     case egal:
       generer_ligne_1n("\tje\te%d", jumpCount++); // JE Jump if equal
@@ -364,27 +376,53 @@ void parcours_opExp(n_exp *n)
       generer_ligne_1n("\tjle\te%d", jumpCount++); // JLE Jump if less or equal
       break;
     case ou:
-      generer_ligne("\tor\teax, ebx"); // A tester
+      //generer_ligne("\tor\teax, ebx"); // A tester
+			generer_ligne("\tcmp\teax, 0\t; ou");
+			generer_ligne_1n("\tje\te%d", jumpCount++); // JE Jump if equal
+			generer_ligne("\tpush\t0");
+			generer_ligne_1n("\tjmp\t%d", jumpCount++);
+			generer_ligne_1n("e%d:", jumpCount - 2);
+			generer_ligne("\tpush\t1");
+
+			generer_ligne_1n("e%d", jumpCount - 1);
+			generer_ligne("\tcmp\tebx, 0\t; ou");
+			generer_ligne_1n("\tje\te%d", jumpCount++); // JE Jump if equal
+			generer_ligne("\tpush\t0");
+			generer_ligne_1n("\tjmp\t%d", jumpCount++);
+			generer_ligne_1n("e%d:", jumpCount - 2);
+			generer_ligne("\tpush\t1");
+
+			generer_ligne_1n("\te%d:", jumpCount - 1);
+			generer_ligne("\tpop\teax");
+			generer_ligne("\tpop\tebx");
+			generer_ligne("\tadd\teax, ebx");
+			generer_ligne("\tcmp\teax, 2");
+			generer_ligne_1n("\tje\t%d", jumpCount++);
+			generer_ligne("\tpush\t1");
+			generer_ligne_1n("\tjmp\te%d", jumpCount++);
+			generer_ligne_1n("e%d:", jumpCount - 2);
+			generer_ligne("\tpush\t0");
+			generer_ligne_1n("e%d:", jumpCount - 1);
+			//jumpCount++;
       break;
     case et:
       // Test de vérité sur la première opérande
-      generer_ligne("\tcmp\teax, 00");
+      generer_ligne("\tcmp\teax, 0");
       generer_ligne_1n("\tjne\te%d", jumpCount); // JNE Jump if not equal
 
-      generer_ligne("\tcmp\tebx, 00");
+      generer_ligne("\tcmp\tebx, 0");
       generer_ligne_1n("\tjne\te%d", jumpCount); // JNE Jump if not equal
 
       // On incrémente maintenant car les deux opérations au dessus sautent au même label
       jumpCount++;
-
       break;
     case non:
       generer_ligne("\timul\teax, -1");
       break;
     case modulo:
       // eval-final
-      generer_ligne("\tCDQ\t\t;this will clear EDX due to the sign extension"); // http://stackoverflow.com/questions/8231882/how-to-implement-the-mod-operator-in-assembly
-      generer_ligne("\tidiv\tebx"); // Division
+			generer_ligne("\tmov\tedx, 0\t\t ; initialise edx à zéro");
+			generer_ligne("\tdiv\tebx"); // Division
       generer_ligne("\tmov\teax, edx"); // On place le reste dans eax
       break;
   }
@@ -396,7 +434,7 @@ void parcours_opExp(n_exp *n)
     case inf:
     case infeg:
     case et:
-    case ou:
+    //case ou:
       /* Faux */
       generer_ligne("\tpush\t0");
       generer_ligne_1n("\tjmp\te%d", jumpCount++);
@@ -406,9 +444,9 @@ void parcours_opExp(n_exp *n)
       generer_ligne("\tpush\t1");
       /* Bloc de sortie */
       generer_ligne_1n("e%d:", jumpCount - 1);
-      generer_ligne("\tpop\teax");
+      /*generer_ligne("\tpop\teax");
 	    generer_ligne("\tcmp\teax, 00");
-	    generer_ligne_1n("\tjz\te%d", jumpCount - 3);
+	    generer_ligne_1n("\tjz\te%d", jumpCount - 4);*/
       break;
     default:
       generer_ligne("\tpush\teax\t\t; empile le résultat");
@@ -510,14 +548,14 @@ void parcours_foncDec(n_dec *n)
   portee = P_VARIABLE_LOCALE;
   parcours_l_dec(n->u.foncDec_.variables);
 
+	totalLocalVar = nb_param(n->u.foncDec_.variables) * 4;
   /* Allocation variables locales */
   /*if(strcmp(n->nom, "main") == 0 && totalLocalVar > 0) {
     generer_ligne_1n("\tsub\tesp, %d\t; allocation variables locales", totalLocalVar * 4);
   } else {*/
     if(n->u.foncDec_.variables){
-      generer_ligne_1n("\tsub\tesp, %d\t; allocation variables locales", nb_param(n->u.foncDec_.variables) * 4);
+      generer_ligne_1n("\tsub\tesp, %d\t; allocation variables locales", totalLocalVar);
     }
-  //}
 
   parcours_instr(n->u.foncDec_.corps);
 
@@ -526,14 +564,9 @@ void parcours_foncDec(n_dec *n)
 		afficheTabsymboles();
 	sortieFonction();
 
-	/* Fin de fonction */
-  /*if(strcmp(n->nom, "main") == 0 && totalLocalVar > 0) {
-    generer_ligne_1n("\tadd\tesp, %d\t\t ; desallocation variables locales", totalLocalVar * 4);
-  } else {*/
     if(n->u.foncDec_.variables){
-      generer_ligne_1n("\tadd\tesp, %d\t; desallocation variables locales", nb_param(n->u.foncDec_.variables) * 4);
+      generer_ligne_1n("\tadd\tesp, %d\t; desallocation variables locales", totalLocalVar);
     }
-  //}
 
   generer_ligne("\tpop\tebp\t\t ; restaure la valeur de ebp");
 	generer_ligne("\tret");
@@ -638,16 +671,13 @@ void parcours_var_droit(n_var *n)
 /*-------------------------------------------------------------------------*/
 void parcours_var_simple_gauche(n_var *n)
 {
-	if(n->u.indicee_.indice != NULL){
+
+	int indice = rechercheExecutable(n->nom);
+
+	if(tabsymboles.tab[indice].type != T_ENTIER){
 		if(DISPLAY_NASM)
       erreur_1s("Utilisation de l'entier <%s> avec indice.", n->nom);
 	}
-
-	int indice = rechercheExecutable(n->nom);
-  if(indice < 0){
-    if(DISPLAY_NASM)
-      erreur_1s("L'entier <%s> n'a pas été trouvé.", n->nom);
-  }
 
   generer_ligne("\tpop\tebx");
 
@@ -663,7 +693,9 @@ void parcours_var_simple_gauche(n_var *n)
 /*-------------------------------------------------------------------------*/
 void parcours_var_indicee_gauche(n_var *n)
 {
-	if(n->u.indicee_.indice == NULL){
+	int indice = rechercheExecutable(n->nom);
+
+	if(tabsymboles.tab[indice].type != T_TABLEAU_ENTIER){
 		if(DISPLAY_NASM)
       erreur_1s("Utilisation du tableau <%s> sans spécifier l'indice.", n->nom);
 	}
@@ -677,16 +709,12 @@ void parcours_var_indicee_gauche(n_var *n)
 /*-------------------------------------------------------------------------*/
 void parcours_var_simple_droit(n_var *n)
 {
-	if(n->u.indicee_.indice != NULL){
+	int indice = rechercheExecutable(n->nom);
+
+	if(tabsymboles.tab[indice].type != T_ENTIER){
 		if(DISPLAY_NASM)
       erreur_1s("Utilisation de l'entier <%s> avec indice.", n->nom);
 	}
-
-	int indice = rechercheExecutable(n->nom);
-  if(indice < 0){
-    if(DISPLAY_NASM)
-      erreur_1s("L'entier <%s> n'a pas été trouvé.", n->nom);
-  }
 
 	if(tabsymboles.tab[indice].portee == P_VARIABLE_GLOBALE){
 		generer_ligne_1s("\tmov\tebx, [%s]\t\t ; lit variable dans ebx", n->nom);
@@ -700,10 +728,13 @@ void parcours_var_simple_droit(n_var *n)
 /*-------------------------------------------------------------------------*/
 void parcours_var_indicee_droit(n_var *n)
 {
-	if(n->u.indicee_.indice == NULL){
+	int indice = rechercheExecutable(n->nom);
+
+	if(tabsymboles.tab[indice].type != T_TABLEAU_ENTIER){
 		if(DISPLAY_NASM)
       erreur_1s("Utilisation du tableau <%s> sans spécifier l'indice.", n->nom);
 	}
+
   parcours_exp(n->u.indicee_.indice);
   generer_ligne("\tpop\teax");
   generer_ligne("\tadd\teax, eax");

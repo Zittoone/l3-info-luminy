@@ -41,12 +41,14 @@ class Parser {
         Parser parser = new Parser();
         Tree tree = parser.parse(str);
 
+        tree.localTrees().forEach(Tree::indentedXMLPrint);
         List<Tree> leaves = tree.getLeaves();
         // Print words and Pos Tags
         for (Tree leaf : leaves) {
             Tree parent = leaf.parent(tree);
-            System.out.print(leaf.label().value() + "-" + parent.label().value() + " ");
+            System.out.print(leaf.label().value() + "-" + parent.label().value() + " "); // Ne traite pas l'ambiguïté, utiliser parent.labels()
         }
         System.out.println();
+
     }
 }
