@@ -1,20 +1,23 @@
 package fr.licinfo;
 
-
 import edu.stanford.nlp.ling.CoreLabel;
 import edu.stanford.nlp.parser.lexparser.LexicalizedParser;
+import edu.stanford.nlp.pipeline.StanfordCoreNLP;
 import edu.stanford.nlp.process.CoreLabelTokenFactory;
 import edu.stanford.nlp.process.PTBTokenizer;
 import edu.stanford.nlp.process.Tokenizer;
 import edu.stanford.nlp.process.TokenizerFactory;
 import edu.stanford.nlp.trees.Tree;
+import edu.stanford.nlp.trees.TreePrint;
+import sun.plugin2.message.PrintAppletReplyMessage;
 
 import java.io.StringReader;
 import java.util.List;
-import java.util.Scanner;
 
-class Parser {
-
+/**
+ * Created by Alexis Couvreur on 23/04/2017.
+ */
+public class Parser {
     private final static String PCG_MODEL = "edu/stanford/nlp/models/lexparser/frenchFactored.ser.gz";
 
     private final TokenizerFactory<CoreLabel> tokenizerFactory = PTBTokenizer.factory(new CoreLabelTokenFactory(), "invertible=true");
@@ -23,8 +26,7 @@ class Parser {
 
     public Tree parse(String str) {
         List<CoreLabel> tokens = tokenize(str);
-        Tree tree = parser.apply(tokens);
-        return tree;
+        return parser.apply(tokens);
     }
 
     private List<CoreLabel> tokenize(String str) {
@@ -32,23 +34,5 @@ class Parser {
                 tokenizerFactory.getTokenizer(
                         new StringReader(str));
         return tokenizer.tokenize();
-    }
-
-    public static void main(String[] args) {
-
-        Scanner sc = new Scanner(System.in);
-        String str = sc.nextLine();
-        Parser parser = new Parser();
-        Tree tree = parser.parse(str);
-
-        tree.localTrees().forEach(Tree::indentedXMLPrint);
-        List<Tree> leaves = tree.getLeaves();
-        // Print words and Pos Tags
-        for (Tree leaf : leaves) {
-            Tree parent = leaf.parent(tree);
-            System.out.print(leaf.label().value() + "-" + parent.label().value() + " "); // Ne traite pas l'ambiguïté, utiliser parent.labels()
-        }
-        System.out.println();
-
     }
 }

@@ -1,29 +1,35 @@
 package fr.licinfo;
 
-import org.annolab.tt4j.TokenHandler;
-import org.annolab.tt4j.TreeTaggerWrapper;
+import edu.stanford.nlp.ling.CoreLabel;
+import edu.stanford.nlp.ling.WordTag;
+import edu.stanford.nlp.parser.lexparser.LexicalizedParser;
+import edu.stanford.nlp.process.*;
+import edu.stanford.nlp.trees.Tree;
+import org.maltparser.concurrent.ConcurrentMaltParserModel;
+import org.maltparser.concurrent.ConcurrentMaltParserService;
+import org.maltparser.concurrent.graph.ConcurrentDependencyGraph;
+import org.maltparser.core.exception.MaltChainedException;
 
-import static java.util.Arrays.asList;
+import java.io.File;
+import java.io.StringReader;
+import java.net.MalformedURLException;
+import java.util.List;
+import java.util.Scanner;
 
-public class App
-{
-    public static void main( String[] args ) throws Exception {
+/**
+ * Created by Alexis Couvreur on 23/04/2017.
+ */
+public class App {
 
+    public static void main(String[] args) throws MalformedURLException, MaltChainedException {
 
+        YodaTranslater yodaConverter = new YodaTranslater();
+        Scanner scanner = new Scanner(System.in);
+        String line;
 
-        System.setProperty("treetagger.home", "c:\\TreeTagger");
-        TreeTaggerWrapper tt = new TreeTaggerWrapper<String>();
-        try {
-            tt.setModel("c:\\TreeTagger\\lib\\french-utf8.par:iso8859-1");
-            tt.setHandler(new TokenHandler<String>() {
-                public void token(String token, String pos, String lemma) {
-                    System.out.println(token + "\t" + pos + "\t" + lemma);
-                }
-            });
-            tt.process(asList(new String[] { "Il", "est", "ton", "père", "." }));
-        }
-        finally {
-            tt.destroy();
+        while((line = scanner.nextLine()).length() > 0){
+            // yodaConverter.printDependencies(line);
+            System.out.println(yodaConverter.translate(line));
         }
     }
 }

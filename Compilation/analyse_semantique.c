@@ -505,9 +505,6 @@ void parcours_lireExp(n_exp *n)
 {
   generer_ligne("\tmov\teax, sinput");
   generer_ligne("\tcall\treadline");
-  /*generer_ligne("\tmov\teax, 3\t\t ; 3 est le code de SYS_READ");
-	generer_ligne("\tmov\tebx, 0\t\t ; 0 est le code de STDIN");
-	generer_ligne("\tint\t80h");*/
   generer_ligne("\tmov\teax, sinput");
 	generer_ligne("\tcall\tatoi");
 	generer_ligne("\tpush\teax");
