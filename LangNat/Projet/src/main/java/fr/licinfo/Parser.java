@@ -20,7 +20,7 @@ import java.util.List;
 public class Parser {
     private final static String PCG_MODEL = "edu/stanford/nlp/models/lexparser/frenchFactored.ser.gz";
 
-    private final TokenizerFactory<CoreLabel> tokenizerFactory = PTBTokenizer.factory(new CoreLabelTokenFactory(), "invertible=true");
+    private final TokenizerFactory<CoreLabel> tokenizerFactory = PTBTokenizer.factory(new CoreLabelTokenFactory(), "");
 
     private final LexicalizedParser parser = LexicalizedParser.loadModel(PCG_MODEL);
 

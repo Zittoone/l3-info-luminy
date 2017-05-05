@@ -8,7 +8,9 @@ import java.util.Set;
  * Created by Alexis Couvreur on 24/04/2017.
  */
 public enum Premier {
+
     GN("D", "N", "C", "V"),
+    GNP("A", "P", null),
     V("VIMP", "VINE", "VS", "VPP", "VPR");
 
     Set<String> premiers;
