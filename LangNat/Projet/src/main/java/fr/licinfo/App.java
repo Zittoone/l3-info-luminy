@@ -23,13 +23,20 @@ public class App {
 
     public static void main(String[] args) throws MalformedURLException, MaltChainedException {
 
-        YodaTranslater yodaConverter = new YodaTranslater();
+        if(args.length != 2){
+            System.err.println("Syntaxe : pathToLLexicalizedParserModel pathToMaltParserFrenchMco");
+        }
+        YodaTranslater yodaConverter = new YodaTranslater(args[0], args[1]);
         Scanner scanner = new Scanner(System.in);
         String line;
 
+        System.out.println("Entrez une phrase :");
+        System.out.print("> ");
         while((line = scanner.nextLine()).length() > 0){
             // yodaConverter.printDependencies(line);
             System.out.println(yodaConverter.translate(line));
+            System.out.println("\nEntrez une phrase (vide pour arrêter) :");
+            System.out.print("> ");
         }
     }
 }

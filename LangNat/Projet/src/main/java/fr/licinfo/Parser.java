@@ -9,6 +9,7 @@ import edu.stanford.nlp.process.Tokenizer;
 import edu.stanford.nlp.process.TokenizerFactory;
 import edu.stanford.nlp.trees.Tree;
 import edu.stanford.nlp.trees.TreePrint;
+import javafx.util.Pair;
 import sun.plugin2.message.PrintAppletReplyMessage;
 
 import java.io.StringReader;
@@ -18,11 +19,16 @@ import java.util.List;
  * Created by Alexis Couvreur on 23/04/2017.
  */
 public class Parser {
-    private final static String PCG_MODEL = "edu/stanford/nlp/models/lexparser/frenchFactored.ser.gz";
+    private TokenizerFactory<CoreLabel> tokenizerFactory = PTBTokenizer.factory(new CoreLabelTokenFactory(), "invertible=true");
 
-    private final TokenizerFactory<CoreLabel> tokenizerFactory = PTBTokenizer.factory(new CoreLabelTokenFactory(), "");
+    private LexicalizedParser parser;
 
-    private final LexicalizedParser parser = LexicalizedParser.loadModel(PCG_MODEL);
+    private Parser(){
+    }
+
+    public Parser(String url){
+        parser = LexicalizedParser.loadModel(url);
+    }
 
     public Tree parse(String str) {
         List<CoreLabel> tokens = tokenize(str);

@@ -13,6 +13,7 @@ import org.maltparser.concurrent.graph.ConcurrentDependencyGraph;
 import org.maltparser.core.exception.MaltChainedException;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 import java.net.MalformedURLException;
@@ -26,18 +27,24 @@ import java.util.function.Consumer;
  */
 public class YodaTranslater {
 
-    private final static String PARSER_MODEL = "src/main/resources/org/maltparser/fremalt-1.7.mco";
+    private final static String PARSER_MODEL = "/org/maltparser/fremalt-1.7.mco";
 
     private Parser parser;
     private YodaGrammar yGrammar;
     private ConcurrentMaltParserModel parserModel;
 
-    public YodaTranslater(){
-        parser = new Parser();
+    private YodaTranslater(){}
+
+    public YodaTranslater(String parserUrl, String maltParserUrl){
+
         yGrammar = new YodaGrammar();
         try {
-            parserModel = ConcurrentMaltParserService.initializeParserModel(new File(PARSER_MODEL));
-        } catch (MaltChainedException | MalformedURLException e) {
+            parser = new Parser(parserUrl);
+            // parserModel = ConcurrentMaltParserService.initializeParserModel(this.getClass().getResource(PARSER_MODEL));
+            parserModel = ConcurrentMaltParserService.initializeParserModel(new File(maltParserUrl));
+        } catch (MaltChainedException e) {
+            e.printStackTrace();
+        } catch (MalformedURLException e) {
             e.printStackTrace();
         }
     }
@@ -79,7 +86,7 @@ public class YodaTranslater {
             translatedText.append(translatedSentence.toString());
         });
 
-        System.out.println(translatedText.toString());
+        // System.out.println(translatedText.toString());
         return translatedText.toString();
     }
 

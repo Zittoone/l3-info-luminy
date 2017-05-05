@@ -30,7 +30,7 @@ public class YodaGrammar {
      */
     public String axiome(ConcurrentDependencyGraph root, String sentence){
 
-        System.out.println(root.toString());
+        // System.out.println(root.toString());
         StringBuilder stringBuilder = new StringBuilder();
 
         if(!root.hasTokens() || root.nTokenNodes() < 2)

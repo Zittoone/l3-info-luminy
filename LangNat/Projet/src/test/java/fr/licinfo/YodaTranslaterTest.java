@@ -10,7 +10,7 @@ import static org.hamcrest.Matchers.*;
  */
 public class YodaTranslaterTest {
 
-    private YodaTranslater translater = new YodaTranslater();
+    private YodaTranslater translater = new YodaTranslater("C:\\Users\\zT00N\\Documents\\Licence\\LangNat\\Projet\\src\\main\\resources\\edu\\stanford\\nlp\\models\\lexparser\\frenchFactored.ser.gz", "C:\\Users\\zT00N\\Documents\\Licence\\LangNat\\Projet\\src\\main\\resources\\org\\maltparser\\fremalt-1.7.mco");
 
     @Test
     public void testSV() {
